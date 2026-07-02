@@ -1,0 +1,77 @@
+{
+  "updatedAt": "2026-07-02T01:09:41.861Z",
+  "missions": [
+    {
+      "id": "session:deb0e162-f3e5-405a-8fb1-cb842d61ab1b:none",
+      "source": "session",
+      "name": "none",
+      "objective": "Session mission",
+      "createdAt": "2026-07-02T01:03:41.350Z",
+      "updatedAt": "2026-07-02T01:09:41.861Z",
+      "status": "done",
+      "workerCount": 1,
+      "taskCounts": {
+        "total": 1,
+        "pending": 0,
+        "blocked": 0,
+        "inProgress": 0,
+        "completed": 1,
+        "failed": 0
+      },
+      "agents": [
+        {
+          "name": "architect:a8b0033",
+          "role": "architect",
+          "ownership": "a8b0033326ac039b4",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-07-02T01:09:41.861Z"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "session-start:a8b0033326ac039b4:2026-07-02T01:03:41.350Z",
+          "at": "2026-07-02T01:03:41.350Z",
+          "kind": "update",
+          "agent": "architect:a8b0033",
+          "detail": "started architect:a8b0033",
+          "sourceKey": "session-start:a8b0033326ac039b4"
+        },
+        {
+          "id": "session-stop:a75897968ec48dad1:2026-07-02T01:03:47.421Z",
+          "at": "2026-07-02T01:03:47.421Z",
+          "kind": "completion",
+          "agent": "architect:a8b0033",
+          "detail": "completed",
+          "sourceKey": "session-stop:a75897968ec48dad1"
+        },
+        {
+          "id": "session-stop:a8b0033326ac039b4:2026-07-02T01:04:48.351Z",
+          "at": "2026-07-02T01:04:48.351Z",
+          "kind": "completion",
+          "agent": "architect:a8b0033",
+          "detail": "completed",
+          "sourceKey": "session-stop:a8b0033326ac039b4"
+        },
+        {
+          "id": "session-stop:a21d9d564d623bd47:2026-07-02T01:06:20.489Z",
+          "at": "2026-07-02T01:06:20.489Z",
+          "kind": "completion",
+          "agent": "architect:a8b0033",
+          "detail": "completed",
+          "sourceKey": "session-stop:a21d9d564d623bd47"
+        },
+        {
+          "id": "session-stop:a1c6f34954ee40224:2026-07-02T01:09:41.861Z",
+          "at": "2026-07-02T01:09:41.861Z",
+          "kind": "completion",
+          "agent": "architect:a8b0033",
+          "detail": "completed",
+          "sourceKey": "session-stop:a1c6f34954ee40224"
+        }
+      ]
+    }
+  ]
+}

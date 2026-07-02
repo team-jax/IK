@@ -1,0 +1,38 @@
+{
+  "title": "손목 추적 → MuJoCo 7DOF 팔 실시간 제어",
+  "spec": ".omc/specs/deep-interview-wrist-to-arm.md",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "arm/arm.xml 로드 및 스케일 상수 선언",
+      "passes": true,
+      "acceptanceCriteria": [
+        "mujoco_receiver.py 상단에 LATERAL_SCALE, HEIGHT_SCALE, DEPTH_SCALE, BASE_Z 상수가 선언됨",
+        "인라인 MJCF 문자열(MJCF = ...)이 제거됨",
+        "MjModel.from_xml_path로 arm/arm.xml을 로드하는 코드가 있음",
+        "arm/ik.py에서 build_chain, solve_ik, apply_pose를 import함"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "UDP 수신 루프: 좌표변환 → IK → qpos 적용",
+      "passes": true,
+      "acceptanceCriteria": [
+        "수신된 (x_norm, y_norm, z_m)을 LATERAL_SCALE 등 상수로 world-space target으로 변환하는 코드가 있음",
+        "solve_ik(chain, target_world)를 호출하여 7개 관절각을 얻는 코드가 있음",
+        "apply_pose로 data.qpos[0:7]에 관절각을 쓰고 mj_forward를 호출하는 코드가 있음",
+        "IK 실패(예외 또는 NaN) 시 last_good_qpos를 유지하는 코드가 있음",
+        "last_good_qpos 변수가 루프 외부에 초기값(np.zeros(7))으로 선언됨"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "문법 및 import 오류 없음",
+      "passes": true,
+      "acceptanceCriteria": [
+        "venv/bin/python -m py_compile mujoco_receiver.py가 오류 없이 통과함",
+        "arm/ik.py의 build_chain, solve_ik, apply_pose import 경로가 올바름 (sys.path 또는 상대경로)"
+      ]
+    }
+  ]
+}

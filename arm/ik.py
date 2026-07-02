@@ -42,9 +42,15 @@ def build_chain():
     )
 
 
-def solve_ik(chain, target_world):
+def solve_ik(chain, target_world, seed=None):
+    # A redundant 7DOF chain has multiple joint solutions for nearly the same end-effector
+    # position. Always seeding from the same fixed SEED_POSE lets SLSQP land on a different
+    # local minimum almost every call, which looks like the arm jittering even when the target
+    # barely moves. Passing the previous frame's solution as the seed keeps the solver in the
+    # same solution branch, so smooth target motion produces smooth joint motion.
     target_local = np.asarray(target_world) - BASE_POS_WORLD
-    joint_angles = chain.inverse_kinematics(target_local, initial_position=SEED_POSE)
+    initial_position = SEED_POSE if seed is None else [0.0, *seed, 0.0]
+    joint_angles = chain.inverse_kinematics(target_local, initial_position=initial_position)
     # drop the two fixed-link placeholders (base + end-effector) ikpy includes in its output
     return joint_angles[1:-1]
 

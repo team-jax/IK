@@ -1,0 +1,179 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1782952997901,
+  "projectRoot": "/Users/ijaejun/Documents/sophomore_high/역운",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "__pycache__": {
+      "path": "__pycache__",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1782952997892,
+      "keyFiles": [
+        "test.cpython-314.pyc"
+      ]
+    },
+    "arm": {
+      "path": "arm",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1782952997892,
+      "keyFiles": [
+        "arm.urdf",
+        "arm.xml",
+        "ik.py"
+      ]
+    },
+    "venv": {
+      "path": "venv",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1782952997892,
+      "keyFiles": [
+        "pyvenv.cfg"
+      ]
+    },
+    "venv/bin": {
+      "path": "venv/bin",
+      "purpose": "Executable scripts",
+      "fileCount": 17,
+      "lastAccessed": 1782952997893,
+      "keyFiles": [
+        "Activate.ps1",
+        "activate",
+        "activate.csh"
+      ]
+    },
+    "venv/lib": {
+      "path": "venv/lib",
+      "purpose": "Library code",
+      "fileCount": 0,
+      "lastAccessed": 1782952997893,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "vision_sender.py",
+      "accessCount": 18,
+      "lastAccessed": 1782970883254,
+      "type": "file"
+    },
+    {
+      "path": "mujoco_receiver.py",
+      "accessCount": 13,
+      "lastAccessed": 1782973085376,
+      "type": "file"
+    },
+    {
+      "path": "실행방법.txt",
+      "accessCount": 5,
+      "lastAccessed": 1782964099701,
+      "type": "file"
+    },
+    {
+      "path": "arm/ik.py",
+      "accessCount": 5,
+      "lastAccessed": 1782970330235,
+      "type": "file"
+    },
+    {
+      "path": "run_receiver.sh",
+      "accessCount": 3,
+      "lastAccessed": 1782960629522,
+      "type": "file"
+    },
+    {
+      "path": "run_sender.sh",
+      "accessCount": 3,
+      "lastAccessed": 1782960630273,
+      "type": "file"
+    },
+    {
+      "path": "haness.md",
+      "accessCount": 2,
+      "lastAccessed": 1782958310396,
+      "type": "file"
+    },
+    {
+      "path": "test.py",
+      "accessCount": 1,
+      "lastAccessed": 1782953206525,
+      "type": "file"
+    },
+    {
+      "path": "arm/arm.urdf",
+      "accessCount": 1,
+      "lastAccessed": 1782953207267,
+      "type": "file"
+    },
+    {
+      "path": "arm/arm.xml",
+      "accessCount": 1,
+      "lastAccessed": 1782953207370,
+      "type": "file"
+    },
+    {
+      "path": "AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1782953242186,
+      "type": "file"
+    },
+    {
+      "path": "arm/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1782953266322,
+      "type": "file"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "accessCount": 1,
+      "lastAccessed": 1782953287854,
+      "type": "file"
+    },
+    {
+      "path": "venv/lib/python3.14/site-packages/mediapipe/tasks/python/vision/pose_landmarker.py",
+      "accessCount": 1,
+      "lastAccessed": 1782958982838,
+      "type": "file"
+    },
+    {
+      "path": "web_dashboard.py",
+      "accessCount": 1,
+      "lastAccessed": 1782963140566,
+      "type": "file"
+    },
+    {
+      "path": "run_web.sh",
+      "accessCount": 1,
+      "lastAccessed": 1782963158918,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
