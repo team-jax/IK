@@ -1,0 +1,71 @@
+{
+  "agents": [
+    {
+      "agent_id": "a06c9d28989bfcb55",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T10:56:11.486Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T10:56:11.486Z",
+      "duration_ms": 0
+    },
+    {
+      "agent_id": "a0f62251ea290cec1",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T11:02:23.697Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T11:02:23.697Z",
+      "duration_ms": 0
+    },
+    {
+      "agent_id": "ae151f4941b2b70eb",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T11:05:24.996Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T11:05:24.996Z",
+      "duration_ms": 0
+    },
+    {
+      "agent_id": "a14cbf579bed03aca",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T11:10:44.570Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T11:10:44.570Z",
+      "duration_ms": 0
+    },
+    {
+      "agent_id": "a328262d005aba8bb",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T11:13:45.257Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T11:13:45.257Z",
+      "duration_ms": 0
+    },
+    {
+      "agent_id": "adb57156f2c98cf71",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T11:23:55.532Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T11:23:55.532Z",
+      "duration_ms": 0
+    },
+    {
+      "agent_id": "a176cbcbe8dd2a9ee",
+      "agent_type": "unknown",
+      "started_at": "2026-06-25T11:29:34.869Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-06-25T11:29:34.869Z",
+      "duration_ms": 0
+    }
+  ],
+  "total_spawned": 0,
+  "total_completed": 7,
+  "total_failed": 0,
+  "last_updated": "2026-06-25T11:29:34.972Z"
+}

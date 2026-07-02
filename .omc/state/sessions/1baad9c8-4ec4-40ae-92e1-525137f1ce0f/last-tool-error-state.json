@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"/Users/ijaejun/Documents/sophomore_high/역운\\\" && venv/bin/python -c \\\"\\nimport mujoco\\nmodel = mujoco.MjModel.from_xml_path('arm/arm.xml')\\ndata = mujoco.MjData(model)\\nmujoco.mj_forwa...",
+  "error": "Exit code 1\nTraceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n    model = mujoco.MjModel.from_xml_path('arm/arm.xml')\nValueError: Error: mass and inertia of moving bodies must be larger than mjMINVAL\nElement name 'shoulder_pitch_link', id 2, line 23",
+  "timestamp": "2026-06-25T10:48:47.093Z",
+  "retry_count": 1
+}

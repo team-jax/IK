@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"/Users/ijaejun/Documents/sophomore_high/역운\\\" && find venv -iname \\\"*.py\\\" | xargs grep -l \\\"viewer.lock\\\\|\\\\.lock()\\\" 2>/dev/null\",\"description\":\"Search venv for example usage of view...",
+  "error": "Exit code 1\nvenv/lib/python3.14/site-packages/mujoco/viewer.py",
+  "timestamp": "2026-06-25T11:16:36.718Z",
+  "retry_count": 1
+}

@@ -1,0 +1,60 @@
+<mujoco model="upper_arm">
+  <!--
+    MuJoCo mirror of arm/arm.urdf (same joint order, axes, and link lengths) so that
+    joint angles solved by ikpy can be applied directly as qpos here for visual/positional
+    validation. See arm/ik.py.
+  -->
+  <compiler angle="radian"/>
+  <option gravity="0 0 -9.81"/>
+
+  <default>
+    <joint damping="0.2" frictionloss="0.05"/>
+    <geom contype="0" conaffinity="0"/>
+  </default>
+
+  <worldbody>
+    <light pos="0 0 2" dir="0 0 -1" diffuse="1 1 1"/>
+    <geom name="floor" type="plane" size="1 1 0.1" rgba="0.8 0.8 0.8 1"/>
+    <geom name="target" type="sphere" size="0.02" pos="0.3 0.2 0.5" rgba="1 0 0 0.6" contype="0" conaffinity="0"/>
+
+    <body name="base_link" pos="0 0 0.8">
+      <geom type="sphere" size="0.03" rgba="0.3 0.3 0.3 1"/>
+
+      <body name="shoulder_pitch_link">
+        <joint name="shoulder_pitch" type="hinge" axis="0 1 0" range="-1.5708 1.5708"/>
+        <geom type="sphere" size="0.02" rgba="0.3 0.3 0.3 1"/>
+
+        <body name="shoulder_roll_link">
+          <joint name="shoulder_roll" type="hinge" axis="1 0 0" range="-0.2 1.8"/>
+          <geom type="sphere" size="0.02" rgba="0.3 0.3 0.3 1"/>
+
+          <body name="upper_arm_link">
+            <joint name="upper_arm_roll" type="hinge" axis="0 0 1" range="-3.1416 3.1416"/>
+            <geom type="cylinder" size="0.025 0.15" pos="0 0 -0.15" rgba="0.6 0.6 0.6 1"/>
+
+            <body name="forearm_link" pos="0 0 -0.30">
+              <joint name="elbow" type="hinge" axis="0 1 0" range="0 2.4435"/>
+              <geom type="cylinder" size="0.02 0.125" pos="0 0 -0.125" rgba="0.6 0.6 0.6 1"/>
+
+              <body name="wrist_yaw_link" pos="0 0 -0.25">
+                <joint name="wrist_yaw" type="hinge" axis="0 0 1" range="-1.5708 1.5708"/>
+                <geom type="sphere" size="0.015" rgba="0.3 0.3 0.3 1"/>
+
+                <body name="wrist_pitch_link">
+                  <joint name="wrist_pitch" type="hinge" axis="0 1 0" range="-1.5708 1.5708"/>
+                  <geom type="sphere" size="0.015" rgba="0.3 0.3 0.3 1"/>
+
+                  <body name="wrist_roll_link">
+                    <joint name="wrist_roll" type="hinge" axis="1 0 0" range="-3.1416 3.1416"/>
+                    <geom type="cylinder" size="0.015 0.06" pos="0 0 -0.06" rgba="0.9 0.5 0.1 1"/>
+                    <site name="end_effector" pos="0 0 -0.12" size="0.015" rgba="0 1 0 1"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
