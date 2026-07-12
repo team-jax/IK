@@ -1,4 +1,5 @@
-"""Web dashboard: shows the live wrist (x, y, z) coordinates from vision_sender.py in a browser.
+"""Web dashboard: shows the live wrist (x, y, z) coordinates + per-finger curl values
+(index/middle/ring) from vision_sender.py in a browser.
 
 Listens for wrist UDP packets on its own port (5006) so it doesn't compete with
 mujoco_receiver.py's exclusive bind on 5005 — vision_sender.py sends each packet to
@@ -19,7 +20,7 @@ UDP_PORT = 5006
 HTTP_PORT = 8000
 
 _lock = threading.Lock()
-_latest = {"x": 0.0, "y": 0.0, "z": 0.0, "packets": 0}
+_latest = {"x": 0.0, "y": 0.0, "z": 0.0, "curls": [0.0, 0.0, 0.0], "packets": 0}
 
 PAGE = """<!DOCTYPE html>
 <html>
@@ -36,6 +37,14 @@ PAGE = """<!DOCTYPE html>
 <h2>Right Wrist Position</h2>
 <div id="vals">waiting for data...</div>
 <canvas id="c" width="400" height="400"></canvas>
+<div style="width:400px;margin:8px auto;text-align:left;">
+  <div>검지 <span id="curl0-val">0.00</span></div>
+  <div style="height:18px;background:#333;border:1px solid #555;"><div id="curl0" style="height:100%;width:0%;background:#ff9800;"></div></div>
+  <div>중지 <span id="curl1-val">0.00</span></div>
+  <div style="height:18px;background:#333;border:1px solid #555;"><div id="curl1" style="height:100%;width:0%;background:#4caf50;"></div></div>
+  <div>약지 <span id="curl2-val">0.00</span></div>
+  <div style="height:18px;background:#333;border:1px solid #555;"><div id="curl2" style="height:100%;width:0%;background:#2196f3;"></div></div>
+</div>
 <script>
 const ctx = document.getElementById('c').getContext('2d');
 async function poll() {
@@ -44,6 +53,10 @@ async function poll() {
     const d = await r.json();
     document.getElementById('vals').textContent =
       `x=${d.x.toFixed(3)}  y=${d.y.toFixed(3)}  z=${d.z.toFixed(3)}  (packets: ${d.packets})`;
+    for (let i = 0; i < 3; i++) {
+      document.getElementById(`curl${i}`).style.width = `${(d.curls[i] * 100).toFixed(0)}%`;
+      document.getElementById(`curl${i}-val`).textContent = d.curls[i].toFixed(2);
+    }
     ctx.clearRect(0, 0, 400, 400);
     ctx.beginPath();
     ctx.arc(d.x * 400, d.y * 400, 10, 0, 2 * Math.PI);
@@ -89,13 +102,22 @@ def udp_listener():
     while True:
         raw, _ = sock.recvfrom(1024)
         try:
-            x, y, z = map(float, raw.decode().strip().split())
+            vals = [float(v) for v in raw.decode().strip().split()]
+            if len(vals) == 6:      # current format: x y z curl_index curl_middle curl_ring
+                x, y, z = vals[:3]
+                curls = vals[3:]
+            elif len(vals) == 4:    # legacy format: x y z grip → same value on all 3 fingers
+                x, y, z, grip = vals
+                curls = [grip, grip, grip]
+            else:
+                continue
         except ValueError:
             continue
         with _lock:
             _latest["x"] = x
             _latest["y"] = y
             _latest["z"] = z
+            _latest["curls"] = curls
             _latest["packets"] += 1
 
 

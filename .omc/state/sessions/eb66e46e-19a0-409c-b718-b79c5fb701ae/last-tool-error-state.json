@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"head -25 /Users/ijaejun/Documents/sophomore_high/역운/vision_sender.py; echo ===; head -20 /Users/ijaejun/Documents/sophomore_high/역운/web_dashboard.py; echo ===; cat /Users/ijaejun/Documents...",
+  "error": "Exit code 1\n\"\"\"OpenCV + MediaPipe Tasks PoseLandmarker + HandLandmarker: extract right wrist (X,Y,Z) and\nper-finger curl values for the index/middle/ring fingers (0=extended, 1=fully curled), send\nthem via UDP as \"x y z curl_index curl_middle curl_ring\".\n\nmediapipe>=0.10.30 dropped the legacy `mp.solutions` API (see pip package contents —\n`mediapipe.solutions` no longer ships), so this uses the replacement Tasks API\n(`mediapipe.tasks.python.vision.PoseLandmarker` / `HandLandmarker`) instead.\n\nUs...",
+  "timestamp": "2026-07-12T08:36:17.150Z",
+  "retry_count": 1
+}

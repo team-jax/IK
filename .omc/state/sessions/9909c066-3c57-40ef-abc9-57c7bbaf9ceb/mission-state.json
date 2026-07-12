@@ -1,0 +1,69 @@
+{
+  "updatedAt": "2026-07-07T06:01:26.342Z",
+  "missions": [
+    {
+      "id": "session:9909c066-3c57-40ef-abc9-57c7bbaf9ceb:autopilot",
+      "source": "session",
+      "name": "autopilot",
+      "objective": "Session mission",
+      "createdAt": "2026-07-07T05:54:06.479Z",
+      "updatedAt": "2026-07-07T06:01:26.342Z",
+      "status": "done",
+      "workerCount": 1,
+      "taskCounts": {
+        "total": 1,
+        "pending": 0,
+        "blocked": 0,
+        "inProgress": 0,
+        "completed": 1,
+        "failed": 0
+      },
+      "agents": [
+        {
+          "name": "critic:a7fc712",
+          "role": "critic",
+          "ownership": "a7fc71266c1614171",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-07-07T06:01:26.342Z"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "session-start:a7fc71266c1614171:2026-07-07T05:54:06.479Z",
+          "at": "2026-07-07T05:54:06.479Z",
+          "kind": "update",
+          "agent": "critic:a7fc712",
+          "detail": "started critic:a7fc712",
+          "sourceKey": "session-start:a7fc71266c1614171"
+        },
+        {
+          "id": "session-stop:a7fc71266c1614171:2026-07-07T05:58:27.258Z",
+          "at": "2026-07-07T05:58:27.258Z",
+          "kind": "completion",
+          "agent": "critic:a7fc712",
+          "detail": "completed",
+          "sourceKey": "session-stop:a7fc71266c1614171"
+        },
+        {
+          "id": "session-start:a7fc71266c1614171:2026-07-07T06:00:14.168Z",
+          "at": "2026-07-07T06:00:14.168Z",
+          "kind": "update",
+          "agent": "critic:a7fc712",
+          "detail": "started critic:a7fc712",
+          "sourceKey": "session-start:a7fc71266c1614171"
+        },
+        {
+          "id": "session-stop:a7fc71266c1614171:2026-07-07T06:01:26.342Z",
+          "at": "2026-07-07T06:01:26.342Z",
+          "kind": "completion",
+          "agent": "critic:a7fc712",
+          "detail": "completed",
+          "sourceKey": "session-stop:a7fc71266c1614171"
+        }
+      ]
+    }
+  ]
+}

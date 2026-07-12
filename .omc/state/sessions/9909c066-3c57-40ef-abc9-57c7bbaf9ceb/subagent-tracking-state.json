@@ -1,0 +1,17 @@
+{
+  "agents": [
+    {
+      "agent_id": "a7fc71266c1614171",
+      "agent_type": "oh-my-claudecode:critic",
+      "started_at": "2026-07-07T06:00:14.168Z",
+      "parent_mode": "autopilot",
+      "status": "completed",
+      "completed_at": "2026-07-07T06:01:26.342Z",
+      "duration_ms": 72174
+    }
+  ],
+  "total_spawned": 2,
+  "total_completed": 2,
+  "total_failed": 0,
+  "last_updated": "2026-07-07T06:01:26.446Z"
+}

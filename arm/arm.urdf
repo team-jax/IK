@@ -7,6 +7,8 @@
     wrist_yaw, wrist_pitch, wrist_roll -> MG996R x3 (손목 3축)
   Used by arm/ik.py via ikpy for inverse kinematics. Link lengths are placeholders
   until real arm dimensions are finalized by the 기구 설계 team.
+  This chain is intentionally arm-only (7 joints): the 3-finger gripper exists only in
+  arm/arm.xml (qpos[7:13]) and is driven by mujoco_receiver.py, not by IK.
 -->
 <robot name="upper_arm">
 

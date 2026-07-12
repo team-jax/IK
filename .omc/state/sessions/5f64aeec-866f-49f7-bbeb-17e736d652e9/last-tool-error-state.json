@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"venv/bin/python - <<'EOF'\\nimport socket, time\\ns = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\\ns.bind((\\\"127.0.0.1\\\", 5006))\\ns.settimeout(15)\\ngot = []\\nstart = time.monotonic()\\nt...",
+  "error": "Exit code 1\nTraceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nOSError: [Errno 48] Address already in use",
+  "timestamp": "2026-07-08T23:12:47.052Z",
+  "retry_count": 1
+}

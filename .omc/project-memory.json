@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1782952997901,
+  "lastScanned": 1783845198124,
   "projectRoot": "/Users/ijaejun/Documents/sophomore_high/역운",
   "techStack": {
     "languages": [],
@@ -29,21 +29,32 @@
   },
   "customNotes": [],
   "directoryMap": {
+    "AGENTS_files": {
+      "path": "AGENTS_files",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1783845198114,
+      "keyFiles": []
+    },
     "__pycache__": {
       "path": "__pycache__",
       "purpose": null,
-      "fileCount": 1,
-      "lastAccessed": 1782952997892,
+      "fileCount": 4,
+      "lastAccessed": 1783845198114,
       "keyFiles": [
-        "test.cpython-314.pyc"
+        "mujoco_receiver.cpython-314.pyc",
+        "test.cpython-314.pyc",
+        "vision_sender.cpython-314.pyc",
+        "web_dashboard.cpython-314.pyc"
       ]
     },
     "arm": {
       "path": "arm",
       "purpose": null,
-      "fileCount": 3,
-      "lastAccessed": 1782952997892,
+      "fileCount": 4,
+      "lastAccessed": 1783845198114,
       "keyFiles": [
+        "AGENTS.md",
         "arm.urdf",
         "arm.xml",
         "ik.py"
@@ -53,7 +64,7 @@
       "path": "venv",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1782952997892,
+      "lastAccessed": 1783845198114,
       "keyFiles": [
         "pyvenv.cfg"
       ]
@@ -62,7 +73,7 @@
       "path": "venv/bin",
       "purpose": "Executable scripts",
       "fileCount": 17,
-      "lastAccessed": 1782952997893,
+      "lastAccessed": 1783845198115,
       "keyFiles": [
         "Activate.ps1",
         "activate",
@@ -73,45 +84,81 @@
       "path": "venv/lib",
       "purpose": "Library code",
       "fileCount": 0,
-      "lastAccessed": 1782952997893,
+      "lastAccessed": 1783845198115,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "vision_sender.py",
-      "accessCount": 18,
-      "lastAccessed": 1782970883254,
+      "path": "mujoco_receiver.py",
+      "accessCount": 40,
+      "lastAccessed": 1783553137309,
       "type": "file"
     },
     {
-      "path": "mujoco_receiver.py",
+      "path": "vision_sender.py",
+      "accessCount": 36,
+      "lastAccessed": 1783552736362,
+      "type": "file"
+    },
+    {
+      "path": "AGENTS.md",
+      "accessCount": 24,
+      "lastAccessed": 1783553239644,
+      "type": "file"
+    },
+    {
+      "path": "arm/arm.xml",
+      "accessCount": 18,
+      "lastAccessed": 1783845497375,
+      "type": "file"
+    },
+    {
+      "path": "web_dashboard.py",
       "accessCount": 13,
-      "lastAccessed": 1782973085376,
+      "lastAccessed": 1783551779801,
+      "type": "file"
+    },
+    {
+      "path": "arm/AGENTS.md",
+      "accessCount": 11,
+      "lastAccessed": 1783552035112,
       "type": "file"
     },
     {
       "path": "실행방법.txt",
-      "accessCount": 5,
-      "lastAccessed": 1782964099701,
+      "accessCount": 10,
+      "lastAccessed": 1783551836395,
       "type": "file"
     },
     {
       "path": "arm/ik.py",
-      "accessCount": 5,
-      "lastAccessed": 1782970330235,
+      "accessCount": 9,
+      "lastAccessed": 1783403653000,
+      "type": "file"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 7,
+      "lastAccessed": 1783845487407,
       "type": "file"
     },
     {
       "path": "run_receiver.sh",
-      "accessCount": 3,
-      "lastAccessed": 1782960629522,
+      "accessCount": 5,
+      "lastAccessed": 1783389080440,
       "type": "file"
     },
     {
       "path": "run_sender.sh",
-      "accessCount": 3,
-      "lastAccessed": 1782960630273,
+      "accessCount": 4,
+      "lastAccessed": 1783304232473,
+      "type": "file"
+    },
+    {
+      "path": "arm/arm.urdf",
+      "accessCount": 4,
+      "lastAccessed": 1783845500059,
       "type": "file"
     },
     {
@@ -121,33 +168,15 @@
       "type": "file"
     },
     {
+      "path": "run_web.sh",
+      "accessCount": 2,
+      "lastAccessed": 1783304232363,
+      "type": "file"
+    },
+    {
       "path": "test.py",
       "accessCount": 1,
       "lastAccessed": 1782953206525,
-      "type": "file"
-    },
-    {
-      "path": "arm/arm.urdf",
-      "accessCount": 1,
-      "lastAccessed": 1782953207267,
-      "type": "file"
-    },
-    {
-      "path": "arm/arm.xml",
-      "accessCount": 1,
-      "lastAccessed": 1782953207370,
-      "type": "file"
-    },
-    {
-      "path": "AGENTS.md",
-      "accessCount": 1,
-      "lastAccessed": 1782953242186,
-      "type": "file"
-    },
-    {
-      "path": "arm/AGENTS.md",
-      "accessCount": 1,
-      "lastAccessed": 1782953266322,
       "type": "file"
     },
     {
@@ -163,15 +192,9 @@
       "type": "file"
     },
     {
-      "path": "web_dashboard.py",
+      "path": "README.md",
       "accessCount": 1,
-      "lastAccessed": 1782963140566,
-      "type": "file"
-    },
-    {
-      "path": "run_web.sh",
-      "accessCount": 1,
-      "lastAccessed": 1782963158918,
+      "lastAccessed": 1783552159087,
       "type": "file"
     }
   ],

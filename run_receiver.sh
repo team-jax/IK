@@ -14,7 +14,8 @@ if [ ! -d "venv" ]; then
     exit 1
 fi
 
-echo "[INFO] UDP 127.0.0.1:5005 에서 손목 좌표를 수신해 MuJoCo 시뮬레이션 구를 동기화합니다."
+echo "[INFO] UDP 127.0.0.1:5005 에서 손목 좌표 + 손가락 curl을 수신해 MuJoCo 7DOF 팔 + 그리퍼를 구동합니다."
+echo "[INFO] 뷰어 키: C = 좌우 중심 재캘리브레이션, T = 그리퍼 추적 카메라 토글"
 echo "[INFO] vision_sender.py 를 먼저 실행하세요 (별도 터미널)."
 echo "[INFO] 종료: MuJoCo 뷰어 창 닫기"
 echo ""
