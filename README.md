@@ -81,6 +81,8 @@ curl -o hand_landmarker.task \
 | `venv/` | 두 동작이 공용하는 가상환경 |
 | `CLAUDE.md` | 프로젝트 전체 설계: 동작 1/2 구분, 하드웨어, 아키텍처, 통신 프로토콜, 로드맵 |
 | `STATUS.md` | 진행 상황과 문제·해결 기록 (동작 2 중심, 동작 1은 `motion1/STATUS.md`) |
+| `run_tests.sh` | 전체 테스트 한 번에 (`--full`, `--viewers` 옵션) |
+| `check_docs.py` | 문서에 적힌 기호·경로·링크가 코드에 실제로 있는지 대조 |
 | `AGENTS.md` | AI 에이전트용 문서의 최상위 (하위 폴더마다 `AGENTS.md`가 있음) |
 | `haness.md` | AI 작업 규칙 (동작 1은 `motion1/HARNESS.md`가 우선) |
 
@@ -96,6 +98,9 @@ curl -o hand_landmarker.task \
 | `arm/arm.xml` | MuJoCo 모델: 팔 7관절 + 3손가락 손 + 기둥/큐브 씬 + actuator 13개 (생성 파일) |
 | `arm/ik.py` | IK 단독 풀이/검증 스크립트 (`--target x y z`, `--view`, `--interactive`) |
 | `check_grasp.py` | 화면 없는 파지 검증: 큐브가 ±8 mm 어긋난 9가지 위치에서 닫고 들어올리기 (기대값 9/9) |
+| `check_teleop.py` | 화면·웹캠 없는 UDP 파이프라인 검사: 가짜 송신 → 수신기 → IK → 서보 → 큐브 들어올리기, 시나리오 3개 (기대값 3/3) |
+| `check_sender.py` | 웹캠 없이 `vision_sender.py` 검사: 굽힘 계산, 두 `.task` 모델 로딩, 가짜 카메라로 `main()` 실행해 패킷 형식·가시성 필터·스무딩 확인 |
+| `check_dashboard.py` | `web_dashboard.py`를 띄워 UDP 입력과 `/wrist.json` 응답 확인 |
 | `run_*.sh` | 위 스크립트들의 실행 래퍼 (venv 체크, macOS/Linux 분기) |
 | `test.py` | MuJoCo + gymnasium 설치 확인용 스크래치 |
 | `실행방법.txt` | 3터미널 실행 순서와 스케일 조정법 |
@@ -124,11 +129,24 @@ curl -o hand_landmarker.task \
 
 ## 테스트 (웹캠·디스플레이 불필요)
 
+저장소 루트에서 한 번에 (끝에 통과/실패 개수를 출력하고, 하나라도 실패하면 종료 코드 1):
+
+```bash
+./run_tests.sh             # 빠른 모드, 약 3분: 문법·문서 대조, 동작 2 전체, 동작 1 스모크
+./run_tests.sh --full      # + 배달 100회·쌓기 50회 성공률, 도달 맵, 영상 2개 (약 12분 추가)
+./run_tests.sh --viewers   # + MuJoCo 뷰어 4개를 9초씩 열어 둠 (창이 뜸)
+```
+
+개별로 돌릴 때 (아래는 `motion2/`에서):
+
 ```bash
 ../venv/bin/python arm/ik.py                  # 기본 타깃 풀고 오차(mm) 출력
 ../venv/bin/python arm/ik.py --target 0.3 0.2 0.5 # world 좌표 타깃 지정
 ../venv/bin/mjpython arm/ik.py --interactive      # 뷰어 + 터미널에 "x y z" 입력으로 실시간 IK
 ../venv/bin/python check_grasp.py                 # 큐브 파지·들어올리기 9/9 확인
+../venv/bin/python check_teleop.py                # UDP 패킷부터 큐브를 들어올릴 때까지, 3/3 확인
+../venv/bin/python check_sender.py                # 웹캠 없이 송신기 검사
+../venv/bin/python check_dashboard.py             # 대시보드 검사
 ```
 
 동작 1은 저장소 루트에서 `venv/bin/python motion1/scripts/smoke_test.py` (뷰어는 `venv/bin/mjpython motion1/scripts/watch_grasp.py`, 자세한 측정 도구는 `motion1/README.md`).

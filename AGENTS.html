@@ -82,6 +82,14 @@ ul.task-list li input[type="checkbox"] {
 <td>동작 2 중심의 진행 상황·문제와 해결 기록</td>
 </tr>
 <tr class="even">
+<td><code>run_tests.sh</code></td>
+<td>전체 테스트 한 번에 (<code>--full</code>, <code>--viewers</code>). 단계는 종료 코드와 출력 내용을 둘 다 본다</td>
+</tr>
+<tr class="odd">
+<td><code>check_docs.py</code></td>
+<td>문서의 기호·경로·링크를 코드와 대조</td>
+</tr>
+<tr class="even">
 <td><code>haness.md</code></td>
 <td>AI 작업 규칙(근거 없는 단정 금지, 최소 복잡도, 변경 이유 한 줄). 큰 범위 변경은 사전 승인</td>
 </tr>
@@ -135,7 +143,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="testing-requirements" class="level3">
 <h3 class="anchored" data-anchor-id="testing-requirements">Testing Requirements</h3>
-<p>저장소 루트에서, 화면·웹캠 없이: - <code>venv/bin/python motion1/scripts/smoke_test.py</code> - <code>venv/bin/python motion2/arm/ik.py</code> (IK 오차 0.00 mm) - <code>venv/bin/python motion2/check_grasp.py</code> (<code>lifted 9 /9</code>)</p>
+<p>저장소 루트에서, 화면·웹캠 없이: <code>./run_tests.sh</code> (빠른 모드, 약 3분). 성공률과 영상까지 보려면 <code>--full</code>, 뷰어를 열어 보려면 <code>--viewers</code>. 코드나 문서를 고친 뒤에는 반드시 돌린다. 개별 검사: - <code>venv/bin/python motion1/scripts/smoke_test.py</code> - <code>venv/bin/python motion2/arm/ik.py</code> (IK 오차 0.00 mm) - <code>venv/bin/python motion2/check_grasp.py</code> (<code>lifted 9 /9</code>), <code>check_teleop.py</code> (<code>3/3</code>), <code>check_sender.py</code>, <code>check_dashboard.py</code> - <code>venv/bin/python check_docs.py</code> (문서 대조)</p>
 </section>
 <section id="common-patterns" class="level3">
 <h3 class="anchored" data-anchor-id="common-patterns">Common Patterns</h3>

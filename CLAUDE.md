@@ -29,12 +29,13 @@ STM32 펌웨어, Jetson/ROS 코드, 강화학습 구현 등은 아래 문서에 
 | 로봇 | 최종 URDF(`URDF_1006`)에서 `motion2/arm/make_arm_urdf.py`가 생성 — 동작 2와 같은 로봇 | 최종 URDF(`URDF_1006`)에서 생성한 `arm/arm.xml`·`arm/arm.urdf` (실제 제작 하드웨어와 대응) |
 | 환경 | 루트 `venv/` (스크립트가 `src/`를 스스로 찾음, `PYTHONPATH` 불필요). 뷰어는 `venv/bin/mjpython`. 자체 `.venv/`는 선택(`pyproject.toml`) | 루트 `venv/` (Python 3.14, `motion2/run_*.sh`는 `../venv`를 사용) |
 | 문서 | `motion1/README.md`, `STATUS.md`, `HARNESS.md` (`CODE_REVIEW.md`는 G1 시절 검토라 폐기) | 이 파일 §0.1~§0.3, 루트 `README.md`·`STATUS.md`, `motion2/실행방법.txt` |
-| 상태 | 배달 100/100 (시드 0~99), 2단 46/50 (시드 0~49), 3단은 팔 한계로 불가 (2026-10-12 측정, 완전 무작위 배치). 뷰어 육안 확인은 안 함 | 최종 URDF 기반 모델 생성, IK 수렴(0.00 mm), 화면 없는 시뮬레이션에서 큐브 파지·들어올리기 9/9(`check_grasp.py`, ±8 mm) 및 수신기 루프 E2E. 실제 디스플레이·웹캠에서의 육안 확인이 남음 |
+| 상태 | 배달 100/100 (시드 0~99), 2단 46/50 (시드 0~49), 3단은 팔 한계로 불가 (2026-10-12 측정, 완전 무작위 배치). 뷰어 육안 확인은 안 함 | 최종 URDF 기반 모델 생성, IK 수렴(0.00 mm), 화면 없는 시뮬레이션에서 큐브 파지·들어올리기 9/9(`check_grasp.py`, ±8 mm), UDP 파이프라인 전체 3/3(`check_teleop.py`). 실제 웹캠은 열리고 송신 루프가 27.8 fps로 돈다. 사람 추적과 육안 확인이 남음 |
 
 - `URDF_1006/`(리포 루트)은 팀의 **최종 URDF**(CAD export, `JAXV2_Assembly_description`)다. 동작 1/2 어느 쪽에도 속하지 않는 공용 원본이다. 동작 2는 `motion2/arm/make_arm_urdf.py`가 이 폴더를 읽어 모델을 생성한다(동작 1도 `motion1/src/.../assets.py`를 통해 같은 생성기를 쓴다).
 - `motion1/`은 별도 git 저장소(자체 `.git`)다. 루트 저장소에서는 untracked 폴더로 보이며, 동작 1 변경은 그 안에서 커밋한다.
 - 동작 1 작업은 `motion1/README.md`를 기준으로 한다. 동작 1·2 모두 루트 `venv/`를 쓴다(예: `venv/bin/python motion1/scripts/smoke_test.py`). 동작 2는 아래 §0.1~§0.3.
 - 이 문서의 §1~§8(하드웨어·펌웨어·프로토콜·로드맵)은 실제 로봇을 향한 계획이며 동작 2의 모델(`motion2/arm/`)과 대응한다. 동작 1도 이제 같은 팔·손을 쓰므로(단 책상·큐브 환경은 시뮬레이션 전용) 하드웨어 계획과 같은 로봇 모델을 공유한다.
+- 전체 테스트는 저장소 루트에서 `./run_tests.sh` (빠른 모드 약 3분, `--full`은 성공률·영상 포함 +12분, `--viewers`는 뷰어 창을 연다). 문서 대조는 `venv/bin/python check_docs.py`.
 - 아래 §0.1~§0.3은 **동작 2** 설명이다.
 
 ### 0.1 Python 환경 (MuJoCo 시뮬레이션)
@@ -125,7 +126,9 @@ UDP(127.0.0.1)로 연결된 3개 프로세스로 구성되며, 실행 순서/키
   그리퍼 열림/닫힘 각도(`FINGER_OPEN`/`FINGER_CLOSED`/`DISTAL_SCALE`)는 파일 상단 상수로 튜닝한다(바꾸면 `venv/bin/python motion2/check_grasp.py`로 9/9 확인. 현재 0.15/0.1이고 `DISTAL_SCALE` 0.3은 판이 기울어 파지에 실패한다). 12필드 패킷이면 `solve_ik_arm()`이
   손목 위치 + 팔꿈치 스윙각(어깨→손목 축 둘레 회전, 7DOF의 남는 1자유도)을 scipy least_squares로
   함께 풀어 사용자의 팔꿈치 벌림 변화량을 따라간다 (기준각은 첫 패킷/C 키; 위치 오차 >20mm면
-  기존 `solve_ik_palm_down`으로 대체). 6/4필드 패킷은 기존대로 손목만 추적한다 — BASE_Z/큐브 높이의 기하 관계는
+  기존 `solve_ik_palm_down`으로 대체). 따라가는 스윙은 ±40°(`SWIVEL_LIMIT`)로 제한하고, 초당 90°(`SWIVEL_MAX_RATE`)
+  이하로만 바뀌며, 손가락을 쥐는 동안(평균 curl > 0.3, `SWIVEL_HOLD_CURL`)은 고정한다. 이유와 측정값은 `mujoco_receiver.py`
+  주석과 `motion2/check_teleop.py`(`swing-jump`) 참고. 6/4필드 패킷은 기존대로 손목만 추적한다 — BASE_Z/큐브 높이의 기하 관계는
   해당 주석 참고.
 - `web_dashboard.py` — UDP 5006 수신, `http://127.0.0.1:8000`에서 손목 좌표/curl 값을
   브라우저로 보여주는 선택사항 대시보드 (stdlib만 사용, Flask 없음).

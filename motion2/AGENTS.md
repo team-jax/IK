@@ -24,6 +24,9 @@ Phase 2(7DOF 팔 IK + 그리퍼 kinematics + contact physics 파지: 받침대 �
 | `run_sender.sh` | `vision_sender.py` 실행 스크립트 (venv 체크, 안내 메시지 포함) |
 | `run_receiver.sh` | `mujoco_receiver.py` 실행 스크립트 (macOS→mjpython / Linux→python 자동 분기) |
 | `run_web.sh` | `web_dashboard.py` 실행 스크립트 (venv 체크만, 추가 패키지 불필요) |
+| `check_teleop.py` | 화면·웹캠 없이 UDP 파이프라인 전체 검사: 가짜 송신 스레드가 60 Hz로 패킷을 보내고(깨진 패킷·NaN 위치 포함) 수신기 `main()`이 그대로 돌며 큐브를 집어 85 mm 들어올린다. 시나리오 3개(`wrist`, `arm`, `swing-jump`), `teleop: 3/3 scenarios passed`가 기대값. 수신기의 IK·스윙·서보·접촉을 바꿨으면 반드시 실행 |
+| `check_sender.py` | 웹캠 없이 송신기 검사: 굽힘 계산(펴짐 0, 90° 0.833, 접힘 1), 두 `.task` 모델이 빈 프레임에서 로드·실행됨, 가짜 카메라·랜드마커로 `main()`을 돌려 패킷이 두 포트에 같은 내용으로 12/6/12필드로 나가는지, 가시성 낮은 프레임을 버리는지, 손이 사라지면 굽힘을 유지하는지, 수신기 파서가 받아들이는지 확인 |
+| `check_dashboard.py` | `web_dashboard.py`를 서브프로세스로 띄워 6/12/4필드 패킷 반영, 잘못된 패킷 무시, `/wrist.json`·페이지 응답 확인 |
 | `check_grasp.py` | 화면 없는 파지 검증: 큐브 ±8 mm 어긋난 9곳에서 닫고 들어올리기, `lifted 9 /9`가 기대값 (손가락 기하·마찰·`FINGER_*`/`DISTAL_SCALE`을 바꿨으면 반드시 실행) |
 | `test.py` | gymnasium `reacher.xml`을 로드해 MuJoCo passive viewer를 띄우는 환경 검증 스크립트 |
 
@@ -47,7 +50,7 @@ Phase 2(7DOF 팔 IK + 그리퍼 kinematics + contact physics 파지: 받침대 �
 - `vision_sender.py`: `venv/bin/python motion2/vision_sender.py` — 웹캠 + `pose_landmarker_full.task` 필요, 'q' 키로 종료.
 - `mujoco_receiver.py`: `venv/bin/mjpython motion2/mujoco_receiver.py` (macOS) — 로컬 디스플레이 필요, `arm/arm.xml`의 7DOF 팔을 실시간 IK로 구동.
 - `web_dashboard.py`: `venv/bin/python motion2/web_dashboard.py` — 브라우저에서 `http://127.0.0.1:8000` 접속.
-- 화면·웹캠 없이: `venv/bin/python motion2/check_grasp.py`(파지 9/9), `venv/bin/python motion2/arm/ik.py`(IK 오차 0.00 mm).
+- 화면·웹캠 없이: 루트의 `./run_tests.sh`가 아래를 모두 돌린다. 개별로는 `check_grasp.py`(파지 9/9), `check_teleop.py`(UDP 전체 경로 3/3), `check_sender.py`, `check_dashboard.py`, `arm/ik.py`(IK 오차 0.00 mm). 웹캠은 켜지 않는다(실제 카메라 시험은 2026-10-13 `STATUS.md` 참고).
 - 전체 파이프라인 확인: `run_receiver.sh` → `run_sender.sh`(+ 선택적으로 `run_web.sh`) 순서로 각각 별도 터미널에서 실행 (자세한 순서는 `실행방법.txt` 참고).
 - `test.py`: `venv/bin/mjpython motion2/test.py` — gymnasium 설치 확인용.
 
@@ -56,6 +59,7 @@ Phase 2(7DOF 팔 IK + 그리퍼 kinematics + contact physics 파지: 받침대 �
 - 손목 좌표 안정화: visibility 필터(`MIN_VISIBILITY`) → 통과 프레임만 EMA 스무딩(`EMA_ALPHA`) → 전송. 필터 없이 저신뢰 프레임을 그대로 보내면 팔이 "flapping"함.
 - 손가락 curl 추출: HandLandmarker에서 손가락별 PIP 관절의 3D 굽힘각(MCP–PIP–TIP 사이 각, 편 손 ~180° / 주먹 ~60–90°)을 `CURL_EXTENDED_DEG`(165°)→0 / `CURL_CLOSED_DEG`(75°)→1로 선형 매핑 + clip — 검지(5,6,8)/중지(9,10,12)/약지(13,14,16). 관절각 기반이라 손 방향·카메라 거리와 무관하고 손가락별 독립. **이전의 2D tip-to-wrist 거리 비율 방식은 손바닥이 카메라를 정면으로 안 볼 때 값이 0.4~0.65 중간 대역에 압축되어 "손가락이 안 움직이는" 증상을 냈으므로(실측) 되돌리지 말 것.** 손이 감지 안 되면 마지막 curl 값들을 유지(hold), 0으로 스냅하지 않음. 웹캠 창에 추적 중인 3손가락 스켈레톤 + "HAND: OK / NOT DETECTED" 상태 표시(`draw_hand`), 손 감지 신뢰도 문턱은 0.4(상체 전체가 프레임에 들어와 손이 작게 잡히므로 0.5는 감지 드랍이 잦았음).
 - 좌우/깊이 캘리브레이션: `mujoco_receiver.py`는 첫 UDP 패킷의 x좌표(좌우 중심)와 z값(중립 깊이)을 자동 캘리브레이션, 뷰어 창에서 'C' 키로 언제든 재캘리브레이션 가능. **깊이 캘리브레이션은 필수** — MediaPipe pose z는 hip 기준 상대값이라 사람/자세마다 baseline이 -0.8~-1.9까지 달라(실측), 빼지 않고 `DEPTH_SCALE`로 매핑하면 목표점이 팔 베이스 뒤쪽(x≈-0.1~-0.46)으로 가서 팔이 받침대 반대편으로 뻗음("안 움직이는" 증상). 계산된 목표점은 추가로 `WORKSPACE_X/Y/Z` 박스로 클램프됨.
+- 팔꿈치 스윙(12필드 패킷): 사람의 스윙 변화를 로봇에 그대로 주지 않는다. ① `SWIVEL_LIMIT`=±40° (이 밖에서는 큐브 위치에서 들어올릴 때 IK 해가 한 번에 0.2~0.5 rad 점프), ② `SWIVEL_MAX_RATE`=90°/s로 램프 (`swivel_angle()`이 팔이 수직에 가까우면 기준을 바꿔 측정값이 한 프레임에 최대 90° 뜀), ③ 손가락을 쥐는 동안(`SWIVEL_HOLD_CURL`=0.3) 고정 (스윙이 움직이면 파지 안에서 큐브가 미끄러지거나 튕김). ①이나 ③을 빼면 `swing-jump`가 실패하고, ②를 빼면 통과하지만 스윙이 급변하는 구간에서 손 이탈(7.9→2.5 mm)·서보 지연(0.45→0.10 rad)이 3~4배 커진다 (수치는 `mujoco_receiver.py` 주석). 작업 영역 가장자리(x≥0.19, |y|≥0.15)에서는 스윙과 무관하게 IK 해가 점프하는 구간이 있다(STATUS.md).
 - IK 실패 시 폴백: `solve_ik` 결과가 NaN이거나 예외 발생 시 마지막으로 성공한 `last_good_qpos`를 그대로 사용해 팔이 튀지 않도록 함.
 - 그리퍼 구동: `mujoco_receiver.py`의 `apply_grip()`이 curl 3개를 손가락 6개 position actuator에 쓴다. curl 0→1이 근위 관절을 `FINGER_OPEN=-0.25`(큐브 높이에서 패드 간격 약 75~83 mm) → `FINGER_CLOSED=0.15` rad로 보간하고, 먼쪽 관절은 `(근위-FINGER_OPEN)*DISTAL_SCALE(0.1)`. DISTAL_SCALE을 0.3으로 두면 접촉 시 판이 기울어 큐브 모서리만 물고 들어올릴 때 미끄러진다(`check_grasp.py` 0/9). 0.1 근처만 9/9로 좁은 창이므로(FINGER_CLOSED=0.1일 때 0.05→8/9, 0.15→2/9) 손가락 기하·마찰을 바꾸면 `check_grasp.py`로 다시 확인할 것. 손가락3의 배치축(`ROTATION_BASE_ANGLE=-π`)은 `make_arm_urdf.py`에서 고정. 시작할 때 손가락 qpos도 열림 자세로 맞춘다(q=0이면 패드 간격이 큐브 폭과 같아 초기 접촉이 생김). qpos 직접 쓰기가 아니므로 contact 중 서보의 잔여 힘이 파지력이 된다.
 - 뷰어 카메라: `mujoco_receiver.py`가 시작 시 free camera를 `CAM_LOOKAT`(팔 작업공간 중심)으로 조준 — MuJoCo 기본 프레이밍은 바닥 평면까지 포함해 팔이 화면 위쪽에 치우침. 'T' 키로 `mjCAMERA_TRACKING`(trackbody=`MG996R`, 손) 토글. key callback은 뷰어 스레드에서 도는 만큼 플래그만 바꾸고, 실제 `viewer.cam` 변경은 메인 루프에서 `viewer.lock()` 안에서 적용.
