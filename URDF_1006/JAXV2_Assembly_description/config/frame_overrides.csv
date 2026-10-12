@@ -1,0 +1,17 @@
+link,parent_joint,joint_type,rule,original_roll_deg,original_pitch_deg,original_yaw_deg,post_roll_deg,post_pitch_deg,post_yaw_deg,role
+Finger_1_1,hand_base_to_finger_1_1,revolute,auto,-180.000000,90.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+Finger_1_2,finger_1_1_to_finger_1_2,revolute,auto,-180.000000,90.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+Finger_2_1,hand_base_to_finger_2_1,revolute,auto,-180.000000,90.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+Finger_2_2,finger_1_2_to_finger_2_2,revolute,auto,-180.000000,90.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+Finger_3_1,rotation_base_to_finger_3_1,revolute,auto,0.000000,90.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+Finger_3_2,finger_3_1_to_finger_3_2,revolute,auto,0.000000,90.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+MG996R,wrist_yaw_to_hand_base,revolute,auto,-180.000000,90.000000,0.000000,0.000000,0.000000,0.000000,revolute_axis_z
+RotationBody,hand_base_to_rotation_base,revolute,auto,0.000000,90.000000,0.000000,180.000000,0.000000,0.000000,revolute_axis_z
+Shoulder_Pitch,base_link_to_shoulder_pitch,fixed,keep,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,unchanged
+Shoulder_Roll,shoulder_pitch_to_shoulder_roll,revolute,auto,0.000000,0.000000,0.000000,-90.000000,0.000000,90.000000,revolute_axis_z
+Shoulder_Yaw,shoulder_roll_to_shoulder_yaw,revolute,auto,0.000000,0.000000,0.000000,-90.000000,0.000000,0.000000,revolute_axis_z
+Under_Arm,upper_arm_to_under_arm,revolute,auto,0.000000,0.000000,0.000000,-90.000000,0.000000,90.000000,revolute_axis_z
+Upper_Arm,shoulder_yaw_to_upper_arm,revolute,auto,0.000000,0.000000,0.000000,180.000000,0.000000,0.000000,revolute_axis_z
+Wrist_Pitch,under_arm_to_wrist_pitch,revolute,auto,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,revolute_axis_z
+Wrist_yaw,wrist_pitch_to_wrist_yaw,revolute,auto,0.000000,0.000000,0.000000,-90.000000,0.000000,90.000000,revolute_axis_z
+base_link,,root,auto,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,root_x_forward_z_up

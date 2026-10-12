@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="JAXV2_Assembly">
+
+  <!-- Materials (shared across all assemblies) -->
+  <material name="Acetal_Resin_White">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+  <material name="Generic">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+
+  <!-- Assembly includes -->
+  <xacro:include filename="$(find JAXV2_Assembly_description)/urdf/assemblies/JAXV2_Assembly.urdf.xacro"/>
+
+  <!-- Instantiate assemblies -->
+  <xacro:JAXV2_Assembly prefix=""/>
+
+</robot>

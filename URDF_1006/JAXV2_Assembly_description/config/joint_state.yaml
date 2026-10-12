@@ -1,0 +1,37 @@
+# Joint configuration for joint_state_publisher_gui
+
+joint_state_publisher:
+  ros__parameters:
+    # Joint names and default positions
+    zeros:
+      finger_1_1_to_finger_1_2: 0.0
+      finger_1_2_to_finger_2_2: 0.0
+      finger_3_1_to_finger_3_2: 0.0
+      hand_base_to_finger_1_1: 0.0
+      hand_base_to_finger_2_1: 0.0
+      hand_base_to_rotation_base: 0.0
+      rotation_base_to_finger_3_1: 0.0
+      shoulder_pitch_to_shoulder_roll: 0.0
+      shoulder_roll_to_shoulder_yaw: 0.0
+      shoulder_yaw_to_upper_arm: 0.0
+      under_arm_to_wrist_pitch: 0.0
+      upper_arm_to_under_arm: 0.0
+      wrist_pitch_to_wrist_yaw: 0.0
+      wrist_yaw_to_hand_base: 0.0
+
+    # Joints to publish
+    source_list:
+      - finger_1_1_to_finger_1_2
+      - finger_1_2_to_finger_2_2
+      - finger_3_1_to_finger_3_2
+      - hand_base_to_finger_1_1
+      - hand_base_to_finger_2_1
+      - hand_base_to_rotation_base
+      - rotation_base_to_finger_3_1
+      - shoulder_pitch_to_shoulder_roll
+      - shoulder_roll_to_shoulder_yaw
+      - shoulder_yaw_to_upper_arm
+      - under_arm_to_wrist_pitch
+      - upper_arm_to_under_arm
+      - wrist_pitch_to_wrist_yaw
+      - wrist_yaw_to_hand_base

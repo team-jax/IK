@@ -1,0 +1,2936 @@
+{
+  "cache_version": 1,
+  "config": {
+    "collision_auto_method": "primitive",
+    "collision_format": "stl",
+    "export_collision_mesh": true,
+    "export_visual_mesh": true,
+    "frame_convention": "ros",
+    "frame_overrides_filename": "frame_overrides.csv",
+    "include_debug": true,
+    "include_docs": true,
+    "include_launch": true,
+    "include_readme": true,
+    "include_robot_data_yaml": true,
+    "include_ros2_control": true,
+    "include_rviz": true,
+    "include_screenshot": true,
+    "mesh_refinement": "medium",
+    "output_dir": "/Users/kiwi/URDF_1006",
+    "override_explicit_collision": false,
+    "package_name": "JAXV2_Assembly_description",
+    "robot_prefix": "",
+    "ros2_control_command_interfaces": [
+      "position",
+      "velocity"
+    ],
+    "ros2_control_hardware_plugin": "mock_components/GenericSystem",
+    "ros2_control_update_rate": 100,
+    "use_xacro": false,
+    "verbosity": "verbose",
+    "visual_format": "dae",
+    "zip_name": "",
+    "zip_output": false
+  },
+  "model": {
+    "assemblies": {
+      "JAXV2_Assembly": {
+        "children_assemblies": [],
+        "depth": 0,
+        "global_offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "global_rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "joints": [
+          "base_link_to_shoulder_pitch",
+          "shoulder_pitch_to_shoulder_roll",
+          "shoulder_roll_to_shoulder_yaw",
+          "shoulder_yaw_to_upper_arm",
+          "upper_arm_to_under_arm",
+          "under_arm_to_wrist_pitch",
+          "wrist_pitch_to_wrist_yaw",
+          "wrist_yaw_to_hand_base",
+          "hand_base_to_rotation_base",
+          "hand_base_to_finger_1_1",
+          "hand_base_to_finger_2_1",
+          "rotation_base_to_finger_3_1",
+          "finger_1_1_to_finger_1_2",
+          "finger_1_2_to_finger_2_2",
+          "finger_3_1_to_finger_3_2"
+        ],
+        "links": [
+          "Shoulder_Pitch",
+          "Shoulder_Roll",
+          "Shoulder_Yaw",
+          "Upper_Arm",
+          "Under_Arm",
+          "Wrist_yaw",
+          "Wrist_Pitch",
+          "MG996R",
+          "RotationBody",
+          "Finger_1_1",
+          "Finger_1_2",
+          "Finger_2_1",
+          "Finger_2_2",
+          "Finger_3_1",
+          "Finger_3_2",
+          "base_link"
+        ],
+        "name": "JAXV2_Assembly",
+        "parent_assembly": null
+      }
+    },
+    "closing_joints": {},
+    "errors": [],
+    "joints": {
+      "base_link_to_shoulder_pitch": {
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "Shoulder_Pitch",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "fixed",
+        "limits": null,
+        "name": "base_link_to_shoulder_pitch",
+        "origin_global": [
+          -0.15,
+          -4.4408920985006264e-17,
+          0.85
+        ],
+        "origin_method": "child_minus_parent",
+        "origin_rpy": [
+          6.651720301318736e-43,
+          -0.0,
+          0.0
+        ],
+        "origin_xyz": [
+          -0.16,
+          -4.4408920985006264e-17,
+          0.85
+        ],
+        "parent_link": "base_link"
+      },
+      "finger_1_1_to_finger_1_2": {
+        "axis": [
+          1.2246467991473436e-16,
+          1.0,
+          8.326672684688658e-17
+        ],
+        "child_link": "Finger_1_2",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": 0.0,
+          "upper": 2.0943951023931953,
+          "velocity": 1.0
+        },
+        "name": "finger_1_1_to_finger_1_2",
+        "origin_global": [
+          -0.28200032556697363,
+          -0.031826401052230203,
+          0.18669029637292855
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          -8.326672684688614e-17,
+          5.423418723394456e-31,
+          9.470910429910545e-17
+        ],
+        "origin_xyz": [
+          0.06500000000000006,
+          -0.0003000000000000115,
+          1.446985895266772e-17
+        ],
+        "parent_link": "Finger_1_1"
+      },
+      "finger_1_2_to_finger_2_2": {
+        "axis": [
+          1.2246467991473436e-16,
+          1.0,
+          -1.6321481209662477e-31
+        ],
+        "child_link": "Finger_2_2",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": 0.0,
+          "upper": 2.0943951023931953,
+          "velocity": 1.0
+        },
+        "name": "finger_1_2_to_finger_2_2",
+        "origin_global": [
+          -0.28200032556697363,
+          0.0051735989477697895,
+          0.18669029637292853
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          5.984530567289741e-31,
+          5.423418723394456e-31,
+          9.470910429910545e-17
+        ],
+        "origin_xyz": [
+          0.06499999999999992,
+          -0.0002999999999999933,
+          1.4469858952667687e-17
+        ],
+        "parent_link": "Finger_2_1"
+      },
+      "finger_3_1_to_finger_3_2": {
+        "axis": [
+          -1.579292252529294e-14,
+          -1.0,
+          -1.57929225252928e-14
+        ],
+        "child_link": "Finger_3_2",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": 0.0,
+          "upper": 2.0943951023931953,
+          "velocity": 1.0
+        },
+        "name": "finger_3_1_to_finger_3_2",
+        "origin_global": [
+          -0.2809129346310036,
+          -0.06916967865654167,
+          0.18710623279808986
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          1.8271444379960345e-30,
+          -2.4928004604983973e-28,
+          1.582067810090857e-14
+        ],
+        "origin_xyz": [
+          0.06499999999999995,
+          0.00030000000000000214,
+          2.3590036987465087e-18
+        ],
+        "parent_link": "Finger_3_1"
+      },
+      "hand_base_to_finger_1_1": {
+        "axis": [
+          1.224646799147312e-16,
+          1.0,
+          4.248089300648023e-31
+        ],
+        "child_link": "Finger_1_1",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.5707963267948966,
+          "upper": 1.5707963267948966,
+          "velocity": 1.0
+        },
+        "name": "hand_base_to_finger_1_1",
+        "origin_global": [
+          -0.28200032556697363,
+          -0.032126401052229935,
+          0.2516902963729286
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          -2.1466462229272282e-32,
+          5.423418723394456e-31,
+          2.7512034580069023e-16
+        ],
+        "origin_xyz": [
+          0.0723211254439401,
+          0.033334891838096375,
+          0.019999999999999976
+        ],
+        "parent_link": "MG996R"
+      },
+      "hand_base_to_finger_2_1": {
+        "axis": [
+          1.224646799147312e-16,
+          1.0,
+          4.248089300648023e-31
+        ],
+        "child_link": "Finger_2_1",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.5707963267948966,
+          "upper": 1.5707963267948966,
+          "velocity": 1.0
+        },
+        "name": "hand_base_to_finger_2_1",
+        "origin_global": [
+          -0.28200032556697363,
+          0.004873598947770077,
+          0.25169029637292845
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          -2.1466462229272282e-32,
+          5.423418723394456e-31,
+          2.7512034580069023e-16
+        ],
+        "origin_xyz": [
+          0.07232112544394013,
+          -0.0036651081619036357,
+          0.01999999999999998
+        ],
+        "parent_link": "MG996R"
+      },
+      "hand_base_to_rotation_base": {
+        "axis": [
+          1.0,
+          -3.747002708109872e-16,
+          -1.5777218104420236e-30
+        ],
+        "child_link": "RotationBody",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -3.141592653589793,
+          "upper": 0.0,
+          "velocity": 1.0
+        },
+        "name": "hand_base_to_rotation_base",
+        "origin_global": [
+          -0.25991293463100235,
+          -0.024352223682048414,
+          0.2782535099387187
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          3.141592653589793,
+          -8.798517470154377e-15,
+          4.454769886515265e-15
+        ],
+        "origin_xyz": [
+          0.04575791187814997,
+          0.02556071446791496,
+          -0.002087390935971316
+        ],
+        "parent_link": "MG996R"
+      },
+      "rotation_base_to_finger_3_1": {
+        "axis": [
+          -1.5792922525292804e-14,
+          -1.0,
+          -1.5792922525292804e-14
+        ],
+        "child_link": "Finger_3_1",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.5707963267948966,
+          "upper": 1.5707963267948966,
+          "velocity": 1.0
+        },
+        "name": "rotation_base_to_finger_3_1",
+        "origin_global": [
+          -0.28091293463100303,
+          -0.06946967865654213,
+          0.2521062327980898
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          2.5090976896308743e-31,
+          -2.461246024289557e-28,
+          1.5640266859406845e-14
+        ],
+        "origin_xyz": [
+          0.026147277140629484,
+          -0.045117454974493494,
+          -0.02100000000000046
+        ],
+        "parent_link": "RotationBody"
+      },
+      "shoulder_pitch_to_shoulder_roll": {
+        "axis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "Shoulder_Roll",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -0.7853981633974483,
+          "upper": 0.7853981633974483,
+          "velocity": 1.0
+        },
+        "name": "shoulder_pitch_to_shoulder_roll",
+        "origin_global": [
+          -0.21200000000000002,
+          -3.1086244689504386e-17,
+          0.85
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          1.3417361776621902e-42,
+          -0.0,
+          0.0
+        ],
+        "origin_xyz": [
+          -0.05200000000000002,
+          1.3322676295501878e-17,
+          0.0
+        ],
+        "parent_link": "Shoulder_Pitch"
+      },
+      "shoulder_roll_to_shoulder_yaw": {
+        "axis": [
+          7.216449660063519e-15,
+          1.0,
+          1.877781695777555e-31
+        ],
+        "child_link": "Shoulder_Yaw",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": 0.0,
+          "upper": 0.7853981633974483,
+          "velocity": 1.0
+        },
+        "name": "shoulder_roll_to_shoulder_yaw",
+        "origin_global": [
+          -0.2620000009238722,
+          -0.024499999999999765,
+          0.85
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          -1.7347234759704962e-18,
+          -0.0,
+          0.0
+        ],
+        "origin_xyz": [
+          -0.050000000923872134,
+          -0.024499999999999713,
+          0.0
+        ],
+        "parent_link": "Shoulder_Roll"
+      },
+      "shoulder_yaw_to_upper_arm": {
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "child_link": "Upper_Arm",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.5707963267948966,
+          "upper": 4.1887902047863905,
+          "velocity": 1.0
+        },
+        "name": "shoulder_yaw_to_upper_arm",
+        "origin_global": [
+          -0.2620000009238722,
+          0.0010000004470350897,
+          0.723
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          0.0,
+          -0.0,
+          1.1210387714598537e-44
+        ],
+        "origin_xyz": [
+          -5.044674471569346e-47,
+          0.025500000447034855,
+          -0.127
+        ],
+        "parent_link": "Shoulder_Yaw"
+      },
+      "under_arm_to_wrist_pitch": {
+        "axis": [
+          -1.2246467991475504e-16,
+          1.8041124150158715e-16,
+          1.0
+        ],
+        "child_link": "Wrist_Pitch",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.5707963267948966,
+          "upper": 1.5707963267948966,
+          "velocity": 1.0
+        },
+        "name": "under_arm_to_wrist_pitch",
+        "origin_global": [
+          -0.26200032586499694,
+          0.0012084907858670529,
+          0.4722114229493568
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          -3.427980263388538e-15,
+          -0.0,
+          1.1210387714598537e-44
+        ],
+        "origin_xyz": [
+          0.024499675058875237,
+          5.2692225582795515e-17,
+          -0.12099706738947458
+        ],
+        "parent_link": "Under_Arm"
+      },
+      "upper_arm_to_under_arm": {
+        "axis": [
+          -1.0,
+          -1.1210387714598537e-44,
+          0.0
+        ],
+        "child_link": "Under_Arm",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.8325957145940461,
+          "upper": 1.8325957145940461,
+          "velocity": 1.0
+        },
+        "name": "upper_arm_to_under_arm",
+        "origin_global": [
+          -0.2865000009238722,
+          0.0012084907858670002,
+          0.5932084903388314
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          0.0,
+          -0.0,
+          1.1210387714598537e-44
+        ],
+        "origin_xyz": [
+          -0.024499999999999966,
+          0.00020849033883191042,
+          -0.1297915096611686
+        ],
+        "parent_link": "Upper_Arm"
+      },
+      "wrist_pitch_to_wrist_yaw": {
+        "axis": [
+          -1.0,
+          -5.605193857299268e-45,
+          0.0
+        ],
+        "child_link": "Wrist_yaw",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -1.5707963267948966,
+          "upper": 1.5707963267948966,
+          "velocity": 1.0
+        },
+        "name": "wrist_pitch_to_wrist_yaw",
+        "origin_global": [
+          -0.2820003258649969,
+          0.0012084907858669958,
+          0.4010114229493568
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          0.0,
+          -0.0,
+          5.605193857299268e-45
+        ],
+        "origin_xyz": [
+          -0.019999999999999962,
+          -5.702903427273753e-17,
+          -0.07119999999999999
+        ],
+        "parent_link": "Wrist_Pitch"
+      },
+      "wrist_yaw_to_hand_base": {
+        "axis": [
+          -1.0,
+          8.465450562766827e-16,
+          -3.388131788622771e-21
+        ],
+        "child_link": "MG996R",
+        "closing_source": "",
+        "fusion_source": "regular",
+        "is_closing": false,
+        "is_mount": false,
+        "is_passive": false,
+        "joint_type": "revolute",
+        "limits": {
+          "effort": 100.0,
+          "lower": -2.0943951023931953,
+          "upper": 2.0943951023931953,
+          "velocity": 1.0
+        },
+        "name": "wrist_yaw_to_hand_base",
+        "origin_global": [
+          -0.26200032556697367,
+          0.0012084907858667315,
+          0.3240114218168686
+        ],
+        "origin_method": "joint_minus_parent",
+        "origin_rpy": [
+          -3.141592653589793,
+          1.5707963267948966,
+          0.0
+        ],
+        "origin_xyz": [
+          0.020000000298023235,
+          -2.64328489651966e-16,
+          -0.07700000113248823
+        ],
+        "parent_link": "Wrist_yaw"
+      }
+    },
+    "links": {
+      "Finger_1_1": {
+        "area_m2": 0.007422380341570176,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0911,
+          0.044715,
+          0.0159337705563607
+        ],
+        "bbox_min": [
+          -0.0003349999999999853,
+          0.01,
+          -2.983724378680108e-18
+        ],
+        "bbox_size": [
+          0.09143499999999999,
+          0.034714999999999996,
+          0.015933770556360704
+        ],
+        "body_count": 3,
+        "clean_name": "Finger_1_1",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Finger_1_1_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.045382500000000006,
+              0.0273575,
+              0.007966885278180348
+            ],
+            "shape": "box",
+            "size": [
+              0.09143499999999999,
+              0.034714999999999996,
+              0.015933770556360704
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0911,
+          0.044715,
+          0.0159337705563607
+        ],
+        "collision_bbox_min": [
+          -0.0003349999999999853,
+          0.01,
+          -2.983724378680108e-18
+        ],
+        "collision_bbox_size": [
+          0.09143499999999999,
+          0.034714999999999996,
+          0.015933770556360704
+        ],
+        "collision_body_count": 3,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 2.0271320835899846e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.07002751168004107,
+          0.024033083353844138,
+          0.006504766034138513
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2755003255669736,
+          0.010673598947770131,
+          0.26694029637292843
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 5.8190453811108765e-06,
+          "ixy": 1.5965180551002589e-06,
+          "ixz": 9.291950484274867e-09,
+          "iyy": 1.4784990732025064e-05,
+          "iyz": 1.6583069315571729e-09,
+          "izz": 1.8855084052674456e-05
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.07141871343262138,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -0.015250000000000003,
+          -0.042800000000000005,
+          -0.006500000000000004
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Finger_1_1_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Finger_1_1.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Finger_1-1:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          2.2204799305682033e-16,
+          -1.2246467991473515e-16,
+          -1.0,
+          -4.3154579962090355e-15,
+          -1.0,
+          1.2246467991473357e-16,
+          -1.0,
+          4.315457996209036e-15,
+          -2.2204799305682033e-16
+        ],
+        "urdf_name": "Finger_1_1",
+        "volume_m3": 2.0271320835899846e-05,
+        "wants_accurate_collision": false
+      },
+      "Finger_1_2": {
+        "area_m2": 0.004147481548857917,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.12983632401630682,
+          0.04501714664960844,
+          0.013237583610882666
+        ],
+        "bbox_min": [
+          0.06409733137137755,
+          0.010587146649608435,
+          0.00023758361088267456
+        ],
+        "bbox_size": [
+          0.06573899264492927,
+          0.03443,
+          0.012999999999999992
+        ],
+        "body_count": 2,
+        "clean_name": "Finger_1_2",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Finger_1_2_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.09696682769384218,
+              0.027802146649608436,
+              0.00673758361088267
+            ],
+            "shape": "box",
+            "size": [
+              0.06573899264492927,
+              0.03443,
+              0.012999999999999992
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.12983632401630682,
+          0.04501714664960844,
+          0.013237583610882666
+        ],
+        "collision_bbox_min": [
+          0.06409733137137755,
+          0.010587146649608435,
+          0.00023758361088267456
+        ],
+        "collision_bbox_size": [
+          0.06573899264492927,
+          0.03443,
+          0.012999999999999992
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 1.1311880427034345e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.10755581259355466,
+          0.02899749404356226,
+          0.0067375836108778
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.27526274195609096,
+          0.011275745597378588,
+          0.26637262774430587
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 1.0762660660783553e-06,
+          "ixy": 3.114506369696998e-07,
+          "ixz": -1.5449880957918438e-18,
+          "iyy": 1.3973981244675435e-06,
+          "iyz": 7.674118502123961e-19,
+          "izz": 2.2120284508262745e-06
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.011311880427034345,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -0.07968233137137751,
+          -0.04310214664960844,
+          -0.006737583610882685
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Finger_1_2_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Finger_1_2.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Finger_1-2:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          2.2204799305682033e-16,
+          -3.919795306784841e-17,
+          -1.0,
+          -4.410167100508142e-15,
+          -1.0,
+          3.919795306784762e-17,
+          -1.0,
+          4.410167100508142e-15,
+          -2.2204799305682033e-16
+        ],
+        "urdf_name": "Finger_1_2",
+        "volume_m3": 1.1311880427034345e-05,
+        "wants_accurate_collision": false
+      },
+      "Finger_2_1": {
+        "area_m2": 0.007422380341570176,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0911,
+          0.007714999999999999,
+          0.0159337705563607
+        ],
+        "bbox_min": [
+          -0.0003349999999999853,
+          -0.027000000000000003,
+          -2.983724378680108e-18
+        ],
+        "bbox_size": [
+          0.09143499999999999,
+          0.034715,
+          0.015933770556360704
+        ],
+        "body_count": 3,
+        "clean_name": "Finger_2_1",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Finger_2_1_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.045382500000000006,
+              -0.009642500000000002,
+              0.007966885278180348
+            ],
+            "shape": "box",
+            "size": [
+              0.09143499999999999,
+              0.034715,
+              0.015933770556360704
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0911,
+          0.007714999999999999,
+          0.0159337705563607
+        ],
+        "collision_bbox_min": [
+          -0.0003349999999999853,
+          -0.027000000000000003,
+          -2.983724378680108e-18
+        ],
+        "collision_bbox_size": [
+          0.09143499999999999,
+          0.034715,
+          0.015933770556360704
+        ],
+        "collision_body_count": 3,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 2.0271320835899768e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.07002751168004102,
+          -0.012966918329802365,
+          0.006504766034138512
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2755003255669736,
+          0.01067359894777014,
+          0.26694029637292843
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 5.8190467117492365e-06,
+          "ixy": 1.5965096347218507e-06,
+          "ixz": 9.29195048426809e-09,
+          "iyy": 1.4784990732025281e-05,
+          "iyz": 1.6575247733766508e-09,
+          "izz": 1.8855085383313126e-05
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.07141871343262075,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -0.01525000000000001,
+          -0.005799999999999998,
+          -0.006500000000000008
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Finger_2_1_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Finger_2_1.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Finger_2-1:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          2.2204799305682033e-16,
+          -1.2246467991473515e-16,
+          -1.0,
+          -4.3154579962090355e-15,
+          -1.0,
+          1.2246467991473357e-16,
+          -1.0,
+          4.315457996209036e-15,
+          -2.2204799305682033e-16
+        ],
+        "urdf_name": "Finger_2_1",
+        "volume_m3": 2.0271320835899768e-05,
+        "wants_accurate_collision": false
+      },
+      "Finger_2_2": {
+        "area_m2": 0.004147481548857916,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.1304039926449293,
+          0.007714999999999999,
+          0.012999999999999998
+        ],
+        "bbox_min": [
+          0.06466500000000003,
+          -0.026715000000000003,
+          8.881784197001253e-18
+        ],
+        "bbox_size": [
+          0.06573899264492927,
+          0.03443,
+          0.012999999999999989
+        ],
+        "body_count": 2,
+        "clean_name": "Finger_2_2",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Finger_2_2_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.09753449632246466,
+              -0.009500000000000001,
+              0.006500000000000003
+            ],
+            "shape": "box",
+            "size": [
+              0.06573899264492927,
+              0.03443,
+              0.012999999999999989
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.1304039926449293,
+          0.007714999999999999,
+          0.012999999999999998
+        ],
+        "collision_bbox_min": [
+          0.06466500000000003,
+          -0.026715000000000003,
+          8.881784197001253e-18
+        ],
+        "collision_bbox_size": [
+          0.06573899264492927,
+          0.03443,
+          0.012999999999999989
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 1.1311880427034348e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.10812348122217715,
+          -0.008304652606046105,
+          0.006499999999995131
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2755003255669736,
+          0.010973598947770143,
+          0.2669402963729285
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 1.0762660660783394e-06,
+          "ixy": 3.1145063696977943e-07,
+          "ixz": -1.548376227580861e-18,
+          "iyy": 1.3973981244675706e-06,
+          "iyz": 7.725999270143287e-19,
+          "izz": 2.2120284508262203e-06
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.011311880427034349,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -0.08024999999999999,
+          -0.0058000000000000005,
+          -0.006500000000000023
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Finger_2_2_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Finger_2_2.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Finger_2-2:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          2.2204799305682033e-16,
+          -1.2246467991473515e-16,
+          -1.0,
+          -4.410167100508142e-15,
+          -1.0,
+          1.2246467991473436e-16,
+          -1.0,
+          4.4101671005081425e-15,
+          -2.2204799305682033e-16
+        ],
+        "urdf_name": "Finger_2_2",
+        "volume_m3": 1.1311880427034348e-05,
+        "wants_accurate_collision": false
+      },
+      "Finger_3_1": {
+        "area_m2": 0.007422380341570176,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0911,
+          0.0219852678848768,
+          -0.029999999999999805
+        ],
+        "bbox_min": [
+          -0.0003349999999999853,
+          -0.012729732115123328,
+          -0.045933770556360595
+        ],
+        "bbox_size": [
+          0.09143499999999999,
+          0.03471500000000013,
+          0.01593377055636079
+        ],
+        "body_count": 3,
+        "clean_name": "Finger_3_1",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Finger_3_1_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.045382500000000006,
+              0.004627767884876736,
+              -0.0379668852781802
+            ],
+            "shape": "box",
+            "size": [
+              0.09143499999999999,
+              0.03471500000000013,
+              0.01593377055636079
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0911,
+          0.0219852678848768,
+          -0.029999999999999805
+        ],
+        "collision_bbox_min": [
+          -0.0003349999999999853,
+          -0.012729732115123328,
+          -0.045933770556360595
+        ],
+        "collision_bbox_size": [
+          0.09143499999999999,
+          0.03471500000000013,
+          0.01593377055636079
+        ],
+        "collision_body_count": 3,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 2.0271320876080467e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.07002751169608681,
+          0.007952185927041682,
+          -0.036504767401757135
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.24441293463100258,
+          -0.05865494654141895,
+          0.26735623279808957
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 5.819042912148112e-06,
+          "ixy": -1.5965107625504348e-06,
+          "ixz": -9.298789979282542e-09,
+          "iyy": 1.4784986514685696e-05,
+          "iyz": 1.6568539981160922e-09,
+          "izz": 1.8855085763845917e-05
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.07141871374094201,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -0.01525,
+          0.010814732115123292,
+          0.03650000000000032
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Finger_3_1_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Finger_3_1.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Finger_3-1:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          -8.576469477097312e-15,
+          1.3883951931889808e-28,
+          1.0,
+          7.145159322483234e-15,
+          1.0,
+          -7.573064690121712e-29,
+          -1.0,
+          7.145159322483234e-15,
+          -8.576469477097312e-15
+        ],
+        "urdf_name": "Finger_3_1",
+        "volume_m3": 2.0271320876080467e-05,
+        "wants_accurate_collision": false
+      },
+      "Finger_3_2": {
+        "area_m2": 0.0041474815488579155,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.1304039926449293,
+          0.02170026788487662,
+          -0.029999999999999832
+        ],
+        "bbox_min": [
+          0.06466500000000003,
+          -0.012729732115123328,
+          -0.043000000000000274
+        ],
+        "bbox_size": [
+          0.06573899264492927,
+          0.03442999999999995,
+          0.013000000000000442
+        ],
+        "body_count": 2,
+        "clean_name": "Finger_3_2",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Finger_3_2_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.09753449632246466,
+              0.004485267884876645,
+              -0.03650000000000005
+            ],
+            "shape": "box",
+            "size": [
+              0.06573899264492927,
+              0.03442999999999995,
+              0.013000000000000442
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.1304039926449293,
+          0.02170026788487662,
+          -0.029999999999999832
+        ],
+        "collision_bbox_min": [
+          0.06466500000000003,
+          -0.012729732115123328,
+          -0.043000000000000274
+        ],
+        "collision_bbox_size": [
+          0.06573899264492927,
+          0.03442999999999995,
+          0.013000000000000442
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 1.1311880427034611e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.10812348122217688,
+          0.003289920490922664,
+          -0.03649999999999516
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.24441293463100258,
+          -0.05835494654142023,
+          0.2673562327980898
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 1.0762660660783706e-06,
+          "ixy": -3.114506369697879e-07,
+          "ixz": 1.5382118322138094e-18,
+          "iyy": 1.3973981244673537e-06,
+          "iyz": 7.608473448711753e-19,
+          "izz": 2.2120284508260306e-06
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.01131188042703461,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -0.08025,
+          0.010814732115123276,
+          0.03650000000000032
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Finger_3_2_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Finger_3_2.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Finger_3-2:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          -8.576469477097062e-15,
+          2.745235950169121e-28,
+          1.0,
+          2.2965837423391803e-14,
+          1.0,
+          -7.888609052210118e-29,
+          -1.0,
+          2.29658374233918e-14,
+          -8.576469477097062e-15
+        ],
+        "urdf_name": "Finger_3_2",
+        "volume_m3": 1.1311880427034611e-05,
+        "wants_accurate_collision": false
+      },
+      "MG996R": {
+        "area_m2": 0.029954759860233028,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0261,
+          0.04449510816190361,
+          0.016000000193715103
+        ],
+        "bbox_min": [
+          -0.05707112544394009,
+          -0.0319848918380964,
+          -0.027085415008785
+        ],
+        "bbox_size": [
+          0.08317112544394009,
+          0.07648,
+          0.0430854152025001
+        ],
+        "body_count": 6,
+        "clean_name": "MG996R",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/MG996R_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": [
+              -0.06793514124285538,
+              -0.9649679567109904,
+              -0.2534199264172603,
+              0.9971686069912185,
+              -0.05746390875704829,
+              -0.04850431343246151,
+              0.032242608695732485,
+              -0.2559975423932385,
+              0.9661395719424374
+            ],
+            "origin_rpy": [
+              -0.2590172539207005,
+              -0.032248197803897545,
+              1.6388192540225237
+            ],
+            "origin_xyz": [
+              -0.033905451332298706,
+              -0.0012786015489717189,
+              -0.013858237745217664
+            ],
+            "shape": "box",
+            "size": [
+              0.0540789256943016,
+              0.044898453349186546,
+              0.028149505435641823
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0261,
+          0.04449510816190361,
+          0.016000000193715103
+        ],
+        "collision_bbox_min": [
+          -0.05707112544394009,
+          -0.0319848918380964,
+          -0.027085415008785
+        ],
+        "collision_bbox_size": [
+          0.08317112544394009,
+          0.07648,
+          0.0430854152025001
+        ],
+        "collision_body_count": 6,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 9.961464885447845e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          -0.014834367649221806,
+          -0.002289961198582751,
+          0.0005193294749033987
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2755003255669736,
+          0.01037359894777013,
+          0.26694029637292843
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.0002768890230052925,
+          "ixy": -6.982530004262097e-06,
+          "ixz": -3.534616068970439e-05,
+          "iyy": 0.0001972417491418013,
+          "iyz": 2.2379891113002738e-05,
+          "izz": 0.0003899469992438392
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.4198853856179693,
+        "material_name": "Generic",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.05707112544394012,
+          -0.009165108161903628,
+          0.01349999999999997
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/MG996R_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/MG996R.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "MG996R:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          2.2204799305682033e-16,
+          -1.224646799147349e-16,
+          -1.0,
+          -4.040337650408341e-15,
+          -1.0,
+          1.224646799147342e-16,
+          -1.0,
+          4.040337650408345e-15,
+          -2.2204799305682033e-16
+        ],
+        "urdf_name": "MG996R",
+        "volume_m3": 9.961464885447845e-05,
+        "wants_accurate_collision": false
+      },
+      "RotationBody": {
+        "area_m2": 0.008167482131967252,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0261,
+          0.03795272285937021,
+          -0.012149999999999798
+        ],
+        "bbox_min": [
+          -0.0418972771406296,
+          -0.010514732115123309,
+          -0.043992889577647507
+        ],
+        "bbox_size": [
+          0.0679972771406296,
+          0.04846745497449352,
+          0.03184288957764771
+        ],
+        "body_count": 3,
+        "clean_name": "RotationBody",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/RotationBody_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              -0.0078986385703148,
+              0.01371899537212345,
+              -0.028071444788823653
+            ],
+            "shape": "box",
+            "size": [
+              0.0679972771406296,
+              0.04846745497449352,
+              0.03184288957764771
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0261,
+          0.03795272285937021,
+          -0.012149999999999798
+        ],
+        "collision_bbox_min": [
+          -0.0418972771406296,
+          -0.010514732115123309,
+          -0.043992889577647507
+        ],
+        "collision_bbox_size": [
+          0.0679972771406296,
+          0.04846745497449352,
+          0.03184288957764771
+        ],
+        "collision_body_count": 3,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 2.331589998663411e-05,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.004020506254878334,
+          0.010173525591460243,
+          -0.03614481751248781
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.24441293463100267,
+          -0.05895494654141872,
+          0.26735623279808934
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 6.1257700778737285e-06,
+          "ixy": 2.656915990292403e-06,
+          "ixz": 4.350215677229952e-07,
+          "iyy": 1.7843365003707555e-05,
+          "iyz": -2.944842699120511e-07,
+          "izz": 2.153303240633336e-05
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.07446329285149565,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.010897277140629541,
+          -0.03460272285937021,
+          0.015499999999999774
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/RotationBody_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/RotationBody.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "RotationBody:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          -8.576469477097558e-15,
+          4.7331654313253534e-30,
+          1.0,
+          -8.495107536923609e-15,
+          1.0,
+          -7.730836871165847e-29,
+          -1.0,
+          -8.495107536923612e-15,
+          -8.576469477097558e-15
+        ],
+        "urdf_name": "RotationBody",
+        "volume_m3": 2.331589998663411e-05,
+        "wants_accurate_collision": false
+      },
+      "Shoulder_Pitch": {
+        "area_m2": 0.029877651007477513,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.01,
+          0.037500000000000006,
+          0.037500000000000006
+        ],
+        "bbox_min": [
+          -0.054000000000000006,
+          -0.037500000000000006,
+          -0.037500000000000006
+        ],
+        "bbox_size": [
+          0.064,
+          0.07500000000000001,
+          0.07500000000000001
+        ],
+        "body_count": 2,
+        "clean_name": "Shoulder_Pitch",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Shoulder_Pitch_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              -0.022000000000000002,
+              0.0,
+              0.0
+            ],
+            "shape": "sphere",
+            "size": [
+              0.03566666666666667,
+              0.0,
+              0.0
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.01,
+          0.037500000000000006,
+          0.037500000000000006
+        ],
+        "collision_bbox_min": [
+          -0.054000000000000006,
+          -0.037500000000000006,
+          -0.037500000000000006
+        ],
+        "collision_bbox_size": [
+          0.064,
+          0.07500000000000001,
+          0.07500000000000001
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.0001724458175257259,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          -0.024397141713148673,
+          9.766240189939149e-14,
+          0.00030616608531632743
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.16,
+          -4.4408920985006264e-17,
+          0.85
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.00039403599069862865,
+          "ixy": -1.2009104820290314e-14,
+          "ixz": -5.849335124808871e-06,
+          "iyy": 0.0004417817625283764,
+          "iyz": -2.4193652562301787e-15,
+          "izz": 0.00044908180934792347
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.997345814185444,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Shoulder_Pitch_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Shoulder_Pitch.dae",
+        "needs_mesh_bake": false,
+        "occurrence_path": "Shoulder_Pitch:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          6.7656414753031666e-43,
+          0.0,
+          6.651720301318736e-43,
+          1.0
+        ],
+        "urdf_name": "Shoulder_Pitch",
+        "volume_m3": 0.0001724458175257259,
+        "wants_accurate_collision": false
+      },
+      "Shoulder_Roll": {
+        "area_m2": 0.054427519106335705,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          1.0658141036401502e-16,
+          0.037500000000000554,
+          0.03749999999999999
+        ],
+        "bbox_min": [
+          -0.08749999817786919,
+          -0.03749999999999996,
+          -0.0375
+        ],
+        "bbox_size": [
+          0.0874999981778693,
+          0.07500000000000051,
+          0.07499999999999998
+        ],
+        "body_count": 2,
+        "clean_name": "Shoulder_Roll",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Shoulder_Roll_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              -0.04374999908893454,
+              2.983724378680108e-16,
+              -3.469446951953614e-18
+            ],
+            "shape": "sphere",
+            "size": [
+              0.039583333029644965,
+              0.0,
+              0.0
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          1.0658141036401502e-16,
+          0.037500000000000554,
+          0.03749999999999999
+        ],
+        "collision_bbox_min": [
+          -0.08749999817786919,
+          -0.03749999999999996,
+          -0.0375
+        ],
+        "collision_bbox_size": [
+          0.0874999981778693,
+          0.07500000000000051,
+          0.07499999999999998
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.0002627992747348933,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          -0.04797705397888226,
+          0.002826492761364122,
+          0.00022079639439847646
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.21200000000000008,
+          -5.329070518200751e-17,
+          0.85
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.0005175399433503762,
+          "ixy": 1.1101630899894787e-06,
+          "ixz": 4.857296311725557e-07,
+          "iyy": 0.0005655319154798961,
+          "iyz": -4.646551557949241e-06,
+          "izz": 0.0005931984690454423
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 1.0876992713946103,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Shoulder_Roll_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Shoulder_Roll.dae",
+        "needs_mesh_bake": false,
+        "occurrence_path": "Shoulder_Roll:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          6.7656414753031666e-43,
+          0.0,
+          6.651720301318736e-43,
+          1.0
+        ],
+        "urdf_name": "Shoulder_Roll",
+        "volume_m3": 0.0002627992747348933,
+        "wants_accurate_collision": false
+      },
+      "Shoulder_Yaw": {
+        "area_m2": 0.06115127464295206,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0375,
+          0.06750000044703484,
+          0.0375
+        ],
+        "bbox_min": [
+          -0.037500000555263056,
+          -0.01,
+          -0.12900000000000003
+        ],
+        "bbox_size": [
+          0.07500000055526305,
+          0.07750000044703484,
+          0.16650000000000004
+        ],
+        "body_count": 2,
+        "clean_name": "Shoulder_Yaw",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Shoulder_Yaw_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              -2.776315288777198e-10,
+              0.02875000022351742,
+              -0.04575000000000001
+            ],
+            "shape": "box",
+            "size": [
+              0.07500000055526305,
+              0.07750000044703484,
+              0.16650000000000004
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0375,
+          0.06750000044703484,
+          0.0375
+        ],
+        "collision_bbox_min": [
+          -0.037500000555263056,
+          -0.01,
+          -0.12900000000000003
+        ],
+        "collision_bbox_size": [
+          0.07500000055526305,
+          0.07750000044703484,
+          0.16650000000000004
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.00032045567553162053,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          -7.938339808495465e-10,
+          0.026639093664164074,
+          -0.09139159282820448
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2620000009238722,
+          -0.02899999999999977,
+          0.85
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.0012777492695028973,
+          "ixy": -1.590801842060667e-11,
+          "ixz": 3.698747642505553e-11,
+          "iyy": 0.0012423781257593792,
+          "iyz": 0.0002581955897314422,
+          "izz": 0.0006057515405654295
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 1.1453556721913372,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          -0.004500000000000004,
+          -7.80625564186724e-21
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Shoulder_Yaw_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Shoulder_Yaw.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Shoulder_Yaw:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          1.1210387714598537e-44,
+          0.0,
+          0.0,
+          1.0,
+          1.7347234759704962e-18,
+          0.0,
+          -1.7347234759704962e-18,
+          1.0
+        ],
+        "urdf_name": "Shoulder_Yaw",
+        "volume_m3": 0.00032045567553162053,
+        "wants_accurate_collision": false
+      },
+      "Under_Arm": {
+        "area_m2": 0.05097711820040899,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.062057324941124765,
+          0.0435000000000005,
+          0.03749706738947454
+        ],
+        "bbox_min": [
+          -0.014499675058875235,
+          -0.03749999944120646,
+          -0.12099999999999998
+        ],
+        "bbox_size": [
+          0.076557,
+          0.08099999944120695,
+          0.15849706738947453
+        ],
+        "body_count": 2,
+        "clean_name": "Under_Arm",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Under_Arm_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.023778824941124765,
+              0.0030000002793970186,
+              -0.04175146630526272
+            ],
+            "shape": "box",
+            "size": [
+              0.076557,
+              0.08099999944120695,
+              0.15849706738947453
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.062057324941124765,
+          0.0435000000000005,
+          0.03749706738947454
+        ],
+        "collision_bbox_min": [
+          -0.014499675058875235,
+          -0.03749999944120646,
+          -0.12099999999999998
+        ],
+        "collision_bbox_size": [
+          0.076557,
+          0.08099999944120695,
+          0.15849706738947453
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.00033191863915063964,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.011447022360010644,
+          0.004801556359349599,
+          -0.058742977814696666
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.28650032586499696,
+          0.0012084907858670047,
+          0.5932114229493568
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.0005469735018461539,
+          "ixy": -9.809798007717954e-06,
+          "ixz": 9.341698172435416e-05,
+          "iyy": 0.0005266167849525382,
+          "iyz": 3.744171051374979e-05,
+          "izz": 0.0002882879856674373
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.34614486313022597,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          -3.249411247852052e-07,
+          4.553644037170794e-18,
+          2.9326105254190438e-06
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Under_Arm_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Under_Arm.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Under_Arm:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          1.1210387714598537e-44,
+          0.0,
+          0.0,
+          1.0,
+          1.7347234759704962e-18,
+          0.0,
+          -1.7347234759704962e-18,
+          1.0
+        ],
+        "urdf_name": "Under_Arm",
+        "volume_m3": 0.00033191863915063964,
+        "wants_accurate_collision": false
+      },
+      "Upper_Arm": {
+        "area_m2": 0.08554248608638107,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.0375,
+          0.0375,
+          0.005
+        ],
+        "bbox_min": [
+          -0.0375,
+          -0.0375,
+          -0.1675
+        ],
+        "bbox_size": [
+          0.075,
+          0.075,
+          0.17250000000000001
+        ],
+        "body_count": 2,
+        "clean_name": "Upper_Arm",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Upper_Arm_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.0,
+              0.0,
+              -0.08125
+            ],
+            "shape": "box",
+            "size": [
+              0.075,
+              0.075,
+              0.17250000000000001
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.0375,
+          0.0375,
+          0.005
+        ],
+        "collision_bbox_min": [
+          -0.0375,
+          -0.0375,
+          -0.1675
+        ],
+        "collision_bbox_size": [
+          0.075,
+          0.075,
+          0.17250000000000001
+        ],
+        "collision_body_count": 2,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.0003594020045150444,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.008734618478638505,
+          -0.0002114501196565105,
+          -0.09087765166201624
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2620000009238722,
+          0.0010000004470350897,
+          0.723
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.001212777489780633,
+          "ixy": 1.7957086005808858e-06,
+          "ixz": 2.9580311588872892e-05,
+          "iyy": 0.0011998113201553725,
+          "iyz": -3.363590042189104e-06,
+          "izz": 0.0003464644189459606
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.4105819313150999,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Upper_Arm_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Upper_Arm.dae",
+        "needs_mesh_bake": false,
+        "occurrence_path": "Upper_Arm:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          1.1210387714598537e-44,
+          0.0,
+          0.0,
+          1.0,
+          1.7347234759704962e-18,
+          0.0,
+          -1.7347234759704962e-18,
+          1.0
+        ],
+        "urdf_name": "Upper_Arm",
+        "volume_m3": 0.0003594020045150444,
+        "wants_accurate_collision": false
+      },
+      "Wrist_Pitch": {
+        "area_m2": 0.05179142577861072,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.038100000000000044,
+          0.044149999999999995,
+          0.01
+        ],
+        "bbox_min": [
+          -0.0375,
+          -0.0375,
+          -0.10770000333432109
+        ],
+        "bbox_size": [
+          0.07560000000000004,
+          0.08165,
+          0.11770000333432108
+        ],
+        "body_count": 3,
+        "clean_name": "Wrist_Pitch",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Wrist_Pitch_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.00030000000000002247,
+              0.003324999999999998,
+              -0.048850001667160546
+            ],
+            "shape": "box",
+            "size": [
+              0.07560000000000004,
+              0.08165,
+              0.11770000333432108
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.038100000000000044,
+          0.044149999999999995,
+          0.01
+        ],
+        "collision_bbox_min": [
+          -0.0375,
+          -0.0375,
+          -0.10770000333432109
+        ],
+        "collision_bbox_size": [
+          0.07560000000000004,
+          0.08165,
+          0.11770000333432108
+        ],
+        "collision_body_count": 3,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.00017473271512615494,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.0090817008741199,
+          0.00221299989783587,
+          -0.04213508819296944
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.26200032586499694,
+          0.001208490785867049,
+          0.4712114229493568
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.0003036172210949902,
+          "ixy": -2.1015619722011005e-06,
+          "ixz": 3.435637124656704e-05,
+          "iyy": 0.00027219115289349926,
+          "iyz": 1.1300967461078687e-05,
+          "izz": 0.0001661101315362536
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.1892350326603332,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          -4.734128340833046e-19,
+          -0.0010000000000000009
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Wrist_Pitch_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Wrist_Pitch.dae",
+        "needs_mesh_bake": true,
+        "occurrence_path": "Wrist_Pitch:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          5.605193857299268e-45,
+          0.0,
+          0.0,
+          1.0,
+          3.4297149868645084e-15,
+          0.0,
+          -3.4297149868645084e-15,
+          1.0
+        ],
+        "urdf_name": "Wrist_Pitch",
+        "volume_m3": 0.00017473271512615494,
+        "wants_accurate_collision": false
+      },
+      "Wrist_yaw": {
+        "area_m2": 0.038180310939582296,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.05750000029802323,
+          0.0375,
+          0.03749999999999999
+        ],
+        "bbox_min": [
+          -0.017499999701976778,
+          -0.0375,
+          -0.08050000113248824
+        ],
+        "bbox_size": [
+          0.07500000000000001,
+          0.075,
+          0.11800000113248824
+        ],
+        "body_count": 3,
+        "clean_name": "Wrist_yaw",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/Wrist_yaw_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              0.020000000298023225,
+              0.0,
+              -0.021500000566244126
+            ],
+            "shape": "box",
+            "size": [
+              0.07500000000000001,
+              0.075,
+              0.11800000113248824
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.05750000029802323,
+          0.0375,
+          0.03749999999999999
+        ],
+        "collision_bbox_min": [
+          -0.017499999701976778,
+          -0.0375,
+          -0.08050000113248824
+        ],
+        "collision_bbox_size": [
+          0.07500000000000001,
+          0.075,
+          0.11800000113248824
+        ],
+        "collision_body_count": 3,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.00014569860614700568,
+        "color_rgb": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451
+        ],
+        "com_link_local": [
+          0.0041410323324967534,
+          -1.5081005866566002e-07,
+          -0.03247208460515028
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          -0.2820003258649969,
+          0.0012084907858669958,
+          0.4010114229493568
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 0.0002632011411562316,
+          "ixy": -2.6196503077267046e-10,
+          "ixz": 6.185314965532354e-05,
+          "iyy": 0.0002554733582075079,
+          "iyz": -4.86776780340106e-10,
+          "izz": 0.00011048063946075456
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 0.1462507932561899,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/Wrist_yaw_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/Wrist_yaw.dae",
+        "needs_mesh_bake": false,
+        "occurrence_path": "Wrist_yaw:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          5.605193857299268e-45,
+          0.0,
+          0.0,
+          1.0,
+          3.4297149868645084e-15,
+          0.0,
+          -3.4297149868645084e-15,
+          1.0
+        ],
+        "urdf_name": "Wrist_yaw",
+        "volume_m3": 0.00014569860614700568,
+        "wants_accurate_collision": false
+      },
+      "base_link": {
+        "area_m2": 0.5606794937705427,
+        "assembly": "JAXV2_Assembly",
+        "bbox_max": [
+          0.15000000000000002,
+          0.125,
+          0.895
+        ],
+        "bbox_min": [
+          -0.15,
+          -0.125,
+          0.0
+        ],
+        "bbox_size": [
+          0.30000000000000004,
+          0.25,
+          0.895
+        ],
+        "body_count": 1,
+        "clean_name": "base_link",
+        "collision": {
+          "mesh_path": "meshes/JAXV2_Assembly/base_link_collision.stl",
+          "origin_rpy": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "origin_xyz": null,
+          "primitive": {
+            "orientation_matrix": null,
+            "origin_rpy": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "origin_xyz": [
+              1.3877787807814457e-17,
+              0.0,
+              0.4475
+            ],
+            "shape": "box",
+            "size": [
+              0.30000000000000004,
+              0.25,
+              0.895
+            ]
+          },
+          "source": "primitive"
+        },
+        "collision_bbox_max": [
+          0.15000000000000002,
+          0.125,
+          0.895
+        ],
+        "collision_bbox_min": [
+          -0.15,
+          -0.125,
+          0.0
+        ],
+        "collision_bbox_size": [
+          0.30000000000000004,
+          0.25,
+          0.895
+        ],
+        "collision_body_count": 1,
+        "collision_body_names": [],
+        "collision_excluded_body_names": [],
+        "collision_override": "",
+        "collision_volume_m3": 0.01885183864796571,
+        "color_rgb": [
+          0.7019607843137254,
+          0.7019607843137254,
+          0.7019607843137254
+        ],
+        "com_link_local": [
+          5.072348724371608e-07,
+          -2.4036005983743393e-05,
+          0.3103852060449798
+        ],
+        "frame_rebase_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frame_rule": "keep",
+        "global_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "has_collision_exclusions": false,
+        "has_explicit_collision": false,
+        "has_visual_mesh": true,
+        "inertia_at_com": {
+          "ixx": 1.4110926394346373,
+          "ixy": -2.540147858669291e-05,
+          "ixz": -3.1225515173960385e-06,
+          "iyy": 1.4246264491833376,
+          "iyz": 0.00026115781195283345,
+          "izz": 0.10171413501676921
+        },
+        "inertial_origin_xyz": null,
+        "is_empty": false,
+        "is_frame_only": false,
+        "is_merged": false,
+        "mass_kg": 18.851838647965714,
+        "material_name": "Acetal_Resin_White",
+        "merged_member_paths": [],
+        "mesh_bake_offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_collision": "meshes/JAXV2_Assembly/base_link_collision.stl",
+        "mesh_collision_input": "",
+        "mesh_origin_rpy": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mesh_visual": "meshes/JAXV2_Assembly/base_link.dae",
+        "needs_mesh_bake": false,
+        "occurrence_path": "base_link v3:1",
+        "rigid_group_collision_offset": null,
+        "rigid_group_collision_path": null,
+        "rigid_group_name": null,
+        "source_world_rotation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "urdf_name": "base_link",
+        "volume_m3": 0.01885183864796571,
+        "wants_accurate_collision": false
+      }
+    },
+    "name": "JAXV2_Assembly",
+    "root_link": "base_link",
+    "warnings": []
+  }
+}
