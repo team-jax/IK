@@ -189,7 +189,26 @@ def solve_ik_palm_down(chain, target_world, seed=None):
 # not correspond between the two.
 SHOULDER_LINK, ELBOW_LINK, WRIST_LINK = 2, 4, 6   # chain.links indices (0 = base)
 SWIVEL_GAIN = 1.0         # robot swivel change per unit human swivel change
-SWIVEL_LIMIT = np.radians(70)
+# Past about 40 deg the arm solver no longer follows a held swing continuously. Measured at the
+# cube's spot while lifting the wrist 1 mm at a time: the largest joint step is 0.013-0.018 rad up
+# to +-40 deg, 0.05 rad at +50, and a hop of 0.22 rad at -70 / 0.48 rad at +70 (an elbow flip; the
+# hand jerks and the pinched cube is thrown, see check_teleop.py swing-jump).
+SWIVEL_LIMIT = np.radians(40)
+# How fast the commanded swing may change. The measured swing can jump by tens of degrees in one
+# frame: swivel_angle() switches its reference when the shoulder-wrist axis is nearly vertical (an
+# arm hanging down), and a noisy elbow near a straight arm does the same. Straight into the IK that
+# is a step the servos cannot follow. In the swing-jump scenario of check_teleop.py, with the swing
+# clipped to 40 deg, the hand strays 7.9 mm, tilts 7.1 deg and the servos lag 0.45 rad; ramped at
+# this rate: 2.5 mm, 3.9 deg, 0.10 rad. (At the old 70 deg limit the hand strayed 37 mm and
+# knocked the cube off its post.)
+SWIVEL_MAX_RATE = np.radians(90)    # rad/s: a full 40 deg swing takes ~0.5 s
+# Even a ramped swing is a null-space motion of the whole arm, and the cube is pinched between plates
+# 30.1 mm apart. Measured during the lift with the swing kept moving: at 5 / 10 / 20 deg/s the cube
+# creeps 5 / 9 / 15 mm sideways in the pinch, at 45 deg/s and up it is thrown; with the swing held
+# still it stays within 2 mm. The swing is only the elbow's style, so while the fingers are closing
+# or closed (mean curl above this) the commanded swing is frozen, and it picks up again, rate
+# limited, once they open.
+SWIVEL_HOLD_CURL = 0.3
 ELBOW_DEPTH_GAIN = 0.5    # MediaPipe z is noisy; damp the depth part of the arm vectors
 W_POS = 30.0              # wrist position residual weight (m)
 W_SWIVEL = 0.5            # swivel residual weight (rad)
@@ -327,7 +346,9 @@ def main():
 
     # None triggers auto-calibration on the first packet; pressing 'C' re-arms it so the next
     # received x_norm/z_m become the new lateral center and neutral depth.
-    calib = {"x_center": None, "z_center": None, "swivel": None}
+    # "delta"/"t" are the swing actually commanded (rate-limited, see SWIVEL_MAX_RATE) and when it
+    # was last updated.
+    calib = {"x_center": None, "z_center": None, "swivel": None, "delta": 0.0, "t": 0.0}
     # 'T' toggles gripper-tracking camera. The key callback runs on the viewer's own thread
     # before/while `viewer` exists, so it only flips the flag — the main loop applies the
     # camera change when `applied` disagrees with `want`.
@@ -398,10 +419,18 @@ def main():
                         if arm is not None:
                             elbow, shoulder = arm
                             h_sw = human_swivel(shoulder, elbow, (x_norm, y_norm, z_m))
+                            now = time.monotonic()
                             if calib["swivel"] is None:
-                                calib["swivel"] = h_sw
-                            delta = np.clip(_wrap(h_sw - calib["swivel"]) * SWIVEL_GAIN,
-                                            -SWIVEL_LIMIT, SWIVEL_LIMIT)
+                                calib["swivel"], calib["delta"], calib["t"] = h_sw, 0.0, now
+                            want = np.clip(_wrap(h_sw - calib["swivel"]) * SWIVEL_GAIN,
+                                           -SWIVEL_LIMIT, SWIVEL_LIMIT)
+                            # Ramp to the wanted swing (after a pause cap the step at 0.1 s worth),
+                            # and keep it still while the hand is closed on something.
+                            gripping = float(np.mean(last_curls)) > SWIVEL_HOLD_CURL
+                            step = 0.0 if gripping else SWIVEL_MAX_RATE * min(now - calib["t"], 0.1)
+                            calib["delta"] += float(np.clip(want - calib["delta"], -step, step))
+                            calib["t"] = now
+                            delta = calib["delta"]
                             angles, err, _ = solve_ik_arm(
                                 chain, target_world, robot_neutral_swivel + delta, last_good_qpos)
                             if err <= ARM_POS_TOL:
