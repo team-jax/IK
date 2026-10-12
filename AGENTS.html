@@ -48,12 +48,12 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<!-- Generated: 2026-07-02 | Updated: 2026-07-07 -->
-<section id="역운-휴머노이드-상체-로봇-프로젝트" class="level1">
-<h1>역운 — 휴머노이드 상체 로봇 프로젝트</h1>
+<!-- Generated: 2026-07-02 | Updated: 2026-10-13 -->
+<section id="역운逆運-휴머노이드-상체-로봇-프로젝트-team-jax" class="level1">
+<h1>역운(逆運) — 휴머노이드 상체 로봇 프로젝트 (Team JAX)</h1>
 <section id="purpose" class="level2">
 <h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
-<p>양팔 휴머노이드 상체 로봇의 소프트웨어 레포지토리. MuJoCo 시뮬레이션 기반 IK 검증, 웹캠 손목 추적 → UDP → MuJoCo 실시간 동기화 데모(7DOF 팔 + 3손가락 그리퍼, 손 모양으로 쥐기/펴기 제어) + 웹 대시보드 시각화, STM32/Jetson 통합 설계 문서를 포함한다. Phase 2(7DOF 팔 IK + 그리퍼 kinematics)까지 구현됨; Phase 3(실제 모터 연동)은 미착수.</p>
+<p>물건을 집어 목표 위치에 놓는 휴머노이드 상체 로봇의 소프트웨어 레포지토리. 팀의 최종 URDF(<code>URDF_1006</code>)를 원본으로, 두 개의 독립된 시뮬레이션 작업(동작 1, 동작 2)이 같은 로봇(7DOF 팔 + 3손가락 손)을 쓴다. 실제 하드웨어(STM32/Jetson/AK45)는 설계만 <code>CLAUDE.md</code>에 있고 코드는 아직 없다.</p>
 </section>
 <section id="key-files" class="level2">
 <h2 class="anchored" data-anchor-id="key-files">Key Files</h2>
@@ -71,51 +71,23 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td><code>CLAUDE.md</code></td>
-<td>프로젝트 전체 설명, 하드웨어 스펙, 소프트웨어 아키텍처, 개발 로드맵, 통신 프로토콜</td>
+<td>프로젝트 전체 설계: 동작 1/2 구분, 하드웨어, 프로토콜, 로드맵. 작업의 1순위 기준</td>
+</tr>
+<tr class="even">
+<td><code>README.md</code></td>
+<td>사람용 소개와 동작 2 실행법</td>
+</tr>
+<tr class="odd">
+<td><code>STATUS.md</code></td>
+<td>동작 2 중심의 진행 상황·문제와 해결 기록</td>
 </tr>
 <tr class="even">
 <td><code>haness.md</code></td>
-<td>AI 작업 가이드라인 — 해야 할 것/하지 말아야 할 것, 진행 플로우, 코드 작성 규칙</td>
+<td>AI 작업 규칙(근거 없는 단정 금지, 최소 복잡도, 변경 이유 한 줄). 큰 범위 변경은 사전 승인</td>
 </tr>
 <tr class="odd">
-<td><code>실행방법.txt</code></td>
-<td>3터미널(수신기/센더/대시보드) 실행 순서, 스케일 조정법, IK 단독 테스트 방법 요약</td>
-</tr>
-<tr class="even">
-<td><code>vision_sender.py</code></td>
-<td>OpenCV + MediaPipe Tasks PoseLandmarker/HandLandmarker로 오른손 손목(landmark 16) X/Y/Z와 검지/중지/약지 각각의 굽힘(curl: 0=펴짐/1=완전히 굽힘)을 추출해 UDP 5005(mujoco_receiver)와 5006(web_dashboard) 양쪽으로 전송. visibility 필터(<code>MIN_VISIBILITY=0.5</code>) + EMA 스무딩(<code>EMA_ALPHA</code>/<code>GRIP_EMA_ALPHA=0.3</code>) 적용. 엄지/새끼는 의도적으로 무시(그리퍼가 3손가락)</td>
-</tr>
-<tr class="odd">
-<td><code>mujoco_receiver.py</code></td>
-<td>UDP 5005 논블로킹 수신 → IK 풀어 <code>arm/arm.xml</code>의 7DOF 팔에 실시간 적용, 손가락별 curl 값으로 3손가락 그리퍼 개별 구동(검지→finger1, 중지→finger2, 약지→finger3). 첫 패킷 기준 좌우 자동 캘리브레이션(‘C’ 키로 재캘리브레이션), 시작 시 카메라를 팔 중심으로 조준하고 ‘T’ 키로 그리퍼 추적 카메라 토글</td>
-</tr>
-<tr class="even">
-<td><code>web_dashboard.py</code></td>
-<td>UDP 5006 수신 → stdlib만으로 손목 (x,y,z)와 손가락 3개 curl 값을 <code>http://127.0.0.1:8000</code>에 실시간 시각화 (Flask 등 의존성 없음)</td>
-</tr>
-<tr class="odd">
-<td><code>pose_landmarker_full.task</code></td>
-<td>MediaPipe Tasks PoseLandmarker 모델 파일 (<code>vision_sender.py</code>가 로드, 손목 위치용)</td>
-</tr>
-<tr class="even">
-<td><code>hand_landmarker.task</code></td>
-<td>MediaPipe Tasks HandLandmarker 모델 파일 (<code>vision_sender.py</code>가 로드, 손 모양/grip용)</td>
-</tr>
-<tr class="odd">
-<td><code>run_sender.sh</code></td>
-<td><code>vision_sender.py</code> 실행 스크립트 (venv 체크, 안내 메시지 포함)</td>
-</tr>
-<tr class="even">
-<td><code>run_receiver.sh</code></td>
-<td><code>mujoco_receiver.py</code> 실행 스크립트 (macOS→mjpython / Linux→python 자동 분기)</td>
-</tr>
-<tr class="odd">
-<td><code>run_web.sh</code></td>
-<td><code>web_dashboard.py</code> 실행 스크립트 (venv 체크만, 추가 패키지 불필요)</td>
-</tr>
-<tr class="even">
-<td><code>test.py</code></td>
-<td>gymnasium <code>reacher.xml</code>을 로드해 MuJoCo passive viewer를 띄우는 환경 검증 스크립트</td>
+<td><code>venv/</code></td>
+<td>두 동작이 공용하는 Python 3.14 가상환경 (git 추적 안 함)</td>
 </tr>
 </tbody>
 </table>
@@ -135,114 +107,49 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>arm/</code></td>
-<td>7DOF 팔 URDF + MJCF 모델, ikpy IK 구현 및 검증 (see <code>arm/AGENTS.md</code>)</td>
+<td><code>URDF_1006/</code></td>
+<td>팀의 최종 URDF(CAD export). 두 동작이 공용하는 원본 (see <code>URDF_1006/AGENTS.md</code>)</td>
+</tr>
+<tr class="even">
+<td><code>motion1/</code></td>
+<td>동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. <strong>별도 git 저장소</strong> (see <code>motion1/AGENTS.md</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>motion2/</code></td>
+<td>동작 2: 웹캠 손 추적 텔레오퍼레이션 + 팔 모델 생성기 (see <code>motion2/AGENTS.md</code>)</td>
 </tr>
 </tbody>
 </table>
+<p><code>AGENTS_files/</code>, <code>motion1/README_files/</code>는 Quarto 렌더 부산물이라 문서화 대상이 아니다. <code>.omc/</code>, <code>.omo/</code>는 도구 상태 폴더다.</p>
 </section>
 <section id="for-ai-agents" class="level2">
 <h2 class="anchored" data-anchor-id="for-ai-agents">For AI Agents</h2>
 <section id="working-in-this-directory" class="level3">
 <h3 class="anchored" data-anchor-id="working-in-this-directory">Working In This Directory</h3>
 <ul>
-<li>Python은 반드시 <code>venv/bin/python</code> 사용 (전역 python 금지). macOS에서 MuJoCo viewer가 필요한 스크립트는 <code>venv/bin/mjpython</code> 사용.</li>
-<li>새 패키지 설치 시 <code>venv/bin/pip install &lt;pkg&gt;</code>. <code>requirements.txt</code> 없음 — venv에 직접 설치.</li>
-<li>코드 수정 시 <code>CLAUDE.md</code>, <code>haness.md</code>의 규칙 준수 필수. <code>haness.md</code>는 AI가 지켜야 할 작업 프로토콜.</li>
-<li>파라미터(UDP 포트, 좌표 스케일 등) 변경 시 <code>vision_sender.py</code>, <code>mujoco_receiver.py</code>, <code>web_dashboard.py</code> 모두 확인 — 포트 번호가 세 파일에 하드코딩되어 있어 한 곳만 바꾸면 불일치 발생.</li>
-<li><code>vision_sender.py</code>는 mediapipe의 레거시 <code>mp.solutions</code> API가 아닌 Tasks API(<code>PoseLandmarker</code>)를 사용 — mediapipe&gt;=0.10.30에서 레거시 API가 제거됨.</li>
+<li>의존 방향은 <code>motion1 → motion2/arm/make_arm_urdf.py → URDF_1006</code> 하나뿐이다. motion2는 motion1을 import하지 않는다.</li>
+<li>Python은 항상 루트 <code>venv/bin/python</code>, macOS에서 MuJoCo 뷰어를 띄우는 스크립트는 <code>venv/bin/mjpython</code>. 패키지는 <code>venv/bin/python -m pip install</code>. 폴더를 옮기거나 이름을 바꾸면 <code>venv/bin/pip</code>·<code>mjpython</code> 등의 셔뱅이 깨진다(<code>STATUS.md</code> 참고).</li>
+<li><code>motion1/</code>은 자체 <code>.git</code>이 있다. 루트 저장소에서는 untracked로 보이며, 동작 1 변경은 그 안에서 커밋한다.</li>
+<li>문서와 코드가 어긋나면 코드와 실제 실행 결과가 기준이다. 숫자(성공률 등)는 측정한 날짜와 시드 범위를 함께 적는다.</li>
 </ul>
 </section>
 <section id="testing-requirements" class="level3">
 <h3 class="anchored" data-anchor-id="testing-requirements">Testing Requirements</h3>
-<ul>
-<li><code>vision_sender.py</code>: <code>venv/bin/python vision_sender.py</code> — 웹캠 + <code>pose_landmarker_full.task</code> 필요, ‘q’ 키로 종료.</li>
-<li><code>mujoco_receiver.py</code>: <code>venv/bin/mjpython mujoco_receiver.py</code> (macOS) — 로컬 디스플레이 필요, <code>arm/arm.xml</code>의 7DOF 팔을 실시간 IK로 구동.</li>
-<li><code>web_dashboard.py</code>: <code>venv/bin/python web_dashboard.py</code> — 브라우저에서 <code>http://127.0.0.1:8000</code> 접속.</li>
-<li>전체 파이프라인 확인: <code>run_receiver.sh</code> → <code>run_sender.sh</code>(+ 선택적으로 <code>run_web.sh</code>) 순서로 각각 별도 터미널에서 실행 (자세한 순서는 <code>실행방법.txt</code> 참고).</li>
-<li><code>test.py</code>: <code>venv/bin/mjpython test.py</code> — gymnasium 설치 확인용.</li>
-</ul>
+<p>저장소 루트에서, 화면·웹캠 없이: - <code>venv/bin/python motion1/scripts/smoke_test.py</code> - <code>venv/bin/python motion2/arm/ik.py</code> (IK 오차 0.00 mm) - <code>venv/bin/python motion2/check_grasp.py</code> (<code>lifted 9 /9</code>)</p>
 </section>
 <section id="common-patterns" class="level3">
 <h3 class="anchored" data-anchor-id="common-patterns">Common Patterns</h3>
 <ul>
-<li>UDP 통신: <code>socket.SOCK_DGRAM</code>, 패킷 포맷 <code>"x y z curl_index curl_middle curl_ring"</code> (공백 구분 float 6개 문자열). 수신 측(<code>mujoco_receiver.parse_packet</code>, <code>web_dashboard.udp_listener</code>)은 구형 4필드 <code>"x y z grip"</code> 패킷도 받아 grip을 3손가락에 동일 적용(하위 호환). <code>vision_sender.py</code>는 동일 패킷을 5005(mujoco_receiver, 논블로킹 수신)와 5006(web_dashboard) 양쪽에 fan-out. <strong>패킷 필드 개수를 바꾸면 세 파일 모두 파싱 로직을 같이 맞춰야 함</strong> — 안 그러면 <code>ValueError</code>가 조용히 삼켜져(catch 후 continue) 수신 측이 멈춘 것처럼 보임.</li>
-<li>손목 좌표 안정화: visibility 필터(<code>MIN_VISIBILITY</code>) → 통과 프레임만 EMA 스무딩(<code>EMA_ALPHA</code>) → 전송. 필터 없이 저신뢰 프레임을 그대로 보내면 팔이 “flapping”함.</li>
-<li>손가락 curl 추출: HandLandmarker에서 손가락별로 (fingertip-to-wrist 거리) / (자기 MCP-to-wrist 거리) 비율을 구해 <code>CURL_OPEN_REF</code>(2.0)/<code>CURL_CLOSED_REF</code>(0.7) 사이로 선형 매핑 + clip — 검지(5→8)/중지(9→12)/약지(13→16), 손가락별 자기 MCP로 정규화해 서로 독립. 손이 감지 안 되면 마지막 curl 값들을 유지(hold), 0으로 스냅하지 않음.</li>
-<li>좌우 캘리브레이션: <code>mujoco_receiver.py</code>는 첫 UDP 패킷의 x좌표를 중심으로 자동 캘리브레이션, 뷰어 창에서 ‘C’ 키로 언제든 재캘리브레이션 가능.</li>
-<li>IK 실패 시 폴백: <code>solve_ik</code> 결과가 NaN이거나 예외 발생 시 마지막으로 성공한 <code>last_good_qpos</code>를 그대로 사용해 팔이 튀지 않도록 함.</li>
-<li>그리퍼 구동: <code>mujoco_receiver.py</code>의 <code>apply_grip()</code>이 curl 3개(검지/중지/약지 순, <code>FINGER_ORDER</code> = finger1/2/3)를 받아 <code>arm/arm.xml</code>의 6개 finger 관절(<code>fingerN_joint1/2</code>)을 이름으로 직접 씀 — <code>arm.ik.apply_pose()</code>는 <code>qpos[:7]</code>만 쓰므로 서로 겹치지 않음(<code>arm.xml</code> 로드 시 <code>model.nq == 13</code>: 팔 7 + 손가락 6, 순서 보장). <code>MAX_CURL</code> 값은 실측(그립 0→1 스윕하며 fingertip이 중심축으로 단조 수렴하는지 확인)으로 튜닝된 값이라, 그리퍼 지오메트리(finger 세그먼트 길이/반경)를 바꾸면 재튜닝 필요 — 너무 크면 손가락이 중심축을 넘어가 다시 벌어짐.</li>
-<li>뷰어 카메라: <code>mujoco_receiver.py</code>가 시작 시 free camera를 <code>CAM_LOOKAT</code>(팔 작업공간 중심)으로 조준 — MuJoCo 기본 프레이밍은 바닥 평면까지 포함해 팔이 화면 위쪽에 치우침. ‘T’ 키로 <code>mjCAMERA_TRACKING</code>(trackbody=<code>gripper_base</code>) 토글. key callback은 뷰어 스레드에서 도는 만큼 플래그만 바꾸고, 실제 <code>viewer.cam</code> 변경은 메인 루프에서 <code>viewer.lock()</code> 안에서 적용.</li>
-<li>MuJoCo qpos 쓰기 시 반드시 <code>viewer.lock()</code> 컨텍스트 내에서 수행.</li>
-<li>MuJoCo passive viewer: <code>mj_step</code> 호출 없이 <code>viewer.sync()</code> + <code>time.sleep(0.01)</code> 루프.</li>
+<li>로봇 모델 파일(<code>motion2/arm/arm.xml</code>, <code>arm.urdf</code>, <code>meshes/</code>)은 생성물이다. 고칠 때는 <code>motion2/arm/make_arm_urdf.py</code>의 상수를 바꾸고 다시 생성한다.</li>
 </ul>
 </section>
 </section>
 <section id="dependencies" class="level2">
 <h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
-<section id="internal" class="level3">
-<h3 class="anchored" data-anchor-id="internal">Internal</h3>
 <ul>
-<li><code>arm/</code> — <code>mujoco_receiver.py</code>와 <code>ik.py</code> 모두 <code>arm.urdf</code>, <code>arm.xml</code> 참조 (see <code>arm/AGENTS.md</code>). <code>arm.xml</code>의 그리퍼는 <code>arm.urdf</code>/ikpy 체인에는 없음 — IK와 무관한 순수 MuJoCo 전용 부가 구조.</li>
-<li><code>pose_landmarker_full.task</code> — <code>vision_sender.py</code>가 로드하는 모델 파일(손목 위치), 레포에 커밋됨</li>
-<li><code>hand_landmarker.task</code> — <code>vision_sender.py</code>가 로드하는 모델 파일(손가락 curl), 로컬에만 존재(아직 미커밋 — 커밋하거나 README에 다운로드 URL 안내 필요)</li>
+<li><code>mujoco</code>, <code>numpy</code>, <code>gymnasium</code>, <code>ikpy</code>, <code>scipy</code>, <code>mediapipe</code>, <code>opencv-python</code>, <code>imageio</code> (모두 <code>venv/</code>에 직접 설치, <code>requirements.txt</code> 없음. <code>motion1/pyproject.toml</code>에 동작 1 의존성 고정값이 있다)</li>
 </ul>
-</section>
-<section id="external" class="level3">
-<h3 class="anchored" data-anchor-id="external">External</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 37%">
-<col style="width: 37%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Package</th>
-<th>Version</th>
-<th>용도</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>mujoco</code></td>
-<td>3.10.0</td>
-<td>물리 시뮬레이션 및 passive viewer</td>
-</tr>
-<tr class="even">
-<td><code>mediapipe</code></td>
-<td>0.10.35</td>
-<td>Pose landmark 추출 (Tasks API)</td>
-</tr>
-<tr class="odd">
-<td><code>opencv-python</code></td>
-<td>4.13.0</td>
-<td>웹캠 프레임 캡처 및 화면 표시</td>
-</tr>
-<tr class="even">
-<td><code>ikpy</code></td>
-<td>—</td>
-<td>URDF 체인 로드 및 IK 풀이</td>
-</tr>
-<tr class="odd">
-<td><code>gymnasium</code></td>
-<td>—</td>
-<td>reacher.xml 에셋 경로 (test.py)</td>
-</tr>
-<tr class="even">
-<td><code>numpy</code></td>
-<td>—</td>
-<td>좌표 변환 및 오차 계산</td>
-</tr>
-<tr class="odd">
-<td>(stdlib only)</td>
-<td>—</td>
-<td><code>web_dashboard.py</code>는 외부 패키지 없이 <code>http.server</code> + <code>socket</code>만 사용</td>
-</tr>
-</tbody>
-</table>
 <!-- MANUAL: -->
-</section>
 </section>
 </section>
 
