@@ -11,7 +11,7 @@ import sys
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 DOCS = ["README.md", "STATUS.md", "CLAUDE.md", "AGENTS.md", "haness.md", "URDF_1006/AGENTS.md",
-        "motion1/README.md", "motion1/AGENTS.md", "motion1/HARNESS.md", "motion1/STATUS.md",
+        "URDF_1006/JAXV2_Assembly_description/AGENTS.md", "motion1/README.md", "motion1/AGENTS.md", "motion1/HARNESS.md", "motion1/STATUS.md",
         "motion1/scripts/AGENTS.md", "motion1/src/humanoid_grasp_rl/AGENTS.md",
         "motion2/AGENTS.md", "motion2/arm/AGENTS.md", "motion2/실행방법.txt",
         "motion1/.claude/agents/fable-max.md"]

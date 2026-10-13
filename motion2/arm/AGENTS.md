@@ -25,7 +25,7 @@ actuator가 있다 — `arm.urdf`/ikpy 체인에는 손이 포함되지 않으�
 ## For AI Agents
 
 ### Working In This Directory
-- URDF가 바뀌면 `venv/bin/python motion2/arm/make_arm_urdf.py`로 세 산출물을 한 번에 재생성한다. 손으로 고치지 말 것 — `arm.urdf`와 `arm.xml`의 FK 일치는 생성기가 보장한다.
+- URDF가 바뀌면 `venv/bin/python motion2/arm/make_arm_urdf.py`로 세 산출물을 한 번에 재생성한다. 손으로 고치지 말 것 — `arm.urdf`와 `arm.xml`의 FK 일치는 생성기가 보장한다. 재생성한 결과를 커밋하지 않으면 루트 `./run_tests.sh`의 "generator output == the model files in the repo" 단계가 실패한다.
 - 생성 후 `venv/bin/python motion2/arm/ik.py`로 오차를 재확인하고, ikpy FK ↔ MuJoCo `end_effector` site 일치(1e-9 수준)를 확인한다.
 - ikpy는 chain에서 base link(index 0)와 end-effector link(index -1)를 fixed dummy로 포함 — `active_links_mask`로 7개 실제 관절만 활성화.
 - IK 수렴 실패 시 가장 먼저 `SEED_POSE` 확인 (all-zero는 특이점).
@@ -49,7 +49,7 @@ venv/bin/mjpython motion2/arm/ik.py --interactive       # 뷰어 + "x y z" 입�
 ## Dependencies
 
 ### Internal
-- `../../URDF_1006/JAXV2_Assembly_description/` — 생성기의 입력(최종 URDF + 메시). 이 폴더를 바꾸면 생성기를 다시 돌린다.
+- `../../URDF_1006/JAXV2_Assembly_description/` — 생성기의 입력(최종 URDF + 메시). 이 폴더를 바꾸면 생성기를 다시 돌린다. URDF 관절 → 프로젝트 이름 대응표와 확인 절차는 `../../URDF_1006/JAXV2_Assembly_description/AGENTS.md`.
 - `../../CLAUDE.md` §2/§4 — 하드웨어 관절 순서 및 스펙 기준
 
 ### External
