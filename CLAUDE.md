@@ -32,7 +32,8 @@ STM32 펌웨어, Jetson/ROS 코드, 강화학습 구현 등은 아래 문서에 
 | 상태 | 배달 100/100 (시드 0~99), 2단 46/50 (시드 0~49), 3단은 팔 한계로 불가 (2026-10-12 측정, 완전 무작위 배치). 뷰어 육안 확인은 안 함 | 최종 URDF 기반 모델 생성, IK 수렴(0.00 mm), 화면 없는 시뮬레이션에서 큐브 파지·들어올리기 9/9(`check_grasp.py`, ±8 mm), UDP 파이프라인 전체 3/3(`check_teleop.py`). 실제 웹캠은 열리고 송신 루프가 27.8 fps로 돈다. 사람 추적과 육안 확인이 남음 |
 
 - `URDF_1006/`(리포 루트)은 팀의 **최종 URDF**(CAD export, `JAXV2_Assembly_description`)다. 동작 1/2 어느 쪽에도 속하지 않는 공용 원본이다. 동작 2는 `motion2/arm/make_arm_urdf.py`가 이 폴더를 읽어 모델을 생성한다(동작 1도 `motion1/src/.../assets.py`를 통해 같은 생성기를 쓴다).
-- `motion1/`은 별도 git 저장소(자체 `.git`)다. 루트 저장소에서는 untracked 폴더로 보이며, 동작 1 변경은 그 안에서 커밋한다.
+- 원격 저장소는 `origin` = <https://github.com/team-jax/IK>(`main`)이다. 이전 `team-jax/CV_TEST2`는 `upstream`으로 남아 있다.
+- `motion1/`은 별도 git 저장소(자체 `.git`, 원격 `gyumingim/Humanoid_Grasp_RL`)다. 루트 저장소에서는 untracked 폴더로 보이고 team-jax/IK에는 올리지 않았으며, 동작 1 변경은 그 안에서 커밋한다. `motion1/` 없이도 동작 2는 그대로 돌아간다.
 - 동작 1 작업은 `motion1/README.md`, 동작 2 작업은 `motion2/README.md`를 기준으로 한다. 동작 1·2 모두 루트 `venv/`를 쓴다(예: `venv/bin/python motion1/scripts/smoke_test.py`). 동작 2의 상세는 아래 §0.1~§0.3.
 - 이 문서의 §1~§8(하드웨어·펌웨어·프로토콜·로드맵)은 실제 로봇을 향한 계획이며 동작 2의 모델(`motion2/arm/`)과 대응한다. 동작 1도 이제 같은 팔·손을 쓰므로(단 책상·큐브 환경은 시뮬레이션 전용) 하드웨어 계획과 같은 로봇 모델을 공유한다.
 - 전체 테스트는 저장소 루트에서 `./run_tests.sh` (빠른 모드 약 1분, `--full`은 성공률·영상 포함 +3분, `--viewers`는 뷰어 창을 연다). 문서 대조는 `venv/bin/python check_docs.py`.

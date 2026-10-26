@@ -1,8 +1,8 @@
 # STATUS
 
-최종 갱신: 2026-10-13
+최종 갱신: 2026-10-26
 
-> 저장소 전체의 요약과 공통 사항이다. 동작별 기록은 동작 1 `motion1/STATUS.md`, 동작 2 `motion2/STATUS.md`에 있다.
+> 저장소 전체의 요약과 공통 사항이다. 동작별 기록은 동작 1 `motion1/STATUS.md`, 동작 2 `motion2/STATUS.md`에 있다. 원격은 <https://github.com/team-jax/IK>(`origin`)이고, 동작 1(`motion1/`)은 별도 저장소라 거기에는 없다.
 
 ## 전체 목표
 
@@ -24,6 +24,7 @@
 
 ## 다음 할 일
 
+- `.omc/`·`.omo/`(도구 상태·세션 기록)가 이미 git에 추적되어 team-jax/IK에 올라가 있다. `.gitignore`에 넣고 추적을 풀지 정해야 한다 (풀어도 이미 올라간 커밋 기록에는 남는다)
 - 동작 2: `motion2/STATUS.md`의 "다음 할 일" (사람 추적 육안 확인, 작업 영역 가장자리의 IK 해 점프)
 - 동작 1의 `watch_grasp.py` 뷰어 재생을 육안 확인
 - 동작 1의 한계(탑 2단까지, 도달 띠가 y -0.28~+0.03으로 치우침)는 `motion1/README.md` 참고
@@ -31,6 +32,12 @@
 ## 문제점과 해결 (공통·동작 1)
 
 동작 2의 문제와 해결(폴더 정리, 팔꿈치 스윙, 파지 창, 문서 수치)은 `motion2/STATUS.md`에 있다.
+
+2026-10-26:
+
+- 문서는 `motion2/` 폴더 정리(`src/`·`scripts/`·`models/`)가 끝났다고 적었지만 git에는 이름 바꾸기만 스테이지되고 `motion2/README.md`·`STATUS.md` 등은 untracked였음 → 커밋 `340d292`로 함께 묶어 team-jax/IK(빈 저장소)의 `main`에 푸시. `origin`을 `team-jax/CV_TEST2`에서 `team-jax/IK`로 바꾸고 CV_TEST2는 `upstream`으로 남겼다. `.omc/` 세션 파일, `.vscode/`, `motion1/`은 올리지 않았다
+- 올린 저장소를 새로 클론해 `./run_tests.sh`(빠른 모드)를 돌려 보니 `motion1/`이 없어서 문서 대조(`check_docs.py`)만 실패(35건, 전부 `motion1/` 파일과 거기서만 정의되는 이름을 가리킴)하고 동작 2 검사는 모두 통과 → `motion1/`이 없으면 `motion1/` 전용 참조를 대조에서 빼고 몇 건을 건너뛰었는지 출력하도록 `check_docs.py`를 고침(`motion1/`이 있으면 이전과 같이 전부 검사). README·AGENTS·CLAUDE의 동작 1 설명에는 "별도 저장소, team-jax/IK에는 없음"을 적고 README의 `motion1/` 링크(GitHub에서는 열리지 않음)는 경로 표기로 바꿈
+- `motion2/README.md`가 URDF 폴더를 `JAXV2_Assembly`로 적고 있었음(실제는 `JAXV2_Assembly_description`) → 정정
 
 2026-10-13:
 

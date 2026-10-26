@@ -25,6 +25,11 @@ SKIP_DIRS = {"venv", ".git", ".omc", ".omo", "__pycache__", "meshes", "artifacts
 ALLOWED = {"MAX_CURL", "One_Arm_JAX_URDF", "audit_contacts", "trace_carry", "teleop.py", "audit_contacts.py",
            "trace_carry.py", "requirements.txt", "reacher.xml", "record_delivery", "render_frame", "smoke_test",
            "route.json", "scene_audit", ".py", ".sh", ".task", "/wrist.json"}
+# Names that only motion1/ defines. motion1/ is a separate repository that team-jax/IK does not hold, so in a
+# checkout without it these cannot be verified and are not reported (with motion1/ present nothing is skipped).
+MOTION1_ONLY = {"mj_jacSite", "CODE_REVIEW.md", "HARNESS.md", "demonstration.py", "pyproject.toml",
+                "watch_grasp.py", "tune_grasp.py", "classify_failures.py", "env.py", "CUBE_GRIP",
+                "LIFT_REQUIRED", "JAX_ARM_DIR"}
 BASES = [".", "motion1", "motion2", "motion2/src", "motion2/scripts", "motion2/models", "motion2/arm",
          "motion1/scripts", "motion1/src/humanoid_grasp_rl", "URDF_1006", "URDF_1006/JAXV2_Assembly_description"]
 
@@ -67,7 +72,14 @@ for agents in glob.glob("**/AGENTS.md", recursive=True):
     if m and not os.path.exists(os.path.join(os.path.dirname(agents), m.group(1))):
         problems.append((agents, "parent", m.group(1)))
 
+unchecked = 0
+if not os.path.isdir("motion1"):
+    kept = [p for p in problems if "motion1/" not in p[2] and p[2] not in MOTION1_ONLY]
+    unchecked = len(set(problems)) - len(set(kept))
+    problems = kept
+
 for p in sorted(set(problems)):
     print("UNRESOLVED", *p)
-print(f"docs: {len(DOCS)} checked, {len(set(problems))} unresolved")
+print(f"docs: {len(DOCS)} checked, {len(set(problems))} unresolved"
+      + (f", {unchecked} references to motion1/ not checked (motion1/ is not here)" if unchecked else ""))
 sys.exit(1 if problems else 0)

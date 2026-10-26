@@ -48,7 +48,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<!-- Generated: 2026-07-02 | Updated: 2026-10-13 -->
+<!-- Generated: 2026-07-02 | Updated: 2026-10-26 -->
 <section id="역운逆運-휴머노이드-상체-로봇-프로젝트-team-jax" class="level1">
 <h1>역운(逆運) — 휴머노이드 상체 로봇 프로젝트 (Team JAX)</h1>
 <section id="purpose" class="level2">
@@ -87,7 +87,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td><code>check_docs.py</code></td>
-<td>문서의 기호·경로·링크를 코드와 대조</td>
+<td>문서의 기호·경로·링크를 코드와 대조. <code>motion1/</code>이 없으면(team-jax/IK 클론) 그쪽 전용 참조는 건너뛴다</td>
 </tr>
 <tr class="even">
 <td><code>haness.md</code></td>
@@ -128,7 +128,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>motion1/</code></td>
-<td>동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. <strong>별도 git 저장소</strong> (see <code>motion1/AGENTS.md</code>)</td>
+<td>동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. <strong>별도 git 저장소이며 team-jax/IK에는 올라가지 않았다</strong> (로컬에 있을 때만 see <code>motion1/AGENTS.md</code>)</td>
 </tr>
 <tr class="odd">
 <td><code>motion2/</code></td>
@@ -140,7 +140,7 @@ ul.task-list li input[type="checkbox"] {
 <pre><code>AGENTS.md
 ├── URDF_1006/AGENTS.md
 │   └── JAXV2_Assembly_description/AGENTS.md
-├── motion1/AGENTS.md
+├── motion1/AGENTS.md          (별도 저장소, team-jax/IK에는 없음)
 │   ├── scripts/AGENTS.md
 │   └── src/humanoid_grasp_rl/AGENTS.md
 └── motion2/AGENTS.md
@@ -156,7 +156,8 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li>의존 방향은 <code>motion1 → motion2/arm/make_arm_urdf.py → URDF_1006</code> 하나뿐이다. motion2는 motion1을 import하지 않는다.</li>
 <li>Python은 항상 루트 <code>venv/bin/python</code>, macOS에서 MuJoCo 뷰어를 띄우는 스크립트는 <code>venv/bin/mjpython</code>. 패키지는 <code>venv/bin/python -m pip install</code>. 폴더를 옮기거나 이름을 바꾸면 <code>venv/bin/pip</code>·<code>mjpython</code> 등의 셔뱅이 깨진다(<code>STATUS.md</code> 참고).</li>
-<li><code>motion1/</code>은 자체 <code>.git</code>이 있다. 루트 저장소에서는 untracked로 보이며, 동작 1 변경은 그 안에서 커밋한다.</li>
+<li>원격 저장소는 <code>origin</code> = <a href="https://github.com/team-jax/IK" class="uri">https://github.com/team-jax/IK</a>(<code>main</code>). 이전 <code>team-jax/CV_TEST2</code>는 <code>upstream</code>으로 남아 있다.</li>
+<li><code>motion1/</code>은 자체 <code>.git</code>(원격 <code>gyumingim/Humanoid_Grasp_RL</code>)이 있다. 루트 저장소에서는 untracked로 보이고 team-jax/IK에는 올리지 않으며, 동작 1 변경은 그 안에서 커밋한다. <code>motion1/</code>이 없는 클론에서도 <code>motion2/</code>는 그대로 동작한다.</li>
 <li>문서와 코드가 어긋나면 코드와 실제 실행 결과가 기준이다. 숫자(성공률 등)는 직접 재현한 것만, 측정한 날짜와 시드 범위를 함께 적는다.</li>
 <li>새 <code>AGENTS.md</code>를 만들면 첫 줄에 부모를 가리키는 <code>Parent</code> 주석 태그(다른 <code>AGENTS.md</code>와 같은 형식)를 달고 <code>check_docs.py</code>의 <code>DOCS</code> 목록에도 넣는다. 부모 경로는 모든 <code>AGENTS.md</code>에서 검사하지만 기호·경로 대조는 목록의 문서만 한다. 검사기는 문서에서 처음 나오는 “Parent” + 콜론 + 공백 뒤의 단어를 부모 경로로 읽으므로 본문에 그 형식의 예시를 적지 않는다. 이 파일을 고쳤으면 <code>quarto render AGENTS.md</code>로 <code>AGENTS.html</code>도 다시 만든다.</li>
 </ul>
