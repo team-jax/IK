@@ -1,9 +1,9 @@
 """Headless grasp check: close the hand on the cube at +-8 mm offsets and lift it 84 mm.
 
-    venv/bin/python motion2/check_grasp.py     # prints LIFTED per offset, then the count (expect 9/9)
+    venv/bin/python motion2/scripts/check_grasp.py     # prints LIFTED per offset, then the count (expect 9/9)
 """
-import sys, numpy as np, mujoco
-sys.path.insert(0, __import__('os').path.dirname(__import__('os').path.abspath(__file__)))
+import _paths  # noqa: F401  (puts src/ on the path)
+import numpy as np, mujoco
 import mujoco_receiver as m
 def run(dx,dy):
     model=mujoco.MjModel.from_xml_path(m.ARM_XML); data=mujoco.MjData(model)

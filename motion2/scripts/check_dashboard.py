@@ -1,16 +1,16 @@
 """Headless check of web_dashboard.py as a subprocess: UDP packets in, /wrist.json and the page out.
 
-    venv/bin/python motion2/check_dashboard.py
+    venv/bin/python motion2/scripts/check_dashboard.py
 """
+import _paths
 import json
-import os
 import socket
 import subprocess
 import sys
 import time
 import urllib.request
 
-proc = subprocess.Popen([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "web_dashboard.py")],
+proc = subprocess.Popen([sys.executable, str(_paths.ROOT / "src" / "web_dashboard.py")],
                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 BASE = "http://127.0.0.1:8000"
 

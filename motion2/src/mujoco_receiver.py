@@ -3,8 +3,8 @@ and per-finger curl values, under contact physics — pick up the cube on the pe
 own hand.
 
 Usage:
-    venv/bin/mjpython mujoco_receiver.py   # macOS
-    venv/bin/python mujoco_receiver.py      # Linux
+    venv/bin/mjpython motion2/src/mujoco_receiver.py   # macOS
+    venv/bin/python motion2/src/mujoco_receiver.py      # Linux
 
 Receives right wrist position + index/middle/ring finger curls from vision_sender.py via UDP,
 converts wrist position to arm workspace coordinates, solves IK, and feeds the joint angles to
@@ -42,7 +42,7 @@ import mujoco.viewer
 import numpy as np
 from scipy.optimize import least_squares
 
-_DIR = os.path.dirname(os.path.abspath(__file__))
+_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # motion2/, which holds arm/
 sys.path.insert(0, _DIR)
 from arm.ik import BASE_ROT, SEED_POSE, build_chain, local_to_world, world_to_local  # noqa: E402
 
@@ -58,9 +58,11 @@ ARM_XML = os.path.join(_DIR, "arm", "arm.xml")
 # 17.5 mm below the site (measured), so with the site at BASE_Z (5 mm above the cube's bottom face,
 # 10 mm below its centre) they reach 12.5 mm below that face, beside the post, and the flat finger
 # pads meet the cube's sides.
-# The commandable height is [BASE_Z, BASE_Z + HEIGHT_SCALE]; above ~z=0.35 near the body the arm
-# can no longer keep the fingers pointing straight down (measured by sweeping the IK), so the top
-# is capped there.
+# The commandable height is [BASE_Z, BASE_Z + HEIGHT_SCALE]; above ~z=0.35 near the body (large x;
+# the column stands at x=0.50) the arm can no longer keep the fingers pointing straight down, so the
+# top is capped there. Best palm-down position error over 16 random starts (kinematics only,
+# measured 2026-10-13): at y=0 it is 5 mm at (0.17, 0.34), 34 mm at (0.17, 0.37), 42 mm at (0.21,
+# 0.37); at the cube (0.12, 0) it is 15 mm at z=0.37 and 41 mm at z=0.40.
 LATERAL_SCALE = 0.6   # x∈[0,1] → arm y-axis: (x-center)*LATERAL_SCALE
 HEIGHT_SCALE = 0.085  # y∈[0,1] → arm z-axis: (1-y)*HEIGHT_SCALE + BASE_Z
 DEPTH_SCALE = 0.3     # z (depth) → arm x-axis: (z-center)*DEPTH_SCALE around FORWARD_BASE
@@ -74,8 +76,12 @@ BASE_Z = 0.255        # grasp-centre height whose finger pads sit beside the cub
 # Depth is therefore auto-calibrated exactly like the lateral center: the first packet's z
 # becomes neutral depth ('C' re-arms both). The solved target is additionally clamped to the
 # reachable workspace box below so no packet can ever command a pose outside it.
-# Box trimmed to where the arm's IK keeps the fingers pointing down (swept in sim; outside it the
-# solver fails with 10-50 mm error and each failed solve takes ~150 ms, stalling the loop):
+# Box trimmed (swept in sim) to where the arm can reach a palm-down pose; outside it the solver
+# fails with 10-50 mm error and each failed solve takes ~150 ms, stalling the loop.
+# Inside it a palm-down pose exists at all 75 sampled points (x 5 * y 5 * z 3; 16 random starts each
+# find one within PALM_DOWN_ERR_TOL / ORIENT_ERR_TOL), but one solve warm-started from the previous
+# pose can land on another joint branch: the hand then tilts (up to 114 deg seen at z=0.34, x>=0.12,
+# y>=+0.1) or the solution hops, mostly near the box edges. A solver problem, not a reach limit.
 WORKSPACE_X = (0.03, 0.21)    # forward/back; cube / neutral grasp centre is at x=0.12
 WORKSPACE_Y = (-0.2, 0.2)     # lateral
 WORKSPACE_Z = (0.255, 0.34)   # height
@@ -117,9 +123,9 @@ CAM_ELEVATION = -15
 # Above this position error, the palm-down solution is treated as unreachable and the
 # position-only fallback kicks in (see solve_ik_palm_down).
 PALM_DOWN_ERR_TOL = 0.02  # meters
-# The full-orientation solve is unreachable above this height (see solve_ik_palm_down) and a
-# failed SLSQP run costs ~100 ms, so it is only attempted at or below it.
 ORIENT_ERR_TOL = 0.1  # rad (~6 deg) allowed between end frame and the aligned target
+# The full-orientation solve is out of reach above this height near the body (see solve_ik_palm_down)
+# and a failed SLSQP run costs ~100 ms, so it is only attempted at or below it.
 FULL_ORIENT_MAX_Z = 0.34  # meters
 
 

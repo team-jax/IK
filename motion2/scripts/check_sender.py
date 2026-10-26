@@ -1,21 +1,18 @@
 """Headless check of vision_sender.py - no webcam is opened.
 
-    venv/bin/python motion2/check_sender.py
+    venv/bin/python motion2/scripts/check_sender.py
 
 1. compute_finger_curls on synthetic hands
 2. the two real .task models load and run on a blank frame (mediapipe Tasks API)
 3. main() end to end with a fake camera and fake landmarkers: packet format, visibility gating,
    EMA, curl hold, fan-out to both UDP ports, and compatibility with the receiver's parser
 """
-import os
+import _paths  # noqa: F401  (puts src/ on the path)
 import socket
-import sys
 from types import SimpleNamespace as NS
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
 import cv2
 import mediapipe as mp
 from mediapipe.tasks import python as mp_python

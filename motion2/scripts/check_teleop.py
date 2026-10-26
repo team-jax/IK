@@ -5,8 +5,8 @@ stand-in viewer: hover, descend beside the cube, close the three fingers, lift 8
 whole path packet -> IK -> position actuators -> contact physics is exercised. Broken packets
 (garbage, wrong field count, empty, NaN position) are mixed in; the receiver must shrug them off.
 
-    venv/bin/python motion2/check_teleop.py              # the three scenarios, one process each
-    venv/bin/python motion2/check_teleop.py swing-jump   # a single scenario
+    venv/bin/python motion2/scripts/check_teleop.py              # the three scenarios, one process each
+    venv/bin/python motion2/scripts/check_teleop.py swing-jump   # a single scenario
 
 Scenarios:
   wrist       6-field packets (wrist and fingers only)
@@ -19,6 +19,7 @@ Scenarios:
               it, and keep it still while the fingers are closed; before that the elbow whipped,
               the IK solution hopped mid-lift and the pinched cube was thrown off the post.
 """
+import _paths  # noqa: F401  (puts src/ on the path)
 import contextlib
 import os
 import socket
@@ -64,7 +65,6 @@ def packet(scenario, y, c):
 
 def run(scenario):
     """One scenario in this process. Raises AssertionError when the cube is not lifted."""
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import mujoco.viewer as mv
     import mujoco_receiver as m
 

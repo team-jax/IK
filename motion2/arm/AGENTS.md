@@ -6,7 +6,7 @@
 ## Purpose
 팀의 최종 URDF(`../../URDF_1006/JAXV2_Assembly_description`)에서 생성한 단일 팔(7 revolute joint) 모델.
 ikpy용 URDF, MuJoCo MJCF, 생성기(`make_arm_urdf.py`), IK 풀이 + 검증 스크립트로 구성된다.
-`arm.xml`에는 3손가락 손(6 hinge joint, `../mujoco_receiver.py`가 검지/중지/약지 curl 값으로
+`arm.xml`에는 3손가락 손(6 hinge joint, `../src/mujoco_receiver.py`가 검지/중지/약지 curl 값으로
 손가락별 구동), 파지 대상 씬(좁은 받침 기둥 + freejoint 큐브, contact/마찰 활성), 13개 position
 actuator가 있다 — `arm.urdf`/ikpy 체인에는 손이 포함되지 않으므로 IK와 독립적이다.
 
@@ -19,8 +19,6 @@ actuator가 있다 — `arm.urdf`/ikpy 체인에는 손이 포함되지 않으�
 | `arm.xml` | (생성) 같은 7관절 + 3손가락 손 + 바닥/기둥/큐브 + 13개 position actuator. 로봇 지지대 `column`은 `(0.50, 0, 0)`에 서 있고 어깨 프레임은 월드 `(0.34, 0, 0.85)`, 팔은 로컬 -x(월드 -x) 쪽으로 뻗는다. 큐브를 올려 둔 좁은 받침 기둥은 `pedestal`(`(0.12, 0, 0.125)`, 윗면 z=0.25)로 `column`과 다르다. 시각 메시는 OBJ(`meshes/`), 손가락 6개만 충돌(collision STL을 감싸는 박스, 환경변수 `JAX_FINGER_COLLISION=mesh`면 STL 그대로; 그룹 3, 뷰어에서 숨김). `nq == 20`(팔 7 + 손가락 6 + 큐브 7), `nu == 13`. |
 | `meshes/` | (생성) 최종 URDF의 DAE를 OBJ로 변환한 시각 메시 + 손가락 충돌 STL 6개. |
 | `ik.py` | ikpy로 world-space 목표(x,y,z)에 대한 IK를 풀고, 결과를 `arm.xml`에 적용해 `end_effector` site 오차를 검증. 손가락 관절은 건드리지 않음 — `apply_pose()`는 `qpos[:7]`만 씀. |
-| `One_Arm_JAX_URDF_description/` | 이전 CAD(`One_Arm_JAX_URDF`) 잔재. **현재 사용하지 않음**(참고용으로만 남김). |
-| `역운.code-workspace` | 저장소 루트를 여는 VS Code 워크스페이스 |
 
 ## For AI Agents
 
@@ -42,9 +40,9 @@ venv/bin/mjpython motion2/arm/ik.py --interactive       # 뷰어 + "x y z" 입�
 - **좌표계**: ikpy chain은 `base_link`(어깨) 기준 local frame. `ik.py`의 `BASE_POS_WORLD = [0.34, 0, 0.85]`를 빼서 변환.
 - **SEED_POSE**: 큐브 위 palm-down 자세를 multi-start IK로 구해 관절 한계 여유가 가장 큰 것을 고른 값.
 - **qpos 인덱싱**: 팔 7개 hinge = qpos[0..6], 손가락 6개 = qpos[7..12](finger1 j1,j2 → finger2 → finger3), 큐브 freejoint = qpos[13..19].
-- **손가락 기하**: 손가락 판은 손 프레임 x 방향으로 얇다. 손가락 1·2가 한쪽, 손가락 3이 `ROTATION_BASE_ANGLE=-π`로 반대쪽에 서서 마주 본다. 근위 관절 q=0에서 패드 간격이 30 mm(=큐브 폭)이므로 열림은 q=-0.25(큐브 높이에서 약 75~83 mm)이고, 먼쪽 관절이 간격을 크게 좌우한다. 판 끝이 `end_effector`보다 약 17 mm 아래까지 내려온다.
+- **손가락 기하**: 손가락 판은 손 프레임 x 방향으로 얇다. 손가락 1·2가 한쪽, 손가락 3이 `ROTATION_BASE_ANGLE=-π`로 반대쪽에 서서 마주 본다. 근위 관절 q=0에서 패드 간격이 30 mm(=큐브 폭)이므로 열림은 q=-0.25(큐브 높이에서 약 75~83 mm)이고, 먼쪽 관절이 간격을 크게 좌우한다. 판 끝이 `end_effector`보다 약 17.5 mm 아래까지 내려온다.
 - **접촉**: 손가락 링크가 0.01–0.07 kg로 가벼워 기본 접촉(solref 0.02)은 너무 물렁해 큐브를 10–19 mm 파고든다 → 손가락/큐브 geom에 `solref="0.006 1"`, 손가락3 서보는 반대편 힘 균형을 위해 kp 2배.
-- **뷰어 모드** (`ik.py --view`/`--interactive` 한정): `mj_step` 호출 없음. 물리 구동은 `../mujoco_receiver.py`.
+- **뷰어 모드** (`ik.py --view`/`--interactive` 한정): `mj_step` 호출 없음. 물리 구동은 `../src/mujoco_receiver.py`.
 
 ## Dependencies
 

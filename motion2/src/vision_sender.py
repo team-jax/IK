@@ -8,10 +8,10 @@ mediapipe>=0.10.30 dropped the legacy `mp.solutions` API (see pip package conten
 (`mediapipe.tasks.python.vision.PoseLandmarker` / `HandLandmarker`) instead.
 
 Usage:
-    venv/bin/python vision_sender.py
+    venv/bin/python motion2/src/vision_sender.py
     (press 'q' in the video window to quit)
 
-Requires pose_landmarker_full.task and hand_landmarker.task in this directory (downloaded from
+Requires pose_landmarker_full.task and hand_landmarker.task in motion2/models/ (downloaded from
 https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task
 and
 https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task).
@@ -35,8 +35,9 @@ WEB_UDP_PORT = 5006   # web_dashboard.py
 RIGHT_SHOULDER = 12
 RIGHT_ELBOW = 14
 RIGHT_WRIST = 16  # PoseLandmark index, same 33-point topology as the legacy Solutions API
-MODEL_PATH = Path(__file__).parent / "pose_landmarker_full.task"
-HAND_MODEL_PATH = Path(__file__).parent / "hand_landmarker.task"
+MODELS_DIR = Path(__file__).resolve().parents[1] / "models"
+MODEL_PATH = MODELS_DIR / "pose_landmarker_full.task"
+HAND_MODEL_PATH = MODELS_DIR / "hand_landmarker.task"
 
 # HandLandmarker's 21-point topology: 0=wrist; per finger, (MCP knuckle, PIP joint, fingertip)
 # landmark indices. Only index/middle/ring are tracked — the MuJoCo gripper has exactly 3

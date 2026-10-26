@@ -15,7 +15,7 @@ STM32 펌웨어, Jetson/ROS 코드, 강화학습 구현 등은 아래 문서에 
 리포지토리에 커밋되어 있지 않다. 새 코드를 추가할 때 아래 아키텍처/프로토콜 설계를 기준으로
 삼을 것. Phase 2(시뮬레이션 + IK + 그리퍼 파지)는 `motion2/arm/`에 구현되어 있고 (§0.2), 웹캠
 손 추적으로 시뮬레이션 팔을 실시간 조종하는 파이프라인이 `motion2/`에 있다 (§0.3). 이하 동작 2 설명의
-상대 경로(`arm/…`, `mujoco_receiver.py` 등)는 `motion2/` 기준이다.
+상대 경로(`arm/…`, `src/mujoco_receiver.py` 등)는 `motion2/` 기준이다.
 
 ### 0.0 동작 1 / 동작 2 구분
 
@@ -23,36 +23,36 @@ STM32 펌웨어, Jetson/ROS 코드, 강화학습 구현 등은 아래 문서에 
 
 | | 동작 1 | 동작 2 |
 |---|---|---|
-| 위치 | `motion1/` (구 `Humanoid_Grasp_RL/`, G1 버전은 그 저장소의 `g1-final` 태그) | `motion2/` (`arm/`, `vision_sender.py`, `mujoco_receiver.py`, `web_dashboard.py`, `run_*.sh`, `*.task`, `실행방법.txt`) |
+| 위치 | `motion1/` (구 `Humanoid_Grasp_RL/`, G1 버전은 그 저장소의 `g1-final` 태그) | `motion2/` (`src/` 프로그램 3개, `scripts/` 실행 래퍼·검사, `models/` MediaPipe 모델, `arm/` 모델 생성기·IK, 자체 `README.md`·`STATUS.md`) |
 | 내용 | 최종 URDF의 한 팔 + 3손가락 손이 책상 위 50mm 큐브를 집어 목표 지점에 놓기 (배달, 2단 쌓기) | 자체 제작 7DOF 팔 + 3손가락 그리퍼를 웹캠 손 추적으로 실시간 텔레오퍼레이션해 큐브 파지 (§0.2, §0.3) |
 | 제어 | 스크립트 상태기계 (`demonstration.py`) + 파지 중심 site에 대한 damped least-squares IK. RL은 중단됨 | ikpy IK + `<position>` actuator, UDP 3프로세스 파이프라인 |
 | 로봇 | 최종 URDF(`URDF_1006`)에서 `motion2/arm/make_arm_urdf.py`가 생성 — 동작 2와 같은 로봇 | 최종 URDF(`URDF_1006`)에서 생성한 `arm/arm.xml`·`arm/arm.urdf` (실제 제작 하드웨어와 대응) |
-| 환경 | 루트 `venv/` (스크립트가 `src/`를 스스로 찾음, `PYTHONPATH` 불필요). 뷰어는 `venv/bin/mjpython`. 자체 `.venv/`는 선택(`pyproject.toml`) | 루트 `venv/` (Python 3.14, `motion2/run_*.sh`는 `../venv`를 사용) |
-| 문서 | `motion1/README.md`, `STATUS.md`, `HARNESS.md` (`CODE_REVIEW.md`는 G1 시절 검토라 폐기) | 이 파일 §0.1~§0.3, 루트 `README.md`·`STATUS.md`, `motion2/실행방법.txt` |
+| 환경 | 루트 `venv/` (스크립트가 `src/`를 스스로 찾음, `PYTHONPATH` 불필요). 뷰어는 `venv/bin/mjpython`. 자체 `.venv/`는 선택(`pyproject.toml`) | 루트 `venv/` (Python 3.14, `motion2/scripts/run_*.sh`는 저장소 루트의 `venv/`를 사용) |
+| 문서 | `motion1/README.md`, `STATUS.md`, `HARNESS.md` (`CODE_REVIEW.md`는 G1 시절 검토라 폐기) | 이 파일 §0.1~§0.3, `motion2/README.md`·`STATUS.md` |
 | 상태 | 배달 100/100 (시드 0~99), 2단 46/50 (시드 0~49), 3단은 팔 한계로 불가 (2026-10-12 측정, 완전 무작위 배치). 뷰어 육안 확인은 안 함 | 최종 URDF 기반 모델 생성, IK 수렴(0.00 mm), 화면 없는 시뮬레이션에서 큐브 파지·들어올리기 9/9(`check_grasp.py`, ±8 mm), UDP 파이프라인 전체 3/3(`check_teleop.py`). 실제 웹캠은 열리고 송신 루프가 27.8 fps로 돈다. 사람 추적과 육안 확인이 남음 |
 
 - `URDF_1006/`(리포 루트)은 팀의 **최종 URDF**(CAD export, `JAXV2_Assembly_description`)다. 동작 1/2 어느 쪽에도 속하지 않는 공용 원본이다. 동작 2는 `motion2/arm/make_arm_urdf.py`가 이 폴더를 읽어 모델을 생성한다(동작 1도 `motion1/src/.../assets.py`를 통해 같은 생성기를 쓴다).
 - `motion1/`은 별도 git 저장소(자체 `.git`)다. 루트 저장소에서는 untracked 폴더로 보이며, 동작 1 변경은 그 안에서 커밋한다.
-- 동작 1 작업은 `motion1/README.md`를 기준으로 한다. 동작 1·2 모두 루트 `venv/`를 쓴다(예: `venv/bin/python motion1/scripts/smoke_test.py`). 동작 2는 아래 §0.1~§0.3.
+- 동작 1 작업은 `motion1/README.md`, 동작 2 작업은 `motion2/README.md`를 기준으로 한다. 동작 1·2 모두 루트 `venv/`를 쓴다(예: `venv/bin/python motion1/scripts/smoke_test.py`). 동작 2의 상세는 아래 §0.1~§0.3.
 - 이 문서의 §1~§8(하드웨어·펌웨어·프로토콜·로드맵)은 실제 로봇을 향한 계획이며 동작 2의 모델(`motion2/arm/`)과 대응한다. 동작 1도 이제 같은 팔·손을 쓰므로(단 책상·큐브 환경은 시뮬레이션 전용) 하드웨어 계획과 같은 로봇 모델을 공유한다.
-- 전체 테스트는 저장소 루트에서 `./run_tests.sh` (빠른 모드 약 3분, `--full`은 성공률·영상 포함 +12분, `--viewers`는 뷰어 창을 연다). 문서 대조는 `venv/bin/python check_docs.py`.
+- 전체 테스트는 저장소 루트에서 `./run_tests.sh` (빠른 모드 약 1분, `--full`은 성공률·영상 포함 +3분, `--viewers`는 뷰어 창을 연다). 문서 대조는 `venv/bin/python check_docs.py`.
 - 아래 §0.1~§0.3은 **동작 2** 설명이다.
 
 ### 0.1 Python 환경 (MuJoCo 시뮬레이션)
 
 - 가상환경은 `venv/`에 있다 (Python 3.14). 전역 `python`/`pip` 대신 venv를 직접 사용:
-  - `venv/bin/python motion2/<script>.py` (루트에서 실행. `motion2/run_*.sh`는 `../venv`를 자동 사용)
+  - `venv/bin/python motion2/src/<script>.py` (루트에서 실행. `motion2/scripts/run_*.sh`는 저장소 루트의 `venv`를 자동 사용)
   - `venv/bin/python -m pip install <package>` (폴더를 옮기거나 이름을 바꾸면 `venv/bin/pip`·`mjpython`의 셔뱅이 깨지므로 `python -m pip`가 안전)
 - 설치된 주요 패키지: `mujoco`, `gymnasium`, `numpy`, `glfw`, `ikpy`(+ `scipy`, `sympy`),
   `mediapipe`, `opencv-python`, `imageio`(+ `imageio-ffmpeg`), `pillow`.
 - 루트에는 패키지 매니페스트(`requirements.txt`)가 없다 — 의존성은 venv에 직접 설치됨. `motion1/pyproject.toml`은 동작 1 패키지 설명용이다.
 
-`test.py`는 gymnasium이 함께 제공하는 MuJoCo 모델(`reacher.xml`)을 불러와 인터랙티브 passive
-viewer를 띄우는 스크래치 스크립트:
+`motion2/scripts/check_viewer.py`는 gymnasium이 함께 제공하는 MuJoCo 모델(`reacher.xml`)을 불러와
+인터랙티브 passive viewer를 띄워 GUI 환경을 확인하는 스크립트:
 
 ```
-venv/bin/mjpython motion2/test.py   # macOS
-venv/bin/python motion2/test.py     # Linux
+venv/bin/mjpython motion2/scripts/check_viewer.py   # macOS
+venv/bin/python motion2/scripts/check_viewer.py     # Linux
 ```
 
 이 모델은 `gymnasium.envs.mujoco` 패키지가 설치된 위치(`.../assets/reacher.xml`)에서
@@ -76,7 +76,8 @@ be run under mjpython on macOS`가 발생하므로 venv에 함께 설치된 `mjp
   `end_effector_link`는 손가락 사이 파지 중심이며 z축이 손가락 반대 방향이라 월드 +z와 정렬하면
   손가락이 아래를 향한다(palm-down). 월드↔로컬 변환은 `world_to_local()`/`local_to_world()`.
   palm-down 도달 영역은 높이에 따라 크게 달라서(z=0.25~0.34에서 넓고 0.38 이상은 중앙에서 불가)
-  `mujoco_receiver.py`의 `WORKSPACE_*`가 그 영역에 맞춰져 있다.
+  `mujoco_receiver.py`의 `WORKSPACE_*`가 그 영역에 맞춰져 있다. 상자 안에서도 한 번짜리 풀이가 다른 관절 가지로
+  가면 손이 기울거나 해가 뛴다(`motion2/README.md`의 한계).
 - `arm/arm.xml` — 위 URDF와 같은 관절 순서/축/링크/질량을 갖는 MuJoCo MJCF(생성 파일). 외형은 DAE를 OBJ로
   변환한 `arm/meshes/`, 손가락 충돌은 최종 URDF의 collision STL을 감싸는 박스(`JAX_FINGER_COLLISION` 환경변수, 그룹 3, 뷰어에서 숨김; `JAX_FINGER_COLLISION=mesh`로 생성하면 STL 그대로). 엔드 이펙터는
   `end_effector` site. 3손가락 손(손가락당 hinge 2개 = 관절 6개), 좁은 받침 기둥(윗면 z=0.25) 위의 30 mm
@@ -86,7 +87,7 @@ be run under mjpython on macOS`가 발생하므로 venv에 함께 설치된 `mjp
   쓰는 것과 `mujoco_receiver.py`가 이 배치에 의존). 충돌은 손가락↔큐브/기둥/바닥만 활성화(팔 링크와
   손가락↔손가락은 비트마스크로 제외). 손가락 링크가 가벼워 기본 접촉이 물렁하므로 손가락/큐브 geom에
   `solref="0.006 1"`, 손가락3 서보 kp는 반대편 힘 균형을 위해 2배. 이전 CAD(`One_Arm_JAX_URDF`)는 더 이상
-  쓰지 않는다(`arm/One_Arm_JAX_URDF_description/`은 참고용 잔재).
+  쓰지 않으며 저장소에서 지웠다(2026-10-13).
 - `arm/ik.py` — ikpy로 목표 위치(x, y, z, world frame)에 대한 IK를 풀고, 그 관절각을 MJCF에
   적용해 `end_effector` site가 실제로 목표에 도달하는지 검증:
   ```
@@ -109,32 +110,32 @@ be run under mjpython on macOS`가 발생하므로 venv에 함께 설치된 `mjp
 ### 0.3 손 추적 텔레오퍼레이션 파이프라인 (`motion2/`)
 
 웹캠으로 오른손을 추적해 MuJoCo 팔+그리퍼를 실시간 조종하고, 받침대 위의 큐브를 집는 데모.
-UDP(127.0.0.1)로 연결된 3개 프로세스로 구성되며, 실행 순서/키 조작은 `실행방법.txt` 참고:
+UDP(127.0.0.1)로 연결된 3개 프로세스(`motion2/src/`)로 구성되며, 실행 순서/키 조작은 `motion2/README.md` 참고:
 
-- `vision_sender.py` — OpenCV + MediaPipe Tasks API(PoseLandmarker/HandLandmarker)로 오른쪽
+- `src/vision_sender.py` — OpenCV + MediaPipe Tasks API(PoseLandmarker/HandLandmarker)로 오른쪽
   손목 (x, y, z)와 검지/중지/약지의 curl 값(0=폄, 1=완전히 굽힘)을 추출해
   `"x y z curl_index curl_middle curl_ring [ex ey ez sx sy sz]"` 패킷(팔꿈치·어깨는 둘 다 보일 때만 추가)을 UDP 5005(수신기)와 5006(대시보드) 양쪽에
-  전송. 모델 파일 `pose_landmarker_full.task`/`hand_landmarker.task`가 `motion2/`에 필요
-  (docstring에 다운로드 URL 있음). mediapipe>=0.10.30은 레거시 `mp.solutions` API가 없어져서
+  전송. 모델 파일 `pose_landmarker_full.task`/`hand_landmarker.task`가 `motion2/models/`에 필요
+  (docstring과 `motion2/README.md`에 다운로드 URL 있음). mediapipe>=0.10.30은 레거시 `mp.solutions` API가 없어져서
   Tasks API를 사용한다.
-- `mujoco_receiver.py` — UDP 5005 수신. 손목 좌표를 팔 워크스페이스(파지 중심 기준)로 매핑해 ikpy IK를 풀고,
+- `src/mujoco_receiver.py` — UDP 5005 수신. 손목 좌표를 팔 워크스페이스(파지 중심 기준)로 매핑해 ikpy IK를 풀고,
   손가락 curl은 검지→finger1, 중지→finger2, 약지→finger3으로 매핑. 관절각을 qpos에 직접
   쓰지 않고 전부 `<position>` actuator ctrl로 보낸 뒤 `mj_step`으로 접촉 물리를 적분한다 —
   qpos 직접 쓰기는 손가락이 큐브를 뚫고 지나가므로 금지. 첫 패킷 수신 시 좌우 중심과 깊이
   기준을 자동 캘리브레이션 (뷰어에서 C 키로 재캘리브레이션, T 키로 그리퍼 추적 카메라 토글).
   macOS에서는 `mjpython` 필요. 좌표 매핑 스케일(`LATERAL_SCALE`/`HEIGHT_SCALE`/`BASE_Z` 등)과
-  그리퍼 열림/닫힘 각도(`FINGER_OPEN`/`FINGER_CLOSED`/`DISTAL_SCALE`)는 파일 상단 상수로 튜닝한다(바꾸면 `venv/bin/python motion2/check_grasp.py`로 9/9 확인. 현재 0.15/0.1이고 `DISTAL_SCALE` 0.3은 판이 기울어 파지에 실패한다). 12필드 패킷이면 `solve_ik_arm()`이
+  그리퍼 열림/닫힘 각도(`FINGER_OPEN`/`FINGER_CLOSED`/`DISTAL_SCALE`)는 파일 상단 상수로 튜닝한다(바꾸면 `venv/bin/python motion2/scripts/check_grasp.py`로 9/9 확인. 현재 0.15/0.1이고 `DISTAL_SCALE` 0.3은 판이 기울어 파지에 실패한다). 12필드 패킷이면 `solve_ik_arm()`이
   손목 위치 + 팔꿈치 스윙각(어깨→손목 축 둘레 회전, 7DOF의 남는 1자유도)을 scipy least_squares로
   함께 풀어 사용자의 팔꿈치 벌림 변화량을 따라간다 (기준각은 첫 패킷/C 키; 위치 오차 >20mm면
   기존 `solve_ik_palm_down`으로 대체). 따라가는 스윙은 ±40°(`SWIVEL_LIMIT`)로 제한하고, 초당 90°(`SWIVEL_MAX_RATE`)
   이하로만 바뀌며, 손가락을 쥐는 동안(평균 curl > 0.3, `SWIVEL_HOLD_CURL`)은 고정한다. 이유와 측정값은 `mujoco_receiver.py`
-  주석과 `motion2/check_teleop.py`(`swing-jump`) 참고. 6/4필드 패킷은 기존대로 손목만 추적한다 — BASE_Z/큐브 높이의 기하 관계는
+  주석과 `motion2/scripts/check_teleop.py`(`swing-jump`) 참고. 6/4필드 패킷은 기존대로 손목만 추적한다 — BASE_Z/큐브 높이의 기하 관계는
   해당 주석 참고.
-- `web_dashboard.py` — UDP 5006 수신, `http://127.0.0.1:8000`에서 손목 좌표/curl 값을
+- `src/web_dashboard.py` — UDP 5006 수신, `http://127.0.0.1:8000`에서 손목 좌표/curl 값을
   브라우저로 보여주는 선택사항 대시보드 (stdlib만 사용, Flask 없음).
-- `run_receiver.sh` / `run_sender.sh` — venv 존재 확인 + macOS에서 mjpython 선택까지 처리하는
-  실행 래퍼. 레거시 4필드 패킷(`"x y z grip"`)도 수신기가 계속 지원한다 (grip 값이 세 손가락에
-  공통 적용).
+- `scripts/run_receiver.sh` / `scripts/run_sender.sh` / `scripts/run_web.sh` — venv 존재 확인 + macOS에서
+  mjpython 선택까지 처리하는 실행 래퍼. 레거시 4필드 패킷(`"x y z grip"`)도 수신기가 계속 지원한다
+  (grip 값이 세 손가락에 공통 적용).
 
 ---
 

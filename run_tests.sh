@@ -1,11 +1,12 @@
 #!/bin/bash
 # Whole-repo test in one command (run it from anywhere):
 #
-#   ./run_tests.sh              quick: static checks, motion2 checks, motion1 smoke tests   (about 3 min)
+#   ./run_tests.sh              quick: static checks, motion2 checks, motion1 smoke tests   (about 1 min)
 #   ./run_tests.sh --full       also the 100-seed delivery and 50-seed stacking success rates,
-#                               the reach map and two videos                                (about 12 min more)
+#                               the reach map and two videos                                (about 3 min more)
 #   ./run_tests.sh --viewers    also keeps each MuJoCo viewer open for 9 s (windows pop up; the screen must
-#                               be awake: with the display off or locked GLFW finds no monitor and the viewer segfaults)
+#                               be awake and unlocked: with the display off GLFW finds no monitor and the viewer
+#                               segfaults, and with the console locked mjpython itself can hang)
 #
 # A step passes only if it exits 0 AND its output has the expected text: an exit code alone once let
 # a nonsense tune_grasp table through. No display or webcam is needed unless --viewers is given.
@@ -58,11 +59,25 @@ delivered() { # delivered <log>: the N in the last "N delivered" line
 echo "== static"
 step py_syntax "files parse" $P -c "
 import ast, glob
-files = glob.glob('motion2/*.py') + glob.glob('motion2/arm/*.py') + glob.glob('motion1/scripts/*.py') + glob.glob('motion1/src/humanoid_grasp_rl/*.py') + glob.glob('*.py')
+required = ['motion2/src/*.py', 'motion2/scripts/*.py', 'motion2/arm/*.py', '*.py']
+optional = ['motion1/scripts/*.py', 'motion1/src/humanoid_grasp_rl/*.py']    # motion1 is a separate repository
+for pattern in required:
+    assert glob.glob(pattern), 'no files match ' + pattern                   # a stale glob must not pass silently
+files = [f for pattern in required + optional for f in glob.glob(pattern)]
 [ast.parse(open(f, encoding='utf-8').read(), f) for f in files]
 print(len(files), 'files parse')"
-step sh_syntax "" bash -c 'for f in motion2/*.sh run_tests.sh; do bash -n "$f" || exit 1; done'
-step venv_tools "pip [0-9]" bash -c "venv/bin/pip --version && venv/bin/mjpython -c 'print(1)'"
+step sh_syntax "" bash -c 'for f in motion2/scripts/*.sh run_tests.sh; do bash -n "$f" || exit 1; done'
+step venv_tools "pip [0-9]" $P -c "
+import glob, os, subprocess, sys
+print(subprocess.run(['venv/bin/pip', '--version'], capture_output=True, text=True, check=True).stdout.strip())
+bad = []                                    # a renamed folder leaves stale shebangs; running mjpython here would need a live screen
+for f in glob.glob('venv/bin/*'):
+    if os.path.isfile(f):
+        head = open(f, 'rb').readline(300)
+        if head.startswith(b'#!') and not os.access(head[2:].split()[0].decode(), os.X_OK):
+            bad.append(f + ' -> ' + head[2:].split()[0].decode())
+print('venv/bin scripts with a missing interpreter:', bad or 'none')
+sys.exit(1 if bad else 0)"
 step docs "0 unresolved" $P check_docs.py
 
 echo "== motion2"
@@ -73,10 +88,10 @@ step m2_generate "wrote" $P motion2/arm/make_arm_urdf.py
 step m2_ik "position error: +0.00 mm" $P motion2/arm/ik.py
 step m2_ik_target "position error: +0.00 mm" $P motion2/arm/ik.py --target 0.3 0.2 0.5
 step m2_ik_unreachable "position error" $P motion2/arm/ik.py --target 2.0 2.0 2.0
-step m2_grasp "lifted 9 /9" $P motion2/check_grasp.py
-step m2_sender "sender: ok" $P motion2/check_sender.py
-step m2_teleop "teleop: 3/3 scenarios passed" $P motion2/check_teleop.py
-step m2_dashboard "dashboard: ok" $P motion2/check_dashboard.py
+step m2_grasp "lifted 9 /9" $P motion2/scripts/check_grasp.py
+step m2_sender "sender: ok" $P motion2/scripts/check_sender.py
+step m2_teleop "teleop: 3/3 scenarios passed" $P motion2/scripts/check_teleop.py
+step m2_dashboard "dashboard: ok" $P motion2/scripts/check_dashboard.py
 
 if [ -d motion1/scripts ]; then
   echo "== motion1"
@@ -109,9 +124,9 @@ fi
 if [ $VIEWERS = 1 ]; then
   echo "== viewers (windows pop up)"
   VIEW=venv/bin/mjpython; [ "$(uname)" = Darwin ] || VIEW=venv/bin/python
-  alive receiver "mujoco_receiver.py" motion2/run_receiver.sh
+  alive receiver "mujoco_receiver.py" motion2/scripts/run_receiver.sh
   alive ik_view "arm/ik.py" $VIEW motion2/arm/ik.py --view
-  alive test_py "motion2/test.py" $VIEW motion2/test.py
+  alive viewer_check "check_viewer.py" $VIEW motion2/scripts/check_viewer.py
   [ -d motion1/scripts ] && alive watch_grasp "watch_grasp.py" $VIEW motion1/scripts/watch_grasp.py --seed 3
 fi
 

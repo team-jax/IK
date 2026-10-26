@@ -6,7 +6,7 @@ mujoco_receiver.py's exclusive bind on 5005 — vision_sender.py sends each pack
 both ports. Uses only the Python stdlib (no Flask/etc.) to keep this dependency-free.
 
 Usage:
-    venv/bin/python web_dashboard.py
+    venv/bin/python motion2/src/web_dashboard.py
     open http://127.0.0.1:8000
 """
 

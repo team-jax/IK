@@ -18,54 +18,32 @@
 
 ---
 
-> 프로젝트는 두 동작으로 나뉩니다. **동작 1** = `motion1/` (최종 URDF의 팔 + 3손가락 손으로 50 mm 큐브를 집어 배달·2단 쌓기하는 스크립트 컨트롤러, 자체 README 참고),
-> **동작 2** = `motion2/` (자체 제작 7DOF 팔 + 웹캠 손 추적, 아래 내용). 공용 가상환경 `venv/`는 루트에 있습니다.
+## 두 동작
 
-## 동작 2 데모: 손으로 시뮬레이션 팔 조종하기
+같은 로봇(팀의 최종 URDF `URDF_1006/`의 7DOF 팔 + 3손가락 손)을 쓰는 두 개의 독립된 시뮬레이션 작업입니다. 공용 가상환경 `venv/`는 루트에 있습니다.
 
-아래 경로는 별도 언급이 없으면 `motion2/` 기준이고, 실행 명령은 `motion2/`에서 합니다 (`cd motion2`). 가상환경 만들기와 패키지 설치만 저장소 루트에서 합니다.
+| | 동작 1 | 동작 2 |
+|---|---|---|
+| 폴더 | [`motion1/`](motion1/README.md) (별도 git 저장소) | [`motion2/`](motion2/README.md) |
+| 하는 일 | 스크립트 컨트롤러로 50 mm 큐브를 집어 목표 지점에 놓기(배달), 2단 쌓기 | 웹캠으로 사람의 손을 추적해 팔과 손가락을 실시간으로 조종하고 큐브 집기 |
+| 상태 | 배달 100/100, 2단 쌓기 46/50 (2026-10-12) | 모델 생성, IK 0.00 mm, 파지 9/9, UDP 파이프라인 3/3. 실제 사람 추적의 육안 확인이 남음 |
+| 문서 | [`motion1/README.md`](motion1/README.md), [`STATUS.md`](motion1/STATUS.md) | [`motion2/README.md`](motion2/README.md), [`STATUS.md`](motion2/STATUS.md) |
 
-### 1. 준비물
-
-- **macOS 또는 Linux** + 로컬 디스플레이 (MuJoCo 뷰어가 GUI 창을 띄우므로 headless 불가)
-- **웹캠**
-- **Python 가상환경** — 저장소 루트의 `venv/`를 동작 1·2가 함께 씁니다 (루트에서 실행):
+## 빠른 시작 (저장소 루트에서)
 
 ```bash
+# 가상환경 (처음 한 번)
 python3 -m venv venv
 venv/bin/python -m pip install mujoco gymnasium numpy scipy glfw ikpy mediapipe opencv-python imageio imageio-ffmpeg pillow
+
+# 동작 2 데모: 터미널 2~3개, 1번을 먼저. 웹캠과 화면이 필요합니다. 조작법은 motion2/README.md
+motion2/scripts/run_receiver.sh     # 1: MuJoCo 시뮬레이션 (팔 + 그리퍼 + 큐브)
+motion2/scripts/run_sender.sh       # 2: 웹캠 손 추적 → UDP 전송
+motion2/scripts/run_web.sh          # 3 (선택): 웹 대시보드 http://127.0.0.1:8000
+
+# 동작 1: 화면·웹캠 불필요
+venv/bin/python motion1/scripts/smoke_test.py
 ```
-
-- **MediaPipe 모델 파일 2개** — `motion2/`에 이미 들어 있습니다. 없을 때만 `motion2/`에서 내려받으세요:
-
-```bash
-curl -o pose_landmarker_full.task \
-  https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task
-curl -o hand_landmarker.task \
-  https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
-```
-
-### 2. 실행 (터미널 2~3개)
-
-| 터미널 | 명령 | 역할 |
-|---|---|---|
-| 1 | `./run_receiver.sh` | MuJoCo 시뮬레이션 (팔 + 그리퍼 + 큐브) |
-| 2 | `./run_sender.sh` | 웹캠 손 추적 → UDP 전송 |
-| 3 (선택) | `./run_web.sh` | 웹 대시보드 → http://127.0.0.1:8000 |
-
-터미널 1을 먼저 실행하고, 2·3은 순서 무관합니다. 자세한 내용은 [실행방법.txt](motion2/실행방법.txt) 참고.
-
-### 3. 조작법
-
-- **팔** — 오른손 손목을 카메라 앞에서 움직이면 팔이 따라옵니다.
-- **손가락** — 검지/중지/약지를 각각 굽히면 그리퍼 손가락 1/2/3번이 따로 움직입니다.
-  (그리퍼가 3손가락이라 엄지/새끼는 의도적으로 무시)
-- **집기** — 좁은 받침 기둥 위 빨간 큐브 양옆으로 손을 내리고 손가락을 오므리면 접촉·마찰로 집힙니다.
-- MuJoCo 뷰어 키: **T** = 그리퍼 추적 카메라 켜기/끄기, **C** = 좌우 중심 재캘리브레이션
-- 종료: 웹캠 창에서 **q**, MuJoCo 뷰어는 창 닫기
-
-팔 움직임 범위가 이상하면 `mujoco_receiver.py` 상단의 `LATERAL_SCALE`/`HEIGHT_SCALE`/
-`DEPTH_SCALE`/`BASE_Z`를 조정하세요. 모델을 바꾸려면 `../URDF_1006`을 교체하고 `../venv/bin/python arm/make_arm_urdf.py`를 실행합니다.
 
 ---
 
@@ -77,10 +55,10 @@ curl -o hand_landmarker.task \
 |---|---|
 | `URDF_1006/` | 팀의 최종 URDF(CAD export). 동작 1·2가 공용으로 읽는 원본 |
 | `motion1/` | 동작 1: 최종 URDF 한 팔 + 3손가락 손의 큐브 배달·2단 쌓기 (별도 git 저장소, 자체 README) |
-| `motion2/` | 동작 2: 웹캠 손 추적 텔레오퍼레이션 + 팔 모델 생성기 (아래 표) |
+| `motion2/` | 동작 2: 웹캠 손 추적 텔레오퍼레이션 + 팔 모델 생성기 (자체 README, 아래 표) |
 | `venv/` | 두 동작이 공용하는 가상환경 |
 | `CLAUDE.md` | 프로젝트 전체 설계: 동작 1/2 구분, 하드웨어, 아키텍처, 통신 프로토콜, 로드맵 |
-| `STATUS.md` | 진행 상황과 문제·해결 기록 (동작 2 중심, 동작 1은 `motion1/STATUS.md`) |
+| `STATUS.md` | 전체 요약과 저장소 공통 기록 (동작별 기록은 각 폴더의 `STATUS.md`) |
 | `run_tests.sh` | 전체 테스트 한 번에 (`--full`, `--viewers` 옵션) |
 | `check_docs.py` | 문서에 적힌 기호·경로·링크가 코드에 실제로 있는지 대조 |
 | `AGENTS.md` | AI 에이전트용 문서의 최상위 (하위 폴더마다 `AGENTS.md`가 있음) |
@@ -90,40 +68,20 @@ curl -o hand_landmarker.task \
 
 | 경로 | 내용 |
 |---|---|
-| `vision_sender.py` | MediaPipe Tasks(Pose + Hand)로 손목 (x, y, z)와 손가락 3개 curl(0=펴짐~1=굽힘)을 추출, UDP 5005/5006으로 전송 |
-| `mujoco_receiver.py` | UDP 수신 → palm-down 제약 IK → position actuator로 팔·그리퍼 구동, `mj_step` 접촉 물리 |
-| `web_dashboard.py` | UDP 수신 값을 브라우저에 실시간 표시 (stdlib만 사용, 외부 패키지 불필요) |
-| `arm/make_arm_urdf.py` | 최종 URDF(`../URDF_1006`)에서 `arm.urdf`/`arm.xml`/`meshes/`를 생성하는 스크립트 |
-| `arm/arm.urdf` | ikpy용 7관절 IK 체인 (생성 파일, 손 미포함) |
-| `arm/arm.xml` | MuJoCo 모델: 팔 7관절 + 3손가락 손 + 기둥/큐브 씬 + actuator 13개 (생성 파일) |
-| `arm/ik.py` | IK 단독 풀이/검증 스크립트 (`--target x y z`, `--view`, `--interactive`) |
-| `check_grasp.py` | 화면 없는 파지 검증: 큐브가 ±8 mm 어긋난 9가지 위치에서 닫고 들어올리기 (기대값 9/9) |
-| `check_teleop.py` | 화면·웹캠 없는 UDP 파이프라인 검사: 가짜 송신 → 수신기 → IK → 서보 → 큐브 들어올리기, 시나리오 3개 (기대값 3/3) |
-| `check_sender.py` | 웹캠 없이 `vision_sender.py` 검사: 굽힘 계산, 두 `.task` 모델 로딩, 가짜 카메라로 `main()` 실행해 패킷 형식·가시성 필터·스무딩 확인 |
-| `check_dashboard.py` | `web_dashboard.py`를 띄워 UDP 입력과 `/wrist.json` 응답 확인 |
-| `run_*.sh` | 위 스크립트들의 실행 래퍼 (venv 체크, macOS/Linux 분기) |
-| `test.py` | MuJoCo + gymnasium 설치 확인용 스크래치 |
-| `실행방법.txt` | 3터미널 실행 순서와 스케일 조정법 |
-| `AGENTS.md`, `arm/AGENTS.md` | AI 에이전트용 상세 문서 (구현 패턴, 주의사항) |
+| `README.md`, `STATUS.md` | 실행·조작·구조·UDP 패킷·테스트·한계, 진행 기록 |
+| `src/` | 송신기 `vision_sender.py`(MediaPipe로 손목·손가락 추출, UDP 전송), 수신기 `mujoco_receiver.py`(IK + 접촉 물리), 대시보드 `web_dashboard.py` |
+| `scripts/` | 실행 래퍼 `run_*.sh`와 화면·웹캠 없는 검사 `check_*.py`, 뷰어 확인 `check_viewer.py` |
+| `models/` | MediaPipe 모델 `pose_landmarker_full.task`, `hand_landmarker.task` |
+| `arm/` | 최종 URDF에서 팔 모델(`arm.urdf`, `arm.xml`, `meshes/`)을 만드는 생성기 `make_arm_urdf.py`와 IK `ik.py` |
+| `AGENTS.md`, `src/AGENTS.md`, `scripts/AGENTS.md`, `arm/AGENTS.md` | AI 에이전트용 상세 문서 (구현 패턴, 주의사항) |
 
 ### 주의: Python 실행 방법
 
-- 항상 루트 `venv/bin/python`(motion2에서는 `../venv/bin/python`)을 사용하세요 (전역 python 금지).
+- 항상 루트 `venv/bin/python`을 사용하세요 (전역 python 금지).
 - **macOS에서 MuJoCo 뷰어를 띄우는 스크립트는 `venv/bin/mjpython`으로 실행해야 합니다**
-  (`mujoco_receiver.py`, `arm/ik.py --view`, `test.py`, 동작 1의 `watch_grasp.py`). 일반 python으로 실행하면
-  `launch_passive requires ... mjpython` 에러가 납니다. `run_*.sh`는 이를 자동 분기합니다.
-
-### UDP 패킷 포맷
-
-```
-"x y z curl_index curl_middle curl_ring"                    (float 6개)
-"x y z curl_index curl_middle curl_ring ex ey ez sx sy sz"   (12개: 팔꿈치·어깨가 둘 다 보일 때만)
-```
-
-- `x, y`: 프레임 정규화 좌표(0~1), `z`: MediaPipe 깊이 추정치
-- 6필드면 손목만, 12필드면 팔꿈치 스윙각까지 따라갑니다.
-- 구형 4필드 `"x y z grip"`도 수신 측에서 하위 호환 지원 (grip을 3손가락에 동일 적용)
-- 필드 수를 바꾸면 `vision_sender.py`, `mujoco_receiver.py`, `web_dashboard.py` 셋 다 맞춰야 함
+  (`motion2/src/mujoco_receiver.py`, `motion2/arm/ik.py --view`, `motion2/scripts/check_viewer.py`, 동작 1의
+  `watch_grasp.py`). 일반 python으로 실행하면 `launch_passive requires ... mjpython` 에러가 납니다.
+  `motion2/scripts/run_*.sh`는 이를 자동 분기합니다.
 
 ---
 
@@ -132,24 +90,13 @@ curl -o hand_landmarker.task \
 저장소 루트에서 한 번에 (끝에 통과/실패 개수를 출력하고, 하나라도 실패하면 종료 코드 1):
 
 ```bash
-./run_tests.sh             # 빠른 모드, 약 3분: 문법·문서 대조, 동작 2 전체, 동작 1 스모크
-./run_tests.sh --full      # + 배달 100회·쌓기 50회 성공률, 도달 맵, 영상 2개 (약 12분 추가)
-./run_tests.sh --viewers   # + MuJoCo 뷰어 4개를 9초씩 열어 둠 (창이 뜸)
+./run_tests.sh             # 빠른 모드, 약 1분: 문법·문서 대조, 동작 2 전체, 동작 1 스모크
+./run_tests.sh --full      # + 배달 100회·쌓기 50회 성공률, 도달 맵, 영상 2개 (약 3분 추가)
+./run_tests.sh --viewers   # + MuJoCo 뷰어 4개를 9초씩 열어 둠 (창이 뜨고, 화면이 켜져 있어야 함)
+venv/bin/python check_docs.py   # 문서 대조만 따로
 ```
 
-개별로 돌릴 때 (아래는 `motion2/`에서):
-
-```bash
-../venv/bin/python arm/ik.py                  # 기본 타깃 풀고 오차(mm) 출력
-../venv/bin/python arm/ik.py --target 0.3 0.2 0.5 # world 좌표 타깃 지정
-../venv/bin/mjpython arm/ik.py --interactive      # 뷰어 + 터미널에 "x y z" 입력으로 실시간 IK
-../venv/bin/python check_grasp.py                 # 큐브 파지·들어올리기 9/9 확인
-../venv/bin/python check_teleop.py                # UDP 패킷부터 큐브를 들어올릴 때까지, 3/3 확인
-../venv/bin/python check_sender.py                # 웹캠 없이 송신기 검사
-../venv/bin/python check_dashboard.py             # 대시보드 검사
-```
-
-동작 1은 저장소 루트에서 `venv/bin/python motion1/scripts/smoke_test.py` (뷰어는 `venv/bin/mjpython motion1/scripts/watch_grasp.py`, 자세한 측정 도구는 `motion1/README.md`).
+개별 검사와 측정 도구는 동작 2는 [`motion2/README.md`](motion2/README.md), 동작 1은 [`motion1/README.md`](motion1/README.md)에 있습니다.
 
 ---
 

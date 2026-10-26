@@ -20,7 +20,7 @@ Fusion 360 디자인 `JAXV2-Assembly v4`를 2026-10-06에 export한 로봇 전�
 | `debug/` | 익스포터의 기록과 중간 산출물 (위 표) |
 
 ## For AI Agents
-- 이 폴더를 수정하지 않는다. URDF가 바뀌면(새 CAD export) `venv/bin/python motion2/arm/make_arm_urdf.py`를 다시 실행하고, 생성기 상수(파지 중심, 손가락 배치, 큐브/기둥 크기)가 새 기하와 맞는지 확인한 뒤 `motion2/check_grasp.py`와 `motion1/scripts/build_reachmap.py`를 다시 돌린다. 절차 전체는 `JAXV2_Assembly_description/AGENTS.md`에 있다.
+- 이 폴더를 수정하지 않는다. URDF가 바뀌면(새 CAD export) `venv/bin/python motion2/arm/make_arm_urdf.py`를 다시 실행하고, 생성기 상수(파지 중심, 손가락 배치, 큐브/기둥 크기)가 새 기하와 맞는지 확인한 뒤 `motion2/scripts/check_grasp.py`와 `motion1/scripts/build_reachmap.py`를 다시 돌린다. 절차 전체는 `JAXV2_Assembly_description/AGENTS.md`에 있다.
 - `.omc/`는 도구 상태 폴더라 무시한다.
 
 <!-- MANUAL: -->

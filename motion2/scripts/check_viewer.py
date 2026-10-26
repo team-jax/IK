@@ -1,3 +1,9 @@
+"""Viewer smoke test: opens gymnasium's reacher.xml in MuJoCo's passive viewer, to confirm that the
+GUI works with this venv. A display is required and it must be awake (see motion2/README.md).
+
+    venv/bin/mjpython motion2/scripts/check_viewer.py   # macOS
+    venv/bin/python motion2/scripts/check_viewer.py     # Linux
+"""
 import os
 
 import gymnasium.envs.mujoco

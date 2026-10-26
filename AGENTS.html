@@ -75,11 +75,11 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>README.md</code></td>
-<td>사람용 소개와 동작 2 실행법</td>
+<td>사람용 소개: 두 동작 개요, 구조, 테스트, 로드맵. 동작별 상세는 <code>motion1/README.md</code>, <code>motion2/README.md</code></td>
 </tr>
 <tr class="odd">
 <td><code>STATUS.md</code></td>
-<td>동작 2 중심의 진행 상황·문제와 해결 기록</td>
+<td>전체 요약과 저장소 공통 기록(테스트 도구, 환경 문제). 동작별 기록은 각 폴더의 <code>STATUS.md</code></td>
 </tr>
 <tr class="even">
 <td><code>run_tests.sh</code></td>
@@ -132,7 +132,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td><code>motion2/</code></td>
-<td>동작 2: 웹캠 손 추적 텔레오퍼레이션 + 팔 모델 생성기 (see <code>motion2/AGENTS.md</code>)</td>
+<td>동작 2: 웹캠 손 추적 텔레오퍼레이션(<code>src/</code>, <code>scripts/</code>, <code>models/</code>) + 팔 모델 생성기(<code>arm/</code>), 자체 README·STATUS (see <code>motion2/AGENTS.md</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -144,8 +144,10 @@ ul.task-list li input[type="checkbox"] {
 │   ├── scripts/AGENTS.md
 │   └── src/humanoid_grasp_rl/AGENTS.md
 └── motion2/AGENTS.md
+    ├── src/AGENTS.md
+    ├── scripts/AGENTS.md
     └── arm/AGENTS.md</code></pre>
-<p>문서를 두지 않는 폴더: <code>AGENTS_files/</code>, <code>motion1/README_files/</code>(Quarto 렌더 부산물), <code>.omc/</code>·<code>.omo/</code>·<code>.claude/</code>(도구 상태·설정), <code>.vscode/</code>(편집기 설정), 생성물·산출물 폴더(<code>motion2/arm/meshes/</code>, <code>motion1/artifacts/</code>, <code>URDF_1006/JAXV2_Assembly_description/</code> 아래의 <code>config/ docs/ images/ launch/ meshes/ rviz/ urdf/</code>), 옛 CAD 잔재(<code>motion2/arm/One_Arm_JAX_URDF_description/</code>).</p>
+<p>문서를 두지 않는 폴더: <code>AGENTS_files/</code>, <code>motion1/README_files/</code>(Quarto 렌더 부산물), <code>.omc/</code>·<code>.omo/</code>·<code>.claude/</code>(도구 상태·설정), <code>.vscode/</code>(편집기 설정), 생성물·데이터·산출물 폴더(<code>motion2/arm/meshes/</code>, <code>motion2/models/</code>, <code>motion1/artifacts/</code>, <code>URDF_1006/JAXV2_Assembly_description/</code> 아래의 <code>config/ docs/ images/ launch/ meshes/ rviz/ urdf/</code>).</p>
 </section>
 <section id="for-ai-agents" class="level2">
 <h2 class="anchored" data-anchor-id="for-ai-agents">For AI Agents</h2>
@@ -161,7 +163,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="testing-requirements" class="level3">
 <h3 class="anchored" data-anchor-id="testing-requirements">Testing Requirements</h3>
-<p>저장소 루트에서, 화면·웹캠 없이: <code>./run_tests.sh</code> (빠른 모드, 약 3분). 성공률과 영상까지 보려면 <code>--full</code>, 뷰어를 열어 보려면 <code>--viewers</code>. 코드나 문서를 고친 뒤에는 반드시 돌린다. 개별 검사: - <code>venv/bin/python motion1/scripts/smoke_test.py</code> - <code>venv/bin/python motion2/arm/ik.py</code> (IK 오차 0.00 mm) - <code>venv/bin/python motion2/check_grasp.py</code> (<code>lifted 9 /9</code>), <code>check_teleop.py</code> (<code>3/3</code>), <code>check_sender.py</code>, <code>check_dashboard.py</code> - <code>venv/bin/python check_docs.py</code> (문서 대조)</p>
+<p>저장소 루트에서, 화면·웹캠 없이: <code>./run_tests.sh</code> (빠른 모드, 약 1분). 성공률과 영상까지 보려면 <code>--full</code>, 뷰어를 열어 보려면 <code>--viewers</code>. 코드나 문서를 고친 뒤에는 반드시 돌린다. 개별 검사: - <code>venv/bin/python motion1/scripts/smoke_test.py</code> - <code>venv/bin/python motion2/arm/ik.py</code> (IK 오차 0.00 mm) - <code>venv/bin/python motion2/scripts/check_grasp.py</code> (<code>lifted 9 /9</code>), <code>check_teleop.py</code> (<code>3/3</code>), <code>check_sender.py</code>, <code>check_dashboard.py</code> (같은 폴더) - <code>venv/bin/python check_docs.py</code> (문서 대조)</p>
 </section>
 <section id="common-patterns" class="level3">
 <h3 class="anchored" data-anchor-id="common-patterns">Common Patterns</h3>
