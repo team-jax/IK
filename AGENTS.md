@@ -22,7 +22,7 @@
 | Directory | Purpose |
 |-----------|---------|
 | `URDF_1006/` | 팀의 최종 URDF(CAD export). 두 동작이 공용하는 원본 (see `URDF_1006/AGENTS.md`) |
-| `motion1/` | 동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. **별도 git 저장소이며 team-jax/IK에는 올라가지 않았다** (로컬에 있을 때만 see `motion1/AGENTS.md`) |
+| `motion1/` | 동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. (see `motion1/AGENTS.md`) |
 | `motion2/` | 동작 2: 웹캠 손 추적 텔레오퍼레이션(`src/`, `scripts/`, `models/`) + 팔 모델 생성기(`arm/`), 자체 README·STATUS (see `motion2/AGENTS.md`) |
 
 문서 계층(`Parent:` 태그로 이어지고 `check_docs.py`가 검사한다):
@@ -31,7 +31,7 @@
 AGENTS.md
 ├── URDF_1006/AGENTS.md
 │   └── JAXV2_Assembly_description/AGENTS.md
-├── motion1/AGENTS.md          (별도 저장소, team-jax/IK에는 없음)
+├── motion1/AGENTS.md
 │   ├── scripts/AGENTS.md
 │   └── src/humanoid_grasp_rl/AGENTS.md
 └── motion2/AGENTS.md
@@ -48,7 +48,7 @@ AGENTS.md
 - 의존 방향은 `motion1 → motion2/arm/make_arm_urdf.py → URDF_1006` 하나뿐이다. motion2는 motion1을 import하지 않는다.
 - Python은 항상 루트 `venv/bin/python`, macOS에서 MuJoCo 뷰어를 띄우는 스크립트는 `venv/bin/mjpython`. 패키지는 `venv/bin/python -m pip install`. 폴더를 옮기거나 이름을 바꾸면 `venv/bin/pip`·`mjpython` 등의 셔뱅이 깨진다(`STATUS.md` 참고).
 - 원격 저장소는 `origin` = <https://github.com/team-jax/IK>(`main`). 이전 `team-jax/CV_TEST2`는 `upstream`으로 남아 있다.
-- `motion1/`은 자체 `.git`(원격 `gyumingim/Humanoid_Grasp_RL`)이 있다. 루트 저장소에서는 untracked로 보이고 team-jax/IK에는 올리지 않으며, 동작 1 변경은 그 안에서 커밋한다. `motion1/`이 없는 클론에서도 `motion2/`는 그대로 동작한다.
+- `motion1/`은 원래 `gyumingim/Humanoid_Grasp_RL`에서 개발했고 지금은 이 저장소(team-jax/IK)에 포함되어 있다. `motion1/`이 없는 클론에서도 `motion2/`는 그대로 동작한다.
 - 문서와 코드가 어긋나면 코드와 실제 실행 결과가 기준이다. 숫자(성공률 등)는 직접 재현한 것만, 측정한 날짜와 시드 범위를 함께 적는다.
 - 새 `AGENTS.md`를 만들면 첫 줄에 부모를 가리키는 `Parent` 주석 태그(다른 `AGENTS.md`와 같은 형식)를 달고 `check_docs.py`의 `DOCS` 목록에도 넣는다. 부모 경로는 모든 `AGENTS.md`에서 검사하지만 기호·경로 대조는 목록의 문서만 한다. 검사기는 문서에서 처음 나오는 "Parent" + 콜론 + 공백 뒤의 단어를 부모 경로로 읽으므로 본문에 그 형식의 예시를 적지 않는다. 이 파일을 고쳤으면 `quarto render AGENTS.md`로 `AGENTS.html`도 다시 만든다.
 

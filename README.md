@@ -26,12 +26,12 @@
 
 | | 동작 1 | 동작 2 |
 |---|---|---|
-| 폴더 | `motion1/` (별도 git 저장소, 이 저장소에는 없음) | [`motion2/`](motion2/README.md) |
+| 폴더 | [`motion1/`](motion1/README.md) | [`motion2/`](motion2/README.md) |
 | 하는 일 | 스크립트 컨트롤러로 50 mm 큐브를 집어 목표 지점에 놓기(배달), 2단 쌓기 | 웹캠으로 사람의 손을 추적해 팔과 손가락을 실시간으로 조종하고 큐브 집기 |
 | 상태 | 배달 100/100, 2단 쌓기 46/50 (2026-10-12) | 모델 생성, IK 0.00 mm, 파지 9/9, UDP 파이프라인 3/3. 실제 사람 추적의 육안 확인이 남음 |
 | 문서 | `motion1/README.md`, `motion1/STATUS.md` (동작 1 저장소 안) | [`motion2/README.md`](motion2/README.md), [`STATUS.md`](motion2/STATUS.md) |
 
-**이 저장소(team-jax/IK)에는 동작 2와 공용 URDF만 들어 있다.** 동작 1(`motion1/`)은 자체 `.git`을 가진 별도 저장소(`gyumingim/Humanoid_Grasp_RL`)라 여기에 올리지 않았다. 동작 2는 동작 1을 import하지 않으므로 `motion1/` 없이 그대로 돌아간다. 동작 1 코드를 루트의 `motion1/`에 두면 `run_tests.sh`가 동작 1 검사도 함께 돌린다. 이 README의 동작 1 설명은 그 저장소 기준이다.
+**이 저장소(team-jax/IK)에는 동작 1(`motion1/`), 동작 2(`motion2/`), 공용 URDF가 함께 들어 있다.** 동작 1은 원래 `gyumingim/Humanoid_Grasp_RL`에서 개발했고 그 시점의 코드를 여기에 가져왔다. 동작 2는 동작 1을 import하지 않으므로 `motion1/` 없이도 그대로 돌아가고, `motion1/`이 있으면 `run_tests.sh`가 동작 1 검사도 함께 돌린다.
 
 ## 빠른 시작 (저장소 루트에서)
 
@@ -62,7 +62,7 @@ venv/bin/python motion1/scripts/smoke_test.py
 | 경로 | 내용 |
 |---|---|
 | `URDF_1006/` | 팀의 최종 URDF(CAD export). 동작 1·2가 공용으로 읽는 원본 |
-| `motion1/` | 동작 1: 최종 URDF 한 팔 + 3손가락 손의 큐브 배달·2단 쌓기 (별도 git 저장소, 자체 README. **team-jax/IK에는 포함되지 않음**, 로컬에서만 루트에 둔다) |
+| `motion1/` | 동작 1: 최종 URDF 한 팔 + 3손가락 손의 큐브 배달·2단 쌓기 (자체 README) |
 | `motion2/` | 동작 2: 웹캠 손 추적 텔레오퍼레이션 + 팔 모델 생성기 (자체 README, 아래 표) |
 | `venv/` | 두 동작이 공용하는 가상환경 |
 | `CLAUDE.md` | 프로젝트 전체 설계: 동작 1/2 구분, 하드웨어, 아키텍처, 통신 프로토콜, 로드맵 |
