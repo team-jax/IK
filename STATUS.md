@@ -1,8 +1,8 @@
 # STATUS
 
-최종 갱신: 2026-10-26
+최종 갱신: 2026-11-04
 
-> 저장소 전체의 요약과 공통 사항이다. 동작별 기록은 동작 1 `motion1/STATUS.md`, 동작 2 `motion2/STATUS.md`에 있다. 원격은 <https://github.com/team-jax/IK>(`origin`)이고, 동작 1(`motion1/`)은 별도 저장소라 거기에는 없다.
+> 저장소 전체의 요약과 공통 사항이다. 동작별 기록은 동작 1 `motion1/STATUS.md`, 동작 2 `motion2/STATUS.md`에 있다. 원격은 <https://github.com/team-jax/IK>(`origin`)이고, 동작 1(`motion1/`)도 2026-11-01부터 여기에 들어 있다(원래 `gyumingim/Humanoid_Grasp_RL`에서 개발).
 
 ## 전체 목표
 

@@ -5,10 +5,10 @@ resulting joint angles to the matching MuJoCo model (arm/arm.xml) to validate th
 simulated end-effector site actually reaches the target.
 
 Usage:
-    venv/bin/python arm/ik.py                   # solve + validate, no GUI
-    venv/bin/python arm/ik.py --view             # also open the MuJoCo passive viewer (static pose)
-    venv/bin/python arm/ik.py --target 0.3 0.2 0.5    # custom world-space target (meters)
-    venv/bin/mjpython arm/ik.py --interactive      # open the viewer, type "x y z" at the prompt to move the arm live
+    venv/bin/python motion2/arm/ik.py                   # solve + validate, no GUI
+    venv/bin/mjpython motion2/arm/ik.py --view          # also open the MuJoCo passive viewer (static pose)
+    venv/bin/python motion2/arm/ik.py --target 0.3 0.2 0.5    # custom world-space target (meters)
+    venv/bin/mjpython motion2/arm/ik.py --interactive   # open the viewer, type "x y z" at the prompt to move the arm live
 """
 
 import argparse

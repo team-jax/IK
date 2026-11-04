@@ -2,7 +2,7 @@
 
 팀의 최종 URDF(`../URDF_1006/JAXV2_Assembly`)의 한 팔 + 3손가락 손으로, 책상 위 50 mm 정육면체를 집어 무작위 목표 지점에 놓거나 다른 큐브 위에 쌓는 MuJoCo 환경과 스크립트 컨트롤러다. 강화학습은 접었다. 컨트롤러는 타이머가 아니라 장면의 조건으로 전이하는 상태기계다.
 
-> 이 폴더는 원래 Unitree G1 + Dex3-1 버전이었다. 2026-10-12에 JAX 로봇으로 교체했고, G1 버전은 이 저장소의 `g1-final` 태그에 그대로 있다 (`git checkout g1-final`).
+> 이 폴더는 원래 Unitree G1 + Dex3-1 버전이었다. 2026-10-12에 JAX 로봇으로 교체했고, G1 버전은 원래 저장소(`gyumingim/Humanoid_Grasp_RL`)의 `g1-final` 태그에 그대로 있다 (그 저장소에서 `git checkout g1-final`. team-jax/IK에는 이 태그가 없다).
 
 ## 현재 성적 (완전 무작위 배치)
 

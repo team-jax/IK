@@ -60,7 +60,7 @@ echo "== static"
 step py_syntax "files parse" $P -c "
 import ast, glob
 required = ['motion2/src/*.py', 'motion2/scripts/*.py', 'motion2/arm/*.py', '*.py']
-optional = ['motion1/scripts/*.py', 'motion1/src/humanoid_grasp_rl/*.py']    # motion1 is a separate repository
+optional = ['motion1/scripts/*.py', 'motion1/src/humanoid_grasp_rl/*.py']    # motion1 may be absent: motion2 runs without it
 for pattern in required:
     assert glob.glob(pattern), 'no files match ' + pattern                   # a stale glob must not pass silently
 files = [f for pattern in required + optional for f in glob.glob(pattern)]

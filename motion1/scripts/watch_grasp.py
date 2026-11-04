@@ -1,7 +1,7 @@
 """Watch the scripted delivery in the interactive MuJoCo viewer, at real-time speed.
 
     venv/bin/mjpython motion1/scripts/watch_grasp.py --seed 3 --randomization-scale 1.0
-    venv/bin/python motion1/scripts/watch_grasp.py --layouts motion1/artifacts/layouts_10.json --seed 3
+    venv/bin/mjpython motion1/scripts/watch_grasp.py --layouts motion1/artifacts/layouts_10.json --seed 3
 """
 import _paths  # noqa: F401  (puts src/ on the path)
 import argparse

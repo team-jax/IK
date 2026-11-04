@@ -18,15 +18,15 @@ DOCS = ["README.md", "STATUS.md", "CLAUDE.md", "AGENTS.md", "haness.md", "URDF_1
         "motion2/scripts/AGENTS.md", "motion2/arm/AGENTS.md",
         "motion1/.claude/agents/fable-max.md"]
 MISSING = [d for d in DOCS if not d.startswith("motion1/") and not os.path.exists(d)]   # a stale list must not pass silently
-DOCS = [d for d in DOCS if os.path.exists(d)]          # motion1/ is a separate repository
+DOCS = [d for d in DOCS if os.path.exists(d)]          # motion1/ may be absent: motion2 runs without it
 SKIP_DIRS = {"venv", ".git", ".omc", ".omo", "__pycache__", "meshes", "artifacts", "AGENTS_files",
              "README_files", ".venv"}
 # Mentioned on purpose: history, removed scripts, or words that are not identifiers.
 ALLOWED = {"MAX_CURL", "One_Arm_JAX_URDF", "audit_contacts", "trace_carry", "teleop.py", "audit_contacts.py",
            "trace_carry.py", "requirements.txt", "reacher.xml", "record_delivery", "render_frame", "smoke_test",
            "route.json", "scene_audit", ".py", ".sh", ".task", "/wrist.json"}
-# Names that only motion1/ defines. motion1/ is a separate repository that team-jax/IK does not hold, so in a
-# checkout without it these cannot be verified and are not reported (with motion1/ present nothing is skipped).
+# Names that only motion1/ defines. In a checkout without motion1/ these cannot be verified and are not
+# reported (with motion1/ present nothing is skipped).
 MOTION1_ONLY = {"mj_jacSite", "CODE_REVIEW.md", "HARNESS.md", "demonstration.py", "pyproject.toml",
                 "watch_grasp.py", "tune_grasp.py", "classify_failures.py", "env.py", "CUBE_GRIP",
                 "LIFT_REQUIRED", "JAX_ARM_DIR"}
