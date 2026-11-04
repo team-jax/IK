@@ -39,8 +39,12 @@ def _generator():
     return module
 
 
-def robot_parts() -> RobotParts:
+def robot_parts(finger_sliding_friction: float | None = None) -> RobotParts:
+    """The robot's pieces; `finger_sliding_friction` replaces the pads' sliding coefficient (the
+    generator's torsional and rolling values are kept)."""
     gen = _generator()
+    if finger_sliding_friction is not None:
+        gen.FINGER_FRICTION = " ".join([f"{finger_sliding_friction:g}"] + gen.FINGER_FRICTION.split()[1:])
     urdf = gen.Urdf(gen.SRC)
     if not (Path(gen.MESH_DIR) / "base_link.obj").is_file():
         gen.prepare_meshes(urdf)

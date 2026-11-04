@@ -65,10 +65,12 @@ COUPLE_FINGERS = True
 # pad meets it at one point, and the three points are not in line, so the squeeze is a small
 # couple as well as a clamp.
 CUBE_TORSION = 0.02
-# The cube's sliding friction. The pads grip it with a few newtons of squeeze, and a carried
-# 50 g cube accelerating at a few g needs more than a coefficient of 1 gives; rubber pads on a
-# painted block sit around 1.5-2.
-CUBE_FRICTION = 2.0
+# The sliding friction between the pads and the cube, measured on the real ones (2026-11-04).
+# MuJoCo uses the larger of the two geoms' coefficients at a contact (read back from data.contact
+# in 3.10.0), so the finger pads get the same value (robot_parts in __init__), and the cube's
+# contact with the table then takes the table's 1. It was 2.0 until 2026-11-04; at 0.4 a carried
+# cube slips out of the pads more often (see CROSS_RATE in demonstration.py).
+CUBE_FRICTION = 0.4
 # How far the bottom of a held cube hangs under the grasp centre: its half-size, plus how far the
 # grasp centre sits above the cube's centre, plus the few millimetres it sits low in the pads.
 HELD_BELOW_GC = OBJECT_HALF_SIZE + HELD_DZ + 0.003
@@ -203,7 +205,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         # lifting, crossing, lowering, letting the cube lie down flat, opening and then 20
         # steps of stillness with the hand clear before the task counts it.
         self.max_steps = max_steps if max_steps is not None else 700
-        self._robot = robot_parts()
+        self._robot = robot_parts(finger_sliding_friction=CUBE_FRICTION)
         self.model = mujoco.MjModel.from_xml_string(self._scene_xml())
         self.data = mujoco.MjData(self.model)
         self.frame_skip = CONTROL_FRAME_SKIP

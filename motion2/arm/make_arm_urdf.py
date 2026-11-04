@@ -73,6 +73,9 @@ PEDESTAL_TOP_Z = 0.25
 # them: the servos pushed 10-19 mm into the cube. A stiffer, harder contact on the finger geoms fixes it.
 CONTACT_SOLREF = "0.006 1"
 CONTACT_SOLIMP = "0.95 0.99 0.001"
+# The finger pads' friction (sliding, torsional, rolling). MuJoCo uses the larger of two touching
+# geoms' values, so a scene with its own cube friction (motion1) overrides this to match.
+FINGER_FRICTION = "1.0 0.02 0.001"
 
 # What the finger links collide as. "mesh" is the URDF's collision STL, whose convex hull meets a
 # flat cube face at a single point; "box" is the axis-aligned box around that STL in the link's
@@ -302,7 +305,7 @@ def _geoms(urdf, link, indent):
         lines.append(f'{pad}<geom type="mesh" mesh="{_mesh_name(link, "visual")}" pos="{_fmt(pos)}" '
                      f'quat="{_fmt(_quat_wxyz(rpy))}" rgba="{rgba}"/>')
     if link in FINGER_LINKS:
-        contact = (f'contype="2" conaffinity="1" friction="1.0 0.02 0.001" condim="4" '
+        contact = (f'contype="2" conaffinity="1" friction="{FINGER_FRICTION}" condim="4" '
                    f'solref="{CONTACT_SOLREF}" solimp="{CONTACT_SOLIMP}" group="3"')
         if FINGER_COLLISION == "box":
             pos, quat, half = _collision_box(urdf, link)

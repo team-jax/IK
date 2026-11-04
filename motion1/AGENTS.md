@@ -37,7 +37,7 @@
 
 ### Testing Requirements
 - `smoke_test.py`가 통과해야 한다. 컨트롤러 변경은 `classify_failures.py`로 배달 시드 0~99, 쌓기 `--stack` 시드 0~49를 다시 재고, 고정 레이아웃(`layouts.py`)으로 비교한다.
-- 현재 기준: 배달 100/100, 2단 46/50 (2026-10-12, 놓는 동작을 고친 뒤 2026-10-16에 다시 재서 같음).
+- 현재 기준: 배달 68/100, 2단 39/50 (2026-11-04, 패드–큐브 마찰 0.4 실측, 운반 1 mm/step). 마찰 2.0이던 때는 100/100, 46/50 (2026-10-12, 2026-10-16에 다시 재서 같음). 실물 책상 높이는 그리퍼 변경 뒤로 보류(`STATUS.md`).
 - 저장소 루트의 `./run_tests.sh`가 이 폴더에서 `smoke_test.py`, `tune_grasp.py`(g=0에서 패드 간격 89.7 mm), `layouts.py`, 고정 레이아웃 재생(`classify_failures.py --layouts`, 3개 배달), `render_frame.py`를 돌린다. `--full`이면 배달 시드 0~99(100개 이상), 쌓기 시드 0~49(46개 이상), `build_reachmap.py`가 저장된 맵과 같은 파일을 만드는지, 영상 2개(1920x1080)까지 확인한다.
 
 ### Common Patterns

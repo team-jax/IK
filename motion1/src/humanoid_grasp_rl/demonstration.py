@@ -23,11 +23,12 @@ from humanoid_grasp_rl.env import (
 # few millimetres wider than the cube, so it can turn flat inside the hand instead of being
 # flicked out of it.
 SETTLE_GRIP = CUBE_GRIP - 0.11
-# How fast the hand may swing while carrying, and lift away from the table. 5 mm a step
-# (0.25 m/s) pulls a 50 g cube out of the pads; at 2 mm a step 20 random layouts in 20 were
-# delivered, at 3 mm 17.
-CROSS_RATE = 0.002
-UP_RATE = 0.002
+# How fast the hand may swing while carrying, and lift away from the table. With the pads'
+# friction at 2.0, 5 mm a step (0.25 m/s) pulled a 50 g cube out of the pads and 2 mm a step
+# delivered 20 random layouts in 20 (3 mm: 17). At the measured 0.4 (CUBE_FRICTION), 2 mm a step
+# delivers 63 of seeds 0-99 and 1 mm (0.05 m/s) 68: the slips happen in the carry.
+CROSS_RATE = 0.001
+UP_RATE = 0.001
 # How far above the grasp pose the hand approaches from and carries at (at least).
 TRAVEL_CLEAR = 0.06
 # How many times a cube's delivery may recover from a phase that ran out of time before the
@@ -142,9 +143,12 @@ def scripted_palm_place(env: JaxGraspEnv, step: int) -> np.ndarray:
     # asked for, so a test written against an exact arrival can wait forever. The descent's
     # deadline follows the descent: it starts wherever the clear-air height is.
     down_budget = int((over_pick[2] - pick[2]) / DOWN_RATE) + 30
+    # So does the lift's: up to the carry height at UP_RATE. A fixed 100 steps assumed 2 mm a
+    # step; at 1 mm the 0.11 m lift above a one-cube tower ran out of time in every stacking.
+    up_budget = int((travel - pick[2]) / UP_RATE) + 30
     # The crossing's deadline follows its speed: the whole table is 0.4 m at CROSS_RATE.
     cross_budget = int(0.4 / CROSS_RATE) + 60
-    budget = {"down": down_budget, "grip": 60, "settle": 120, "let go": 90, "lower": 90,
+    budget = {"down": down_budget, "up": up_budget, "grip": 60, "settle": 120, "let go": 90, "lower": 90,
               "cross": cross_budget}.get(phase, 100)
     if env._step_count - env._palm_since > budget and phase not in ("back", "park"):
         phase = _recover(env, phase, moving, carrying, hand, cube)
