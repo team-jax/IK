@@ -69,9 +69,9 @@ CUBE_TORSION = 0.02
 # 50 g cube accelerating at a few g needs more than a coefficient of 1 gives; rubber pads on a
 # painted block sit around 1.5-2.
 CUBE_FRICTION = 2.0
-# How far the bottom of a held cube hangs under the grasp centre: its half-size plus the few
-# millimetres it sits low in the pads.
-HELD_BELOW_GC = OBJECT_HALF_SIZE + 0.003
+# How far the bottom of a held cube hangs under the grasp centre: its half-size, plus how far the
+# grasp centre sits above the cube's centre, plus the few millimetres it sits low in the pads.
+HELD_BELOW_GC = OBJECT_HALF_SIZE + HELD_DZ + 0.003
 # How far the grasp centre has to be from a delivered cube's spot for the episode to count.
 HAND_CLEAR = 0.10
 # Consecutive steps a cube must stay in hand and clear of the table before it counts as
@@ -408,7 +408,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
 
     def drop_pose(self, spot, height: float) -> np.ndarray:
         """Grasp centre that sets a held cube on this spot, `height` being its resting centre."""
-        return np.array([spot[0], spot[1], height + 0.004 - HELD_DZ])
+        return np.array([spot[0], spot[1], height + 0.004 + HELD_DZ])
 
     def _servable(self, objects, targets) -> bool:
         """Can the arm hold every pose this layout asks for?
