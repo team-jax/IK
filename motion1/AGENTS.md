@@ -33,12 +33,13 @@
 - 실행은 저장소 루트에서 `venv/bin/python motion1/scripts/<script>.py` (뷰어는 `venv/bin/mjpython`). 스크립트가 `src/`를 스스로 찾는다.
 - 로봇 모델은 `../motion2/arm/make_arm_urdf.py`의 `robot_parts()`로 만든다(`assets.py`). 모델 상수는 그쪽 파일에서만 바꾼다.
 - 파지 상수(`FINGER_*`, `CUBE_GRIP`, `GRASP_DZ`, `HOME_ARM_QPOS`, 작업 영역)를 바꾸면 도달 맵을 다시 만든다: `scripts/build_reachmap.py`. 시그니처가 다르면 `env.py`가 경고한다.
+- 배치는 `env.py`의 `SETUPS` 두 가지다: 기본 `sim`(어깨 0.85 m, 책상 0.25 m, 아래 성적의 기준)과 `JAX_SETUP=real`(실물: 어깨 회전축 1.2075 m, 책상 0.735 m, 손 40° 기울임, 도달 맵 `reachmap_real.npz`). real의 상수를 바꾸면 `JAX_SETUP=real`로 도달 맵을 다시 만든다.
 - 증상을 가리는 상수 조정보다 원인 구조를 고친다(`HARNESS.md`).
 
 ### Testing Requirements
 - `smoke_test.py`가 통과해야 한다. 컨트롤러 변경은 `classify_failures.py`로 배달 시드 0~99, 쌓기 `--stack` 시드 0~49를 다시 재고, 고정 레이아웃(`layouts.py`)으로 비교한다.
-- 현재 기준: 배달 68/100, 2단 39/50 (2026-11-04, 패드–큐브 마찰 0.4 실측, 운반 1 mm/step). 마찰 2.0이던 때는 100/100, 46/50 (2026-10-12, 2026-10-16에 다시 재서 같음). 실물 책상 높이는 그리퍼 변경 뒤로 보류(`STATUS.md`).
-- 저장소 루트의 `./run_tests.sh`가 이 폴더에서 `smoke_test.py`, `tune_grasp.py`(g=0에서 패드 간격 89.7 mm), `layouts.py`, 고정 레이아웃 재생(`classify_failures.py --layouts`, 3개 중 2개 이상 배달), `render_frame.py`를 돌린다. `--full`이면 배달 시드 0~99(68개 이상), 쌓기 시드 0~49(39개 이상), `build_reachmap.py`가 저장된 맵과 같은 파일을 만드는지, 영상 2개(1920x1080)까지 확인한다.
+- 현재 기준: 배달 68/100, 2단 39/50 (2026-11-04, 패드–큐브 마찰 0.4 실측, 운반 1 mm/step). 마찰 2.0이던 때는 100/100, 46/50 (2026-10-12, 2026-10-16에 다시 재서 같음). 실물 높이 배치(`JAX_SETUP=real`)는 지금 손으로 배달 2/100, 2단 0/50(큐브가 운반 중 빠짐, 손 교체 대기, `STATUS.md`).
+- 저장소 루트의 `./run_tests.sh`가 이 폴더에서 `smoke_test.py`, `tune_grasp.py`(g=0에서 패드 간격 89.7 mm), `layouts.py`, 고정 레이아웃 재생(`classify_failures.py --layouts`, 3개 중 2개 이상 배달), `render_frame.py`, 실물 높이 배치 확인(`m1_real_setup`: 어깨·책상 높이와 간격, 도달 맵이 최신인지)을 돌린다. `--full`이면 배달 시드 0~99(68개 이상), 쌓기 시드 0~49(39개 이상), `build_reachmap.py`가 저장된 맵과 같은 파일을 만드는지, 영상 2개(1920x1080)까지 확인한다.
 
 ### Common Patterns
 - 성공은 에피소드 끝까지 유지되는 상태로 센다(래치가 아니라 최종 판정).

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import warnings
 
 from pathlib import Path
@@ -9,6 +10,7 @@ import gymnasium as gym
 import mujoco
 import numpy as np
 from gymnasium import spaces
+from scipy.spatial.transform import Rotation, Slerp
 
 from humanoid_grasp_rl.assets import robot_parts
 from humanoid_grasp_rl.ik import solve_site_pose
@@ -16,16 +18,33 @@ from humanoid_grasp_rl.ik import solve_site_pose
 Stage = Literal["place", "randomize"]
 
 # --- The scene ---------------------------------------------------------------------------
-# The cubes stand on a table whose surface is at 0.25 m: that is where the arm, hanging from
-# its shoulder 0.85 m up, can hold the hand palm-down over a wide patch (swept in sim; the
-# patch shrinks fast below 0.20 and above 0.38).
-TABLE_SURFACE_Z = 0.25
+# Two setups, picked with the JAX_SETUP environment variable; heights in metres above the floor.
+# "sim" (the default, where every result in README was measured): the shoulder axis at 0.85 with
+# the robot's stand on the floor, and the table at 0.25 - where the arm holds the hand palm-down
+# over a wide patch (swept in sim; the patch shrinks fast below 0.20 and above 0.38).
+# "real": the team's setup as measured (2026-11-04), the shoulder axis 1207.5 mm and the table top
+# 735 mm above the floor, so the stand floats 357.5 mm up. 472.5 mm below its shoulder the arm
+# cannot hold the fingers straight down anywhere (0 usable cells over a 0.74 x 1.0 m grid), so the
+# hand leans 40 degrees about its finger-gap axis. One of fingers 1 and 2 then hangs 36 mm below
+# the grasp centre, the grasp moves 21.5 mm up the hand's axis to keep it off the table, and a
+# carried cube slips out: it is the scene to try a new hand in (motion1/STATUS.md).
+# stand_surface_x is the stand's surface facing the table at the table top (the stand, the URDF's
+# base_link mesh, narrows upwards), read from the mesh; home is the arm's rest pose (HOME_ARM_QPOS).
+SETUPS = {
+    "sim": dict(shoulder_z=0.85, table_z=0.25, stand_surface_x=0.4085, hand_tilt=0.0, grasp_dz=0.0,
+                home=(-0.3266, 0.1621, -0.0089, 1.5628, -0.1595, -1.2349, -0.0079)),
+    "real": dict(shoulder_z=1.2075, table_z=0.735, stand_surface_x=0.4297, hand_tilt=-40.0, grasp_dz=0.0215,
+                 home=(0.1010, 0.3778, 0.1976, 1.8326, -0.7061, -1.5708, -0.0016)),
+}
+SETUP = os.environ.get("JAX_SETUP", "sim")
+if SETUP not in SETUPS:
+    raise ValueError(f"JAX_SETUP={SETUP!r}: the setups are {', '.join(SETUPS)}")
+SHOULDER_Z = SETUPS[SETUP]["shoulder_z"]
+TABLE_SURFACE_Z = SETUPS[SETUP]["table_z"]
 # The table's near edge stands STAND_GAP from the robot's stand, as on the real setup (the
-# user's figure, 2026-11-04; sizing the table from the reach map alone had left 68.5 mm). The
-# stand (the URDF's base_link mesh) narrows upwards, so the gap is taken at the table top, where
-# its surface facing the table is at STAND_SURFACE_X (read from the mesh; 0.43 at z = 0.3775).
+# user's figure, 2026-11-04; sizing the table from the reach map alone had left 68.5 mm).
 STAND_GAP = 0.10
-STAND_SURFACE_X = 0.4085
+STAND_SURFACE_X = SETUPS[SETUP]["stand_surface_x"]
 # 50 mm, not the 30 mm the pedestal demo in motion2 uses. The finger plates reach only 17 mm
 # below the grasp centre, so on a table the pads cannot go below a cube's bottom face and
 # meet it over its upper part; a 30 mm cube then slips or is shot out, a 40 mm one holds in
@@ -57,11 +76,12 @@ FINGER_CLOSED = np.array([-0.19, 0.30])
 # force is what holds it.
 CUBE_GRIP = 0.86
 # --- Grasp geometry (see scripts/tune_grasp.py for how they were measured) ----------------
-# Height of the grasp centre above the cube's centre when the fingers close. The plates end
-# 17.5 mm below it, so at 0 they stop 7.5 mm above the table.
-GRASP_DZ = 0.0
-# Height of the grasp centre above the cube's centre once the cube is held and lifted.
-HELD_DZ = 0.0
+# How far the grasp centre sits above the cube's centre, along the hand's axis, when the fingers
+# close. The plates end 17.5 mm below it, so at 0 they stop 7.5 mm above the table; the leaning
+# hand of the real setup needs 21.5 mm (see SETUPS).
+GRASP_DZ = SETUPS[SETUP]["grasp_dz"]
+# The same once the cube is held and lifted.
+HELD_DZ = GRASP_DZ
 # How much stiffer the friction constraints are than the normal ones. At 1 (MuJoCo's default) a
 # pressed cube creeps down the pads; the elliptic cone with a large ratio holds it.
 IMPRATIO = 30
@@ -78,8 +98,10 @@ CUBE_TORSION = 0.02
 # cube slips out of the pads more often (see CROSS_RATE in demonstration.py).
 CUBE_FRICTION = 0.4
 # How far the bottom of a held cube hangs under the grasp centre: its half-size, plus how far the
-# grasp centre sits above the cube's centre, plus the few millimetres it sits low in the pads.
-HELD_BELOW_GC = OBJECT_HALF_SIZE + HELD_DZ + 0.003
+# grasp centre sits above the cube's centre (HELD_DZ runs along the leaning hand's axis), plus the
+# few millimetres it sits low in the pads.
+HAND_TILT = SETUPS[SETUP]["hand_tilt"]
+HELD_BELOW_GC = OBJECT_HALF_SIZE + HELD_DZ * float(np.cos(np.radians(HAND_TILT))) + 0.003
 # How far the grasp centre has to be from a delivered cube's spot for the episode to count.
 HAND_CLEAR = 0.10
 # Consecutive steps a cube must stay in hand and clear of the table before it counts as
@@ -99,9 +121,10 @@ TARGET_LEASH = 0.03
 # The grip channel is a rate, not a target, so a policy cannot flutter the fingers.
 GRIP_RATE = 0.10
 # Where the grasp centre may be commanded. The top is where the arm can still hold the
-# fingers straight down in the middle of the table.
-WORKSPACE_LOW = np.array([-0.08, -0.32, 0.24])
-WORKSPACE_HIGH = np.array([0.28, 0.32, 0.42])
+# fingers straight down in the middle of the table. The heights follow the table (0.24 and 0.42
+# in the sim setup; rounded so that they are exactly those numbers there).
+WORKSPACE_LOW = np.array([-0.08, -0.32, round(TABLE_SURFACE_Z - 0.01, 4)])
+WORKSPACE_HIGH = np.array([0.28, 0.32, round(TABLE_SURFACE_Z + 0.17, 4)])
 # How far from straight down the fingers may lean, in radians, for a pose to count as reachable.
 # A plate leaning away from the cube turns the squeeze into a push down its side (see FINGER_OPEN),
 # and the lean margin the closing path leaves at contact is about 0.04, so a pose the solver can
@@ -113,15 +136,22 @@ REACH_TILT = 0.02
 # stop, the elbow can bend either way, and the damped-least-squares solve stays on the branch
 # it starts on, so the home picks the branch - and with it which side of the table the arm
 # serves (here y from -0.30 to about 0.05, x from -0.04 to 0.24). The arm starts here and the
-# spare joint freedom is pulled back towards it.
-HOME_ARM_QPOS = np.array([-0.3266, 0.1621, -0.0089, 1.5628, -0.1595, -1.2349, -0.0079])
-# Palm down: the end-effector frame aligned with the world, so the finger gap runs along x.
-PALM_DOWN = np.eye(3)
+# spare joint freedom is pulled back towards it. The real setup's home puts the grasp centre at
+# (0.20, -0.30, table + 0.10), found by the same kind of multi-start search with the hand leaning.
+HOME_ARM_QPOS = np.array(SETUPS[SETUP]["home"])
+# The hand's orientation for grasping. Palm down is the end-effector frame aligned with the world,
+# so the finger gap runs along x; the real setup leans it HAND_TILT degrees about that axis.
+_TILT = np.radians(HAND_TILT)
+PALM_DOWN = np.array([[1.0, 0.0, 0.0],
+                      [0.0, np.cos(_TILT), -np.sin(_TILT)],
+                      [0.0, np.sin(_TILT), np.cos(_TILT)]])
+
+# Each setup has its own reach map; the sim setup's keeps the name it always had.
+REACH_FILE = Path(__file__).with_name("reachmap.npz" if SETUP == "sim" else f"reachmap_{SETUP}.npz")
 
 
 def _load_reach():
-    path = Path(__file__).with_name("reachmap.npz")
-    return np.load(path) if path.is_file() else None
+    return np.load(REACH_FILE) if REACH_FILE.is_file() else None
 
 
 _REACH = _load_reach()
@@ -144,19 +174,21 @@ else:
 
 def map_signature() -> np.ndarray:
     """Everything the reach map's answer depends on, flattened, so a map built under other
-    constants can be told from the current ones."""
+    constants can be told from the current ones. The sim setup's map was built before the setups
+    existed and has no room for the shoulder height and the hand's lean, which are fixed there."""
     return np.concatenate([
         [TABLE_SURFACE_Z, OBJECT_SIZE, GRASP_DZ, HELD_DZ, REACH_TILT],
         WORKSPACE_LOW, WORKSPACE_HIGH, HOME_ARM_QPOS,
+        [] if SETUP == "sim" else [SHOULDER_Z, HAND_TILT],
     ]).astype(np.float64)
 
 
 if _REACH is not None:
     if "signature" not in _REACH.files:
-        warnings.warn("reachmap.npz carries no build signature; run scripts/build_reachmap.py")
+        warnings.warn(f"{REACH_FILE.name} carries no build signature; run scripts/build_reachmap.py")
     elif (_REACH["signature"].shape != map_signature().shape
           or not np.allclose(_REACH["signature"], map_signature())):
-        warnings.warn("reachmap.npz was built under different constants than the ones now in "
+        warnings.warn(f"{REACH_FILE.name} was built under different constants than the ones now in "
                       "force; run scripts/build_reachmap.py before trusting any layout")
 
 
@@ -211,7 +243,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         # lifting, crossing, lowering, letting the cube lie down flat, opening and then 20
         # steps of stillness with the hand clear before the task counts it.
         self.max_steps = max_steps if max_steps is not None else 700
-        self._robot = robot_parts(finger_sliding_friction=CUBE_FRICTION)
+        self._robot = robot_parts(finger_sliding_friction=CUBE_FRICTION, shoulder_z=SHOULDER_Z)
         self.model = mujoco.MjModel.from_xml_string(self._scene_xml())
         self.data = mujoco.MjData(self.model)
         self.frame_skip = CONTROL_FRAME_SKIP
@@ -267,6 +299,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         self._placed_latch = np.zeros(self.n_objects, dtype=bool)
         # The pads' closing curve: where each finger joint goes for a closure g.
         self._rest_grasp_centre = self._home_grasp_centre()
+        self._rest_rotation = self._home_hand_rotation()
         self._contacts = (np.zeros(self.n_objects), np.zeros(self.n_objects, dtype=bool),
                           np.zeros(self.n_objects, dtype=bool))
 
@@ -282,6 +315,22 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         mujoco.mj_kinematics(self.model, probe)
         return probe.site_xpos[self.site_id].copy()
 
+    def _home_hand_rotation(self) -> np.ndarray:
+        probe = mujoco.MjData(self.model)
+        probe.qpos[self.qpos_ids[:7]] = HOME_ARM_QPOS
+        mujoco.mj_kinematics(self.model, probe)
+        return probe.site_xmat[self.site_id].reshape(3, 3).copy()
+
+    def _hand_rotation(self, position) -> np.ndarray:
+        """The hand's orientation for a commanded grasp centre: PALM_DOWN over the reach band, and
+        turning towards the home pose's own orientation between the band's near edge and home. In
+        the sim setup home lies inside the band, so the hand is always palm-down there."""
+        home_x = self._rest_grasp_centre[0]
+        if home_x <= WORK_X_MAX or position[0] <= WORK_X_MAX:
+            return PALM_DOWN
+        s = min((position[0] - WORK_X_MAX) / (home_x - WORK_X_MAX), 1.0)
+        return Slerp([0.0, 1.0], Rotation.from_matrix(np.stack([PALM_DOWN, self._rest_rotation])))(s).as_matrix()
+
     def _scene_xml(self) -> str:
         robot = self._robot
         layout_objects, layout_targets = nominal_layout(self.n_objects)
@@ -292,6 +341,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
             raise ValueError(f"cube spots reach x = {WORK_X_MAX + 0.01 + OBJECT_HALF_SIZE:.3f}, past the table edge at {near_edge:.3f}")
         table_x, table_half_x = (near_edge + far_edge) / 2, (near_edge - far_edge) / 2
         table_half_y = WORK_Y_MAX + 0.08
+        lift = TABLE_SURFACE_Z - 0.25   # the cameras were placed for the sim setup's table
         solref, solimp = robot.contact_solref, robot.contact_solimp
         targets = "".join(
             f'    <geom name="target_{i}" type="cylinder" pos="{layout_targets[i][0]} {layout_targets[i][1]} {TABLE_SURFACE_Z + 0.001}" '
@@ -333,9 +383,9 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
   <worldbody>
     <light name="key" pos="1.2 .9 2.4" dir="-.4 -.35 -1" diffuse=".7 .68 .65" specular=".25 .25 .25" castshadow="true"/>
     <light name="fill" pos="-.6 -1.2 2.0" dir=".3 .5 -1" diffuse=".28 .3 .34" specular="0 0 0" castshadow="false"/>
-    <camera name="overview" pos="-0.9 -1.0 0.9" xyaxes="0.75 -0.66 0 0.2 0.23 0.95"/>
-    <camera name="side" pos="0.1 -1.3 0.7" xyaxes="1 0 0 0 0.25 1"/>
-    <camera name="top" pos="0.12 0 1.6" xyaxes="0 -1 0 1 0 0"/>
+    <camera name="overview" pos="-0.9 -1.0 {0.9 + lift:g}" xyaxes="0.75 -0.66 0 0.2 0.23 0.95"/>
+    <camera name="side" pos="0.1 -1.3 {0.7 + lift:g}" xyaxes="1 0 0 0 0.25 1"/>
+    <camera name="top" pos="0.12 0 {1.6 + lift:g}" xyaxes="0 -1 0 1 0 0"/>
     <geom name="floor" type="plane" size="2 2 .1" material="floor_mat" contype="1" conaffinity="3"/>
     <body name="table" pos="{table_x} 0 {TABLE_SURFACE_Z - 0.025}">
       <geom name="table_top" type="box" size="{table_half_x} {table_half_y} .025" rgba=".45 .32 .2 1"
@@ -416,11 +466,11 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
 
     def pick_pose(self, spot, height: float = 0.0) -> np.ndarray:
         """Grasp centre that puts the fingers around a cube standing at this spot."""
-        return np.array([spot[0], spot[1], OBJECT_Z + height + GRASP_DZ])
+        return np.array([spot[0], spot[1], OBJECT_Z + height]) + GRASP_DZ * PALM_DOWN[:, 2]
 
     def drop_pose(self, spot, height: float) -> np.ndarray:
         """Grasp centre that sets a held cube on this spot, `height` being its resting centre."""
-        return np.array([spot[0], spot[1], height + 0.004 + HELD_DZ])
+        return np.array([spot[0], spot[1], height + 0.004]) + HELD_DZ * PALM_DOWN[:, 2]
 
     def _servable(self, objects, targets) -> bool:
         """Can the arm hold every pose this layout asks for?
@@ -561,7 +611,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         self._ik_data.qvel.fill(0.0)
         solve_site_pose(
             self.model, self._ik_data, self.site_id, self.arm_joint_ids,
-            self._pose_target_position, PALM_DOWN, HOME_ARM_QPOS,
+            self._pose_target_position, self._hand_rotation(self._pose_target_position), HOME_ARM_QPOS,
             position_tolerance=0.0005, rotation_tolerance=0.004, max_iterations=60)
         self._arm_targets = self._ik_data.qpos[self.qpos_ids[:7]].copy()
 

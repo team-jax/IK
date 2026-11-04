@@ -43,7 +43,7 @@ env.reset(seed=args.seed)
 env._palm_phase = None
 camera = mujoco.MjvCamera()
 camera.type = mujoco.mjtCamera.mjCAMERA_FREE
-camera.lookat[:] = (0.10, -0.10, 0.45)
+camera.lookat[:] = (0.10, -0.10, E.TABLE_SURFACE_Z + 0.20)   # 0.45 over the sim setup's table
 camera.distance, camera.azimuth, camera.elevation = args.distance, args.azimuth, args.elevation
 renderer = mujoco.Renderer(env.model, args.height, args.width)
 args.output.parent.mkdir(parents=True, exist_ok=True)

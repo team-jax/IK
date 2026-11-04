@@ -39,17 +39,20 @@ def _generator():
     return module
 
 
-def robot_parts(finger_sliding_friction: float | None = None) -> RobotParts:
+def robot_parts(finger_sliding_friction: float | None = None, shoulder_z: float | None = None) -> RobotParts:
     """The robot's pieces; `finger_sliding_friction` replaces the pads' sliding coefficient (the
-    generator's torsional and rolling values are kept)."""
+    generator's torsional and rolling values are kept), and `shoulder_z` raises the whole robot,
+    stand included, until its shoulder frame is that high (the stand then floats above the floor)."""
     gen = _generator()
     if finger_sliding_friction is not None:
         gen.FINGER_FRICTION = " ".join([f"{finger_sliding_friction:g}"] + gen.FINGER_FRICTION.split()[1:])
     urdf = gen.Urdf(gen.SRC)
     if not (Path(gen.MESH_DIR) / "base_link.obj").is_file():
         gen.prepare_meshes(urdf)
-    assets, column, actuators = gen.robot_parts(urdf)
     base = tuple(gen.BASE_LINK_WORLD)
+    if shoulder_z is not None:   # rounded so that the generator's own height gives exactly its base
+        base = (base[0], base[1], round(shoulder_z - gen.SHOULDER_OFFSET[2], 6))
+    assets, column, actuators = gen.robot_parts(urdf, base_link_world=base)
     shoulder = tuple(b + o for b, o in zip(base, gen.SHOULDER_OFFSET))
     return RobotParts(
         assets=assets, column=column, actuators=actuators, mesh_dir=str(Path(gen.MESH_DIR).resolve()),

@@ -26,7 +26,9 @@ from humanoid_grasp_rl.env import (
 # The open hand's footprint around its grasp centre: the plates stand 90 mm apart along x (58 mm
 # to their outer faces) and are 73 mm wide along y. Another cube is in the way of a hand coming
 # down on a cube when it overlaps that rectangle, with half a cube and a centimetre to spare.
-# The hand never turns, so the footprint is axis-aligned.
+# The hand never turns about the vertical, so the footprint is axis-aligned. It was measured on
+# the upright hand: the real setup's hand leans 40 degrees and its footprint was not re-derived
+# (that hand cannot carry a cube and is to be replaced; motion1/STATUS.md).
 CLEAR_DX = 0.058 + OBJECT_SIZE / 2 + 0.01
 CLEAR_DY = 0.0365 + OBJECT_SIZE / 2 + 0.01
 

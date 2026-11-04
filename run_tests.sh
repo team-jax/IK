@@ -103,6 +103,20 @@ if [ -d motion1/scripts ]; then
   # At the measured pad friction (0.4) the second layout's cube slips out in the carry: 2 of 3.
   step m1_replay "[23] delivered" $P motion1/scripts/classify_failures.py --layouts "$LOGS/layouts.json" --seeds 3
   step m1_render "scene.png" $P motion1/scripts/render_frame.py
+  # The real setup (shoulder axis 1207.5 mm, table 735 mm above the floor) builds at those heights on
+  # its own, current reach map (a stale one warns, made an error here). No success rate: the hand
+  # there cannot carry a cube (motion1/STATUS.md).
+  step m1_real_setup "real setup ok" env JAX_SETUP=real $P -W error::UserWarning -c "
+import sys; sys.path.insert(0, 'motion1/src')
+import humanoid_grasp_rl.env as E
+from humanoid_grasp_rl import JaxDeliveryEnv
+env = JaxDeliveryEnv(); env.reset(seed=0)
+t, d, m = env.table_geom_id, env.data, env.model
+top, edge = d.geom_xpos[t][2] + m.geom_size[t][2], d.geom_xpos[t][0] + m.geom_size[t][0]
+shoulder = d.xanchor[env.arm_joint_ids[0]][2]
+assert abs(shoulder - 1.2075) < 1e-9 and abs(top - 0.735) < 1e-9, (shoulder, top)
+assert abs(E.STAND_SURFACE_X - edge - E.STAND_GAP) < 1e-9 and len(E.REACH_CELLS) > 0
+print(f'real setup ok: shoulder axis {shoulder:.4f} m, table {top:.4f} m, {len(E.REACH_CELLS)} reachable cells')"
 
   if [ $FULL = 1 ]; then
     echo "== motion1, full"

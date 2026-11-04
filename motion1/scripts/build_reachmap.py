@@ -8,6 +8,7 @@ written down; it is solved, at 5 mm and 3 degrees, from the home pose, with the 
 controller uses.
 
     venv/bin/python motion1/scripts/build_reachmap.py      # rewrites src/humanoid_grasp_rl/reachmap.npz
+    JAX_SETUP=real venv/bin/python motion1/scripts/build_reachmap.py   # the real setup's reachmap_real.npz
 
 Rebuild it whenever a constant in env.py that the signature covers changes.
 """
@@ -54,7 +55,7 @@ both = grasp & place
 # leaves the controller a pose's worth of margin in every direction.
 padded = np.pad(both, 1, constant_values=False)
 feasible = (both & padded[:-2, 1:-1] & padded[2:, 1:-1] & padded[1:-1, :-2] & padded[1:-1, 2:])
-np.savez_compressed(_paths.ROOT / "src/humanoid_grasp_rl/reachmap.npz",
+np.savez_compressed(E.REACH_FILE,   # the map of the setup JAX_SETUP picks (env.py)
                     xs=xs, ys=ys, grasp=grasp, place=place, feasible=feasible,
                     signature=E.map_signature())
 print(f"격자 {grasp.size},  파지가능 {grasp.sum()},  놓기가능 {place.sum()},  "

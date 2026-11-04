@@ -28,7 +28,7 @@
 |---|---|---|
 | 폴더 | [`motion1/`](motion1/README.md) | [`motion2/`](motion2/README.md) |
 | 하는 일 | 스크립트 컨트롤러로 50 mm 큐브를 집어 목표 지점에 놓기(배달), 2단 쌓기 | 웹캠으로 사람의 손을 추적해 팔과 손가락을 실시간으로 조종하고 큐브 집기 |
-| 상태 | 배달 68/100, 2단 쌓기 39/50 (마찰 0.4 실측, 2026-11-04) | 모델 생성, IK 0.00 mm, 파지 9/9, UDP 파이프라인 3/3. 실제 사람 추적의 육안 확인이 남음 |
+| 상태 | 배달 68/100, 2단 쌓기 39/50 (마찰 0.4 실측, 2026-11-04). 실물 높이 배치(`JAX_SETUP=real`, 어깨 1207.5 mm·책상 735 mm)에서는 지금 손으로 배달 2/100 | 모델 생성, IK 0.00 mm, 파지 9/9, UDP 파이프라인 3/3. 실제 사람 추적의 육안 확인이 남음 |
 | 문서 | `motion1/README.md`, `motion1/STATUS.md` (동작 1 저장소 안) | [`motion2/README.md`](motion2/README.md), [`STATUS.md`](motion2/STATUS.md) |
 
 **이 저장소(team-jax/IK)에는 동작 1(`motion1/`), 동작 2(`motion2/`), 공용 URDF가 함께 들어 있다.** 동작 1은 원래 `gyumingim/Humanoid_Grasp_RL`에서 개발했고 그 시점의 코드를 여기에 가져왔다. 동작 2는 동작 1을 import하지 않으므로 `motion1/` 없이도 그대로 돌아가고, `motion1/`이 있으면 `run_tests.sh`가 동작 1 검사도 함께 돌린다.
