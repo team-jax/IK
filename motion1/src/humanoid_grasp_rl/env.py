@@ -20,6 +20,12 @@ Stage = Literal["place", "randomize"]
 # its shoulder 0.85 m up, can hold the hand palm-down over a wide patch (swept in sim; the
 # patch shrinks fast below 0.20 and above 0.38).
 TABLE_SURFACE_Z = 0.25
+# The table's near edge stands STAND_GAP from the robot's stand, as on the real setup (the
+# user's figure, 2026-11-04; sizing the table from the reach map alone had left 68.5 mm). The
+# stand (the URDF's base_link mesh) narrows upwards, so the gap is taken at the table top, where
+# its surface facing the table is at STAND_SURFACE_X (read from the mesh; 0.43 at z = 0.3775).
+STAND_GAP = 0.10
+STAND_SURFACE_X = 0.4085
 # 50 mm, not the 30 mm the pedestal demo in motion2 uses. The finger plates reach only 17 mm
 # below the grasp centre, so on a table the pads cannot go below a cube's bottom face and
 # meet it over its upper part; a 30 mm cube then slips or is shot out, a 40 mm one holds in
@@ -279,8 +285,12 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
     def _scene_xml(self) -> str:
         robot = self._robot
         layout_objects, layout_targets = nominal_layout(self.n_objects)
-        table_x = (WORK_X_MIN + WORK_X_MAX) / 2
-        table_half_x = (WORK_X_MAX - WORK_X_MIN) / 2 + 0.10
+        # The table runs from 10 cm beyond the farthest cube spots to STAND_GAP short of the stand.
+        near_edge, far_edge = STAND_SURFACE_X - STAND_GAP, WORK_X_MIN - 0.10
+        # A spot is a cell jittered by up to 0.01 (_draw_spot), and the nearest cubes must still stand on the table.
+        if WORK_X_MAX + 0.01 + OBJECT_HALF_SIZE > near_edge:
+            raise ValueError(f"cube spots reach x = {WORK_X_MAX + 0.01 + OBJECT_HALF_SIZE:.3f}, past the table edge at {near_edge:.3f}")
+        table_x, table_half_x = (near_edge + far_edge) / 2, (near_edge - far_edge) / 2
         table_half_y = WORK_Y_MAX + 0.08
         solref, solimp = robot.contact_solref, robot.contact_solimp
         targets = "".join(
