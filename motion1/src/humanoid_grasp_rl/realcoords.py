@@ -11,8 +11,8 @@ Real coordinates (user, 2026-11-05), in metres: origin on the axis of the should
 first arm joint, `shoulder_roll`, at its joint origin: in CAD the motor's corner is 1 mm from it),
 x to the robot's left, y backwards (the front is -y), z up; right-handed.
 The sim world is that frame turned by SIM_FROM_REAL_YAW about z. The spec's -90 degrees puts the
-front on the side the arm reaches to, sim -x: x_real = -y_sim, y_real = x_sim. If the real table
-stands at the stand's FRONT lettering instead (sim -y; motion1/STATUS.md), the yaw is 0.
+front on the side the arm reaches to, sim -x: x_real = -y_sim, y_real = x_sim. The user confirmed
+this front on the real robot (2026-11-05); the stand's FRONT lettering (sim -y) is not the front.
 run_tests.sh checks the constants below against env.py and the model.
 """
 from pathlib import Path
