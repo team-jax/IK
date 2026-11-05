@@ -201,6 +201,21 @@ if _REACH is not None:
                       "force; run scripts/build_reachmap.py before trusting any layout")
 
 
+def fold_yaw(degrees: float) -> float:
+    """A cube's yaw in degrees, folded to [-45, 45): a cube looks the same every 90 degrees, and this
+    is the turn of the hand that needs the least."""
+    return float((degrees + 45.0) % 90.0 - 45.0)
+
+
+def hand_turns(cube_yaw_deg: float) -> list[float]:
+    """Hand yaws (degrees) that grip a cube turned cube_yaw_deg: the cube looks the same every
+    90 degrees, so the hand may also turn a quarter more either way and close on the other two
+    faces. Least turn first. An unturned cube keeps the hand as it always was (0 only), so every
+    result without yaw stays what it was."""
+    y = fold_yaw(cube_yaw_deg)
+    return [0.0] if y == 0.0 else sorted((y, y + 90.0, y - 90.0), key=abs)
+
+
 def _snap_to_band(xy: np.ndarray) -> np.ndarray:
     """The nearest spot the arm can both pick from and place on."""
     cells = np.column_stack((REACH_XS[REACH_CELLS[:, 0]], REACH_YS[REACH_CELLS[:, 1]]))
@@ -310,6 +325,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         self.moving = 0
         self._target_heights = np.full(self.n_objects, OBJECT_Z)
         self._cube_yaws = np.zeros(self.n_objects)
+        self._hand_yaws = np.zeros(self.n_objects)   # the turn chosen for each cube (hand_turns)
         self.layout_fallbacks = getattr(self, "layout_fallbacks", 0)
         self._placed_latch = np.zeros(self.n_objects, dtype=bool)
         # The pads' closing curve: where each finger joint goes for a closure g.
@@ -337,9 +353,9 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         return probe.site_xmat[self.site_id].reshape(3, 3).copy()
 
     def grasp_rotation(self) -> np.ndarray:
-        """PALM_DOWN turned about the vertical by the moving cube's yaw, so the finger gap lies
-        across the cube's faces. Exactly PALM_DOWN for an unturned cube."""
-        yaw = self._cube_yaws[self.moving]
+        """PALM_DOWN turned about the vertical by the hand yaw chosen for the moving cube, so the
+        finger gap lies across two of its faces. Exactly PALM_DOWN for an unturned cube."""
+        yaw = self._hand_yaws[self.moving]
         if yaw == 0.0:
             return PALM_DOWN
         return Rotation.from_euler("z", yaw).as_matrix() @ PALM_DOWN
@@ -427,15 +443,23 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
 
     # --- Reset and layouts ------------------------------------------------------------------
     def reset(self, *, seed: int | None = None, options: dict | None = None):
+        """options, to set the scene instead of drawing it (sim world, metres and degrees):
+        {"objects": [[x, y, yaw], ...], "targets": [[x, y], ...]}, one entry per cube. The
+        layout is checked like a drawn one (`_servable`) and a ValueError says if the arm cannot
+        serve it."""
         super().reset(seed=seed)
         mujoco.mj_resetData(self.model, self.data)
         self.data.qpos[self.qpos_ids[:7]] = HOME_ARM_QPOS
-        # Drawn before the layout, which is checked with the hand turned for them. No draw at 0,
-        # so the random stream and every layout stay what they were without yaw.
-        limit = np.radians(self.cube_yaw_max)
-        self._cube_yaws = (self.np_random.uniform(-limit, limit, self.n_objects) if limit > 0
-                           else np.zeros(self.n_objects))
-        objects, targets = self._sample_layout()
+        if options and ("objects" in options or "targets" in options):
+            objects, targets = self._layout_from(options)
+        else:
+            # Drawn before the layout, which is checked with the hand turned for them. No draw at
+            # 0, so the random stream and every layout stay what they were without yaw.
+            limit = np.radians(self.cube_yaw_max)
+            self._cube_yaws = (self.np_random.uniform(-limit, limit, self.n_objects) if limit > 0
+                               else np.zeros(self.n_objects))
+            self._hand_yaws = self._cube_yaws.copy()
+            objects, targets = self._sample_layout()
         self._target_positions = targets
         self._target_heights = self._target_heights_for(objects, targets)
         for i, joint_id in enumerate(self.object_joint_ids):
@@ -462,6 +486,20 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         self._initial_pose_position = self._pose_target_position.copy()
         self._initial_object_positions = self.data.xpos[self.object_body_ids].copy()
         return self._observation(), self._info(False)
+
+    def _layout_from(self, options: dict) -> tuple[np.ndarray, np.ndarray]:
+        """The scene reset(options=...) asks for, checked."""
+        objects = np.asarray(options["objects"], dtype=np.float64).reshape(-1, 3)
+        targets = np.asarray(options["targets"], dtype=np.float64).reshape(-1, 2)
+        if len(objects) != self.n_objects or len(targets) != self.n_objects:
+            raise ValueError(f"this task has {self.n_objects} cube(s): give that many objects and targets")
+        self._cube_yaws = np.radians([fold_yaw(y) for y in objects[:, 2]])
+        self._hand_yaws = self._cube_yaws.copy()
+        objects = objects[:, :2].copy()
+        if not self._servable(objects, targets):
+            raise ValueError(f"the arm cannot serve this layout (cubes {objects.tolist()}, yaw "
+                             f"{np.degrees(self._cube_yaws).round(1).tolist()} deg, targets {targets.tolist()})")
+        return objects, targets
 
     def _moving_cubes(self) -> list[int]:
         """Which cubes the arm carries in an episode. One task moves one cube."""
@@ -509,24 +547,39 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         grasp on each cube that moves, the clear-air pose above it, the release at the
         height it goes to and the carry pose above that - with the hand inside the workspace.
         """
-        from humanoid_grasp_rl.demonstration import TRAVEL_CLEAR
-        joints = self.arm_joint_ids
         heights = self._target_heights_for(objects, targets)
-        for i in self._moving_cubes():
-            clear_z = self.clear_height(self.standing_height(i, heights))
-            pick = self.pick_pose(objects[i])
-            drop = self.drop_pose(targets[i], heights[i])
-            travel = max(pick[2] + TRAVEL_CLEAR, drop[2] + TRAVEL_CLEAR, clear_z)
-            # Every pose the state machine holds: the grasp and the clear-air pose above it, the
-            # carry height over the pick (where the lift ends) and over the spot, and the release.
-            poses = (pick, np.array([pick[0], pick[1], max(pick[2] + TRAVEL_CLEAR, clear_z)]),
-                     np.array([pick[0], pick[1], travel]),
-                     drop, np.array([drop[0], drop[1], travel]))
-            for position in poses:
-                if np.any(position < WORKSPACE_LOW) or np.any(position > WORKSPACE_HIGH):
+        moving = self.moving
+        try:
+            for i in self._moving_cubes():
+                self.moving = i
+                # The first hand turn (least first) that holds every pose; the cube keeps it.
+                for turn in hand_turns(np.degrees(self._cube_yaws[i])):
+                    self._hand_yaws[i] = np.radians(turn)
+                    if self._poses_servable(i, objects, targets, heights):
+                        break
+                else:
+                    self._hand_yaws[i] = self._cube_yaws[i]
                     return False
-                if not self.reachable(position):
-                    return False
+            return True
+        finally:
+            self.moving = moving
+
+    def _poses_servable(self, i, objects, targets, heights) -> bool:
+        from humanoid_grasp_rl.demonstration import TRAVEL_CLEAR
+        clear_z = self.clear_height(self.standing_height(i, heights))
+        pick = self.pick_pose(objects[i])
+        drop = self.drop_pose(targets[i], heights[i])
+        travel = max(pick[2] + TRAVEL_CLEAR, drop[2] + TRAVEL_CLEAR, clear_z)
+        # Every pose the state machine holds: the grasp and the clear-air pose above it, the
+        # carry height over the pick (where the lift ends) and over the spot, and the release.
+        poses = (pick, np.array([pick[0], pick[1], max(pick[2] + TRAVEL_CLEAR, clear_z)]),
+                 np.array([pick[0], pick[1], travel]),
+                 drop, np.array([drop[0], drop[1], travel]))
+        for position in poses:
+            if np.any(position < WORKSPACE_LOW) or np.any(position > WORKSPACE_HIGH):
+                return False
+            if not self.reachable(position):
+                return False
         return True
 
     def reachable(self, position) -> bool:

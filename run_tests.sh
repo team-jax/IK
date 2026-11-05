@@ -135,6 +135,31 @@ s = E.SETUPS['real']
 assert (RC.TABLE_Z, RC.MAP_D, RC.CUBE_SIZE) == (s['table_z'], s['d'], s['cube_size'])
 assert RC.real_to_sim(0.10, -0.30, 0.4725)['reachable'] and not RC.real_to_sim(0.0, -0.10, 0.4725)['reachable']
 print('realcoords ok')"
+  # Cube yaw on the real setup: realcoords' fold and hand turns are env's, its per-yaw map is current,
+  # a turned cube the env can serve is accepted with the turn the map names, an unreachable one is
+  # refused, and run_real.py delivers the yaw-0 example and writes its trajectory.
+  step m1_real_yaw "real yaw ok" env JAX_SETUP=real $P -c "
+import sys; sys.path.insert(0, 'motion1/src/humanoid_grasp_rl'); sys.path.insert(0, 'motion1/src')
+import numpy as np, realcoords as RC
+import humanoid_grasp_rl.env as E
+from humanoid_grasp_rl import JaxDeliveryEnv
+for v in (-180, -95, -45, -44.9, 0, 20, 44.9, 45, 90, 135, 200):
+    assert RC.fold_yaw(v) == E.fold_yaw(v) and RC.hand_turns(v) == E.hand_turns(v), v
+with np.load(RC.YAW_REACH_FILE) as m:
+    assert np.allclose(m['signature'], E.map_signature()), 'reachmap_real_yaw.npz is stale: build_reachmap.py --yaws'
+p = RC.plan((0.10, -0.30, 0.0), (0.05, -0.27), 0.4725)
+assert p['reachable'] and p['hand_yaw'] == 0.0 and RC.plan((0.10, -0.30, 90.0), (0.05, -0.27), 0.4725)['yaw'] == 0.0
+env = JaxDeliveryEnv()
+p = RC.plan((0.05, -0.32, 20.0), (0.10, -0.30), 0.4725)
+env.reset(seed=0, options={'objects': [[*p['cube'][:2], p['yaw']]], 'targets': [p['target']]})
+assert abs(np.degrees(env._hand_yaws[0]) - 20.0) < 1e-9
+q = env.data.qpos[env.model.jnt_qposadr[env.object_joint_ids[0]]:][:7]
+assert abs(2 * np.degrees(np.arctan2(q[6], q[3])) - 20.0) < 1e-9
+try:
+    env.reset(seed=0, options={'objects': [[0.5, 0.5, 0.0]], 'targets': [p['target']]}); raise SystemExit('accepted')
+except ValueError: pass
+print('real yaw ok')"
+  step m1_run_real "sim: delivered" env JAX_SETUP=real $P motion1/scripts/run_real.py --cube 0.10 -0.30 0 --target 0.05 -0.27 --out "$LOGS/trajectory.json"
 
   if [ $FULL = 1 ]; then
     echo "== motion1, full"
