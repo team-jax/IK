@@ -28,19 +28,26 @@ Stage = Literal["place", "randomize"]
 # hand leans 40 degrees about its finger-gap axis. One of fingers 1 and 2 then hangs 36 mm below
 # the grasp centre, the grasp moves 21.5 mm up the hand's axis to keep it off the table, and a
 # carried cube slips out: it is the scene to try a new hand in (motion1/STATUS.md).
-# stand_surface_x is the stand's surface facing the table at the table top (the stand, the URDF's
-# base_link mesh, narrows upwards), read from the mesh; home is the arm's rest pose (HOME_ARM_QPOS).
+# d is D, the drop from the shoulder rotation axis to the table top; the real 0.4725 is CAD's 1207.5
+# - 735, taken at the shoulder motor's corner rather than its axis, so a measured D replaces it (the
+# reach band depends on it directly). cube_size and cube_mass: the sim's 50 mm, 0.05 kg until the
+# real cube is measured (the FSR request says 55 mm). stand_surface_x is the stand's surface facing
+# the table at the table top (the stand, the URDF's base_link mesh, narrows upwards), read from the
+# mesh; home is the arm's rest pose (HOME_ARM_QPOS, found by scripts/find_home.py's criterion).
 SETUPS = {
-    "sim": dict(shoulder_z=0.85, table_z=0.25, stand_surface_x=0.4085, hand_tilt=0.0, grasp_dz=0.0,
+    "sim": dict(table_z=0.25, d=0.60, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.4085,
+                hand_tilt=0.0, grasp_dz=0.0,
                 home=(-0.3266, 0.1621, -0.0089, 1.5628, -0.1595, -1.2349, -0.0079)),
-    "real": dict(shoulder_z=1.2075, table_z=0.735, stand_surface_x=0.4297, hand_tilt=-40.0, grasp_dz=0.0215,
+    "real": dict(table_z=0.735, d=0.4725, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.4297,
+                 hand_tilt=-40.0, grasp_dz=0.0215,
                  home=(0.1010, 0.3778, 0.1976, 1.8326, -0.7061, -1.5708, -0.0016)),
 }
 SETUP = os.environ.get("JAX_SETUP", "sim")
 if SETUP not in SETUPS:
     raise ValueError(f"JAX_SETUP={SETUP!r}: the setups are {', '.join(SETUPS)}")
-SHOULDER_Z = SETUPS[SETUP]["shoulder_z"]
 TABLE_SURFACE_Z = SETUPS[SETUP]["table_z"]
+D = SETUPS[SETUP]["d"]
+SHOULDER_Z = round(TABLE_SURFACE_Z + D, 6)   # rounded: exactly 0.85 and 1.2075
 # The table's near edge stands STAND_GAP from the robot's stand, as on the real setup (the
 # user's figure, 2026-11-04; sizing the table from the reach map alone had left 68.5 mm).
 STAND_GAP = 0.10
@@ -48,8 +55,9 @@ STAND_SURFACE_X = SETUPS[SETUP]["stand_surface_x"]
 # 50 mm, not the 30 mm the pedestal demo in motion2 uses. The finger plates reach only 17 mm
 # below the grasp centre, so on a table the pads cannot go below a cube's bottom face and
 # meet it over its upper part; a 30 mm cube then slips or is shot out, a 40 mm one holds in
-# four of five closings, a 50 mm one in five of five.
-OBJECT_SIZE = 0.05
+# four of five closings, a 50 mm one in five of five. Set per setup (cube_size, cube_mass).
+OBJECT_SIZE = SETUPS[SETUP]["cube_size"]
+OBJECT_MASS = SETUPS[SETUP]["cube_mass"]
 OBJECT_HALF_SIZE = OBJECT_SIZE / 2
 OBJECT_Z = TABLE_SURFACE_Z + OBJECT_HALF_SIZE
 # Each cube has its own goal spot marked on the table in the cube's colour.
@@ -350,7 +358,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         cubes = "".join(
             f'    <body name="object_{i}" pos="{layout_objects[i][0]} {layout_objects[i][1]} {OBJECT_Z}">\n'
             f'      <freejoint name="object_{i}_joint"/>\n'
-            f'      <geom type="box" size="{OBJECT_HALF_SIZE} {OBJECT_HALF_SIZE} {OBJECT_HALF_SIZE}" mass=".05" '
+            f'      <geom type="box" size="{OBJECT_HALF_SIZE} {OBJECT_HALF_SIZE} {OBJECT_HALF_SIZE}" mass="{OBJECT_MASS:g}" '
             f'friction="{CUBE_FRICTION} {CUBE_TORSION} .002" condim="4" contype="1" conaffinity="3" solref="{solref}" solimp="{solimp}" '
             f'rgba="{OBJECT_COLORS[i][0]} {OBJECT_COLORS[i][1]} {OBJECT_COLORS[i][2]} 1"/>\n'
             f'    </body>\n' for i in range(self.n_objects))

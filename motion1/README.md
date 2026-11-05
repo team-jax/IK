@@ -76,6 +76,10 @@ venv/bin/python motion1/scripts/smoke_test.py
 # 도달 맵 재생성 - 파지 상수, 홈 자세, 작업 영역을 바꿨으면 반드시
 venv/bin/python motion1/scripts/build_reachmap.py
 
+# 홈 자세 찾기 - 책상 높이(D)나 손이 바뀌었으면. 후보와 도달 띠 크기를 출력만 한다 (env.py의 SETUPS에 옮겨 적는다)
+venv/bin/python motion1/scripts/find_home.py --spot 0.20 -0.10 0.05                   # 시뮬 배치: 손바닥 아래
+JAX_SETUP=real venv/bin/python motion1/scripts/find_home.py --spot 0.20 -0.30 0.10 --free   # 실물 배치
+
 # 패드 간격과 판 기울기를 닫힘 정도 g별로 측정 (FINGER_OPEN/CLOSED, CUBE_GRIP 정할 때)
 venv/bin/python motion1/scripts/tune_grasp.py
 

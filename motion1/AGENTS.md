@@ -33,7 +33,7 @@
 - 실행은 저장소 루트에서 `venv/bin/python motion1/scripts/<script>.py` (뷰어는 `venv/bin/mjpython`). 스크립트가 `src/`를 스스로 찾는다.
 - 로봇 모델은 `../motion2/arm/make_arm_urdf.py`의 `robot_parts()`로 만든다(`assets.py`). 모델 상수는 그쪽 파일에서만 바꾼다.
 - 파지 상수(`FINGER_*`, `CUBE_GRIP`, `GRASP_DZ`, `HOME_ARM_QPOS`, 작업 영역)를 바꾸면 도달 맵을 다시 만든다: `scripts/build_reachmap.py`. 시그니처가 다르면 `env.py`가 경고한다.
-- 배치는 `env.py`의 `SETUPS` 두 가지다: 기본 `sim`(어깨 0.85 m, 책상 0.25 m, 아래 성적의 기준)과 `JAX_SETUP=real`(실물: 어깨 회전축 1.2075 m, 책상 0.735 m, 손 40° 기울임, 도달 맵 `reachmap_real.npz`). real의 상수를 바꾸면 `JAX_SETUP=real`로 도달 맵을 다시 만든다.
+- 배치는 `env.py`의 `SETUPS` 두 가지다: 기본 `sim`(어깨 0.85 m, 책상 0.25 m, 아래 성적의 기준)과 `JAX_SETUP=real`(실물: 어깨 회전축 1.2075 m, 책상 0.735 m, 손 40° 기울임, 도달 맵 `reachmap_real.npz`). 배치마다 `d`(어깨 회전축 → 책상 윗면, 실물은 CAD 472.5 mm라 실측값으로 바꿀 것), `cube_size`·`cube_mass`(실물 큐브 측정 전에는 50 mm, 0.05 kg)를 둔다. real의 상수를 바꾸면 `JAX_SETUP=real`로 홈 자세(`scripts/find_home.py`)와 도달 맵을 다시 만든다.
 - 증상을 가리는 상수 조정보다 원인 구조를 고친다(`HARNESS.md`).
 
 ### Testing Requirements

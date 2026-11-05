@@ -11,7 +11,8 @@
 |------|-------------|
 | `_paths.py` | `src/`를 `sys.path`에 넣고 `ROOT`(motion1/) 제공. 새 스크립트는 맨 위에서 `import _paths` |
 | `smoke_test.py` | gymnasium env checker + 배달·쌓기 한 번씩 실행. 놓는 동안 큐브가 2 mm 넘게 오르면 실패(놓는 동작의 회귀 검사) |
-| `build_reachmap.py` | 도달 가능 격자를 풀어 `reachmap.npz` 재생성. 파지 상수·홈 자세·작업 영역을 바꾸면 필수 |
+| `build_reachmap.py` | 도달 가능 격자를 풀어 `reachmap.npz` 재생성(`JAX_SETUP=real`이면 `reachmap_real.npz`). 파지 상수·홈 자세·작업 영역을 바꾸면 필수 |
+| `find_home.py` | 홈 자세(`HOME_ARM_QPOS`)를 고른 기준을 재현: 홈 지점에 파지 중심을 두는 다중 시작 IK 후보마다 `build_reachmap.py`와 같은 도달 띠를 풀어 가장 넓은 것을 고른다. env.py는 고치지 않고 결과만 출력 |
 | `tune_grasp.py` | 닫힘 정도별 패드 간격과 판 기울기 측정. 박스 충돌 geom은 모서리, 메시 geom은 정점으로 잰다. 기대값: g=0에서 89.7 mm, `CUBE_GRIP`(0.86)에서 50 mm 큐브 폭 |
 | `layouts.py` | 큐브·목표 배치를 JSON으로 고정, `replay()`로 재생 |
 | `classify_failures.py` | 실패를 집지 못함/짧게 놓임/방출에서 잃음으로 분류하고 성공률·오차 통계 출력 (`--stack`). "집음"은 큐브가 환경의 기준(`LIFT_REQUIRED`, 30 mm) 이상 올라간 것으로 센다 |
