@@ -16,7 +16,7 @@
 | `tune_grasp.py` | 닫힘 정도별 패드 간격과 판 기울기 측정. 박스 충돌 geom은 모서리, 메시 geom은 정점으로 잰다. 기대값: g=0에서 89.7 mm, `CUBE_GRIP`(0.86)에서 50 mm 큐브 폭 |
 | `layouts.py` | 큐브·목표 배치를 JSON으로 고정, `replay()`로 재생 |
 | `classify_failures.py` | 실패를 집지 못함/짧게 놓임/방출에서 잃음으로 분류하고 성공률·오차 통계 출력 (`--stack`). "집음"은 큐브가 환경의 기준(`LIFT_REQUIRED`, 30 mm) 이상 올라간 것으로 센다. `--yaw 45`는 큐브 회전을 ±45°에서 뽑는다(`env.cube_yaw_max`) |
-| `run_real.py` | 실물 좌표의 큐브(x, y, 회전각)와 놓을 곳으로 시뮬 배달을 돌려 관절 궤적 JSON 저장(`JAX_SETUP=real` 필수, 종료 0 성공 / 1 실패 / 3 닿지 않음). team-jax/SimToReal의 `play_trajectory`가 재생 |
+| `run_real.py` | 실물 좌표의 큐브(x, y, 회전각)와 놓을 곳으로 시뮬 배달을 돌려 관절 궤적 JSON 저장(`JAX_SETUP=real` 필수. 재시도 없는 배달만 궤적을 쓴다: 종료 0 저장 / 1 실패 / 4 재시도 뒤 성공 / 3 닿지 않음, `--keep`은 `playable: false`로 저장). team-jax/SimToReal의 `play_trajectory`가 재생 |
 | `record_delivery.py` | 1920x1080 mp4 녹화 (`--stack` 가능) |
 | `render_frame.py` | 장면 PNG 한 장 |
 | `watch_grasp.py` | 대화형 뷰어 재생. macOS는 `mjpython` 필수. `--layouts`를 쓰려면 먼저 `layouts.py`로 JSON을 만든다 |
