@@ -233,6 +233,10 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
     # Whether a sampled layout is checked, with IK at the poses the controller will
     # command, before it is used. Off only to measure what the check is worth.
     validate_layouts = True
+    # Cube yaw (degrees about the vertical): each cube is drawn in +-cube_yaw_max per episode and
+    # the hand grasps the moving cube turned by its yaw. A cube looks the same every 90 degrees, so
+    # 45 covers every orientation. 0 (the default) keeps every cube square to the axes.
+    cube_yaw_max = 0.0
 
     def __init__(
         self,
@@ -305,6 +309,8 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         # from here rather than assuming the table.
         self.moving = 0
         self._target_heights = np.full(self.n_objects, OBJECT_Z)
+        self._cube_yaws = np.zeros(self.n_objects)
+        self.layout_fallbacks = getattr(self, "layout_fallbacks", 0)
         self._placed_latch = np.zeros(self.n_objects, dtype=bool)
         # The pads' closing curve: where each finger joint goes for a closure g.
         self._rest_grasp_centre = self._home_grasp_centre()
@@ -330,15 +336,23 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         mujoco.mj_kinematics(self.model, probe)
         return probe.site_xmat[self.site_id].reshape(3, 3).copy()
 
+    def grasp_rotation(self) -> np.ndarray:
+        """PALM_DOWN turned about the vertical by the moving cube's yaw, so the finger gap lies
+        across the cube's faces. Exactly PALM_DOWN for an unturned cube."""
+        yaw = self._cube_yaws[self.moving]
+        if yaw == 0.0:
+            return PALM_DOWN
+        return Rotation.from_euler("z", yaw).as_matrix() @ PALM_DOWN
+
     def _hand_rotation(self, position) -> np.ndarray:
-        """The hand's orientation for a commanded grasp centre: PALM_DOWN over the reach band, and
-        turning towards the home pose's own orientation between the band's near edge and home. In
-        the sim setup home lies inside the band, so the hand is always palm-down there."""
+        """The hand's orientation for a commanded grasp centre: the grasp rotation over the reach
+        band, and turning towards the home pose's own orientation between the band's near edge and
+        home. In the sim setup home lies inside the band, so the hand never turns towards home."""
         home_x = self._rest_grasp_centre[0]
         if home_x <= WORK_X_MAX or position[0] <= WORK_X_MAX:
-            return PALM_DOWN
+            return self.grasp_rotation()
         s = min((position[0] - WORK_X_MAX) / (home_x - WORK_X_MAX), 1.0)
-        return Slerp([0.0, 1.0], Rotation.from_matrix(np.stack([PALM_DOWN, self._rest_rotation])))(s).as_matrix()
+        return Slerp([0.0, 1.0], Rotation.from_matrix(np.stack([self.grasp_rotation(), self._rest_rotation])))(s).as_matrix()
 
     def _scene_xml(self) -> str:
         robot = self._robot
@@ -416,12 +430,18 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         super().reset(seed=seed)
         mujoco.mj_resetData(self.model, self.data)
         self.data.qpos[self.qpos_ids[:7]] = HOME_ARM_QPOS
+        # Drawn before the layout, which is checked with the hand turned for them. No draw at 0,
+        # so the random stream and every layout stay what they were without yaw.
+        limit = np.radians(self.cube_yaw_max)
+        self._cube_yaws = (self.np_random.uniform(-limit, limit, self.n_objects) if limit > 0
+                           else np.zeros(self.n_objects))
         objects, targets = self._sample_layout()
         self._target_positions = targets
         self._target_heights = self._target_heights_for(objects, targets)
         for i, joint_id in enumerate(self.object_joint_ids):
             adr = self.model.jnt_qposadr[joint_id]
-            self.data.qpos[adr : adr + 7] = (*objects[i], OBJECT_Z, 1.0, 0.0, 0.0, 0.0)
+            half = self._cube_yaws[i] / 2
+            self.data.qpos[adr : adr + 7] = (*objects[i], OBJECT_Z, np.cos(half), 0.0, 0.0, np.sin(half))
         self.model.geom_pos[self.target_geom_ids, :2] = targets
         self._arm_targets = HOME_ARM_QPOS.copy()
         self.data.ctrl[self.arm_actuator_ids] = self._arm_targets
@@ -475,11 +495,11 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
 
     def pick_pose(self, spot, height: float = 0.0) -> np.ndarray:
         """Grasp centre that puts the fingers around a cube standing at this spot."""
-        return np.array([spot[0], spot[1], OBJECT_Z + height]) + GRASP_DZ * PALM_DOWN[:, 2]
+        return np.array([spot[0], spot[1], OBJECT_Z + height]) + GRASP_DZ * self.grasp_rotation()[:, 2]
 
     def drop_pose(self, spot, height: float) -> np.ndarray:
         """Grasp centre that sets a held cube on this spot, `height` being its resting centre."""
-        return np.array([spot[0], spot[1], height + 0.004]) + HELD_DZ * PALM_DOWN[:, 2]
+        return np.array([spot[0], spot[1], height + 0.004]) + HELD_DZ * self.grasp_rotation()[:, 2]
 
     def _servable(self, objects, targets) -> bool:
         """Can the arm hold every pose this layout asks for?
@@ -510,12 +530,12 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         return True
 
     def reachable(self, position) -> bool:
-        """Can the arm hold the grasp centre here, palm-down, from the home pose?"""
+        """Can the arm hold the grasp centre here, in the grasp rotation, from the home pose?"""
         self._ik_data.qpos[:] = self.data.qpos
         self._ik_data.qpos[self.qpos_ids[:7]] = HOME_ARM_QPOS
         self._ik_data.qvel.fill(0.0)
         ok, _, _ = solve_site_pose(
-            self.model, self._ik_data, self.site_id, self.arm_joint_ids, position, PALM_DOWN,
+            self.model, self._ik_data, self.site_id, self.arm_joint_ids, position, self.grasp_rotation(),
             HOME_ARM_QPOS, position_tolerance=0.005, rotation_tolerance=REACH_TILT, max_iterations=120)
         return ok
 
@@ -568,6 +588,7 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
                     and all(self._reachable_cell(p) for p in spots)
                     and (not self.validate_layouts or self._servable(objects, targets))):
                 return objects, targets
+        self.layout_fallbacks += 1
         return nominal_objects, nominal_targets
 
     # --- Contacts and the task ----------------------------------------------------------------

@@ -9,7 +9,7 @@
 ## Key Files
 | File | Description |
 |------|-------------|
-| `env.py` | `JaxGraspEnv`: 장면(책상·큐브·목표 원·JAX 팔) 조립, 팔 IK, 손 개폐, 레이아웃 샘플링(도달 맵 + `_servable` IK 검증), 성공 판정. 파지 상수와 근거가 상단에 있다. 행동 4차원(파지 중심 xyz 증분 + 닫힘 속도), 보상은 성공 래치 스텝에 1.0 |
+| `env.py` | `JaxGraspEnv`: 장면(책상·큐브·목표 원·JAX 팔) 조립, 팔 IK, 손 개폐, 레이아웃 샘플링(도달 맵 + `_servable` IK 검증), 큐브 회전(`cube_yaw_max`, 기본 0; 손은 `grasp_rotation()`으로 옮길 큐브만큼 돌림), 성공 판정. 파지 상수와 근거가 상단에 있다. 행동 4차원(파지 중심 xyz 증분 + 닫힘 속도), 보상은 성공 래치 스텝에 1.0 |
 | `single_env.py` | `JaxDeliveryEnv`: 큐브 하나를 목표 지점에 놓기 |
 | `stack_env.py` | `JaxStackEnv`: 2단 탑. 큐브 간격은 열린 손 발자국(`CLEAR_DX/DY`)으로 잰다. 못 찾은 배치는 `layout_fallbacks`로 센다 |
 | `demonstration.py` | `scripted_palm_place(env, step)`: reach → down → grip → up → cross → lower → settle → let go → back 상태기계와 복구 분기. `settle`은 명령 자세를 위로 끌지 않는다(끌면 조임이 남은 손이 큐브를 들어 올린다) |

@@ -27,6 +27,8 @@ parser.add_argument("--seeds", type=int, default=12)
 parser.add_argument("--first-seed", type=int, default=0, help="so a long run can be sharded")
 parser.add_argument("--stack", action="store_true", help="cubes to go on top of one another")
 parser.add_argument("--cubes", type=int, default=2, help="how tall the tower is, with --stack")
+parser.add_argument("--yaw", type=float, default=0.0,
+                    help="cube yaw drawn in +-YAW degrees per episode (env.cube_yaw_max); 45 covers all")
 parser.add_argument("--layouts", default=None,
                     help="a file from scripts/layouts.py; the scales are then ignored")
 args = parser.parse_args()
@@ -48,6 +50,7 @@ else:
     env = JaxStackEnv(cubes=args.cubes, **kwargs) if args.stack else JaxDeliveryEnv(**kwargs)
     scales = args.scales
     seeds = list(range(args.first_seed, args.first_seed + args.seeds))
+env.cube_yaw_max = args.yaw
 
 
 def off_a_face(rotation):
@@ -128,4 +131,6 @@ for scale in scales:
               f"{moved_end.get(m, 0.0) * 1000:6.1f}/{moved_max.get(m, 0.0) * 1000:.1f}mm  {verdict}{note}")
     print("  " + ",  ".join(f"{v} {k}" for k, v in sorted(tally.items(), key=lambda x: -x[1])),
           flush=True)
+    if args.yaw:
+        print(f"  cube yaw +-{args.yaw:g} deg; fixed-layout fallbacks so far: {env.layout_fallbacks}", flush=True)
 env.close()
