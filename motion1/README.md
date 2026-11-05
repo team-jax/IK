@@ -38,7 +38,7 @@ JAX_SETUP=real venv/bin/python motion1/scripts/classify_failures.py --scales 1.0
 JAX_SETUP=real venv/bin/python motion1/scripts/build_reachmap.py                 # reachmap_real.npz 재생성
 ```
 
-**실물 좌표의 큐브(위치 + 회전각)를 집어 옮기기:** `run_real.py`가 실물 좌표를 시뮬로 바꾸고(`realcoords.plan`), 닿는지 확인하고(도달 맵 다음에 env가 실제 자세를 풀어 최종 판정), 시뮬로 돌려 관절 궤적(관절 13개, rad, 50 Hz)을 JSON으로 저장한다. 그 파일은 team-jax/SimToReal의 `play_trajectory`가 실물로 재생한다. 실물은 궤적을 열린 루프로 따라가므로(큐브가 손에 있는지 모른다) **재시도 없이 배달된 궤적만 저장한다.** 시뮬에서 큐브를 떨어뜨려 다시 집은 동작이 각도에 박히면, 실물에서는 일어나지 않은 미끄러짐을 따라 움직이기 때문이다. `--keep`이면 어떤 결과든 `"playable": false`로 표시해 저장한다(확인용).
+**실물 좌표의 큐브(위치 + 회전각)를 집어 옮기기:** `src/humanoid_grasp_rl/real_task.py`의 `plan_delivery`가 일을 하고, `run_real.py`(파일로 저장)와 team-jax/SimToReal의 `pick_place`(로봇 컴퓨터에서 계획부터 재생까지)가 그것을 부른다. `run_real.py`가 실물 좌표를 시뮬로 바꾸고(`realcoords.plan`), 닿는지 확인하고(도달 맵 다음에 env가 실제 자세를 풀어 최종 판정), 시뮬로 돌려 관절 궤적(관절 13개, rad, 50 Hz)을 JSON으로 저장한다. 그 파일은 team-jax/SimToReal의 `play_trajectory`가 실물로 재생한다. 실물은 궤적을 열린 루프로 따라가므로(큐브가 손에 있는지 모른다) **재시도 없이 배달된 궤적만 저장한다.** 시뮬에서 큐브를 떨어뜨려 다시 집은 동작이 각도에 박히면, 실물에서는 일어나지 않은 미끄러짐을 따라 움직이기 때문이다. `--keep`이면 어떤 결과든 `"playable": false`로 표시해 저장한다(확인용).
 
 ```bash
 JAX_SETUP=real venv/bin/python motion1/scripts/run_real.py --cube 0.10 -0.30 20 --target 0.05 -0.27   # 종료 0 성공(궤적 저장), 1 시뮬 실패, 4 재시도 뒤 성공, 3 닿지 않음

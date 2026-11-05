@@ -7,16 +7,10 @@
 motor's axis, x to the robot's left, y backwards, metres; yaw in degrees, counter-clockwise seen
 from above, of a face normal from +x). --d is the shoulder axis down to the table top.
 
-realcoords.plan() answers first from the reach map (numpy only, what the robot computer runs); the
-env then checks the exact poses (env.reset(options=...)) and has the last word. The trajectory is
-every control step's commanded joint angles (data.ctrl: 7 arm + 6 finger joints, rad, sim joint
-names), which team-jax/SimToReal's play_trajectory sends to /sim2real/joint_command.
-
-The robot plays it open loop: nothing on it knows whether the cube is still in the hand. So only a
-clean run is written - delivered with no retry. A retry in the sim (the cube dropped and fetched
-again) is baked into the joint angles, and replayed on the robot it repeats a slip that may not
-happen there. --keep writes any run, marked "playable": false, for looking at; play_trajectory
-refuses it unless forced.
+The work is humanoid_grasp_rl.real_task.plan_delivery (team-jax/SimToReal's pick_place calls the
+same function on the robot computer). Only a clean run is written - delivered with no retry - since
+the robot replays it open loop; --keep writes any run, marked "playable": false, for looking at, and
+play_trajectory refuses it unless forced.
 Exit code: 0 clean delivery (written), 1 not delivered, 4 delivered only after a retry,
 3 the arm cannot serve it (2 is argparse).
 """
@@ -26,8 +20,6 @@ import json
 import os
 import sys
 from pathlib import Path
-
-import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cube", type=float, nargs=3, required=True, metavar=("X", "Y", "YAW"))
@@ -41,68 +33,32 @@ if os.environ.get("JAX_SETUP") != "real":
     sys.exit("real coordinates belong to the real setup: run with JAX_SETUP=real")
 
 import humanoid_grasp_rl.env as E  # noqa: E402
-from humanoid_grasp_rl.single_env import JaxDeliveryEnv  # noqa: E402
-from humanoid_grasp_rl.demonstration import scripted_palm_place  # noqa: E402
+from humanoid_grasp_rl.real_task import plan_delivery  # noqa: E402
 
-sys.path.insert(0, str(Path(E.__file__).parent))
-import realcoords as R  # noqa: E402
-
-d = args.d if args.d is not None else E.D
-plan = R.plan(tuple(args.cube), tuple(args.target), d)
-print(f"cube (real {args.cube[0]:+.3f}, {args.cube[1]:+.3f} m, {args.cube[2]:+.1f} deg) -> sim "
-      f"{plan['cube'].round(4).tolist()}, yaw {plan['yaw']:+.1f} deg")
-print(f"target (real {args.target[0]:+.3f}, {args.target[1]:+.3f} m) -> sim {plan['target'].round(4).tolist()}")
-print(f"reach map: {'yes' if plan['reachable'] else 'no'} ({plan['reason']})")
-if abs(d - E.D) > R.D_TOLERANCE:
-    sys.exit(f"the sim's table is D = {E.D} m below the shoulder axis, not {d}: no run")
-
-env = JaxDeliveryEnv()
-try:
-    env.reset(seed=0, options={"objects": [[*plan["cube"][:2], plan["yaw"]]], "targets": [plan["target"]]})
-except ValueError as e:
-    print(f"env: {e}")
+r = plan_delivery(args.cube, args.target, args.d)
+c, s = r["real"], r["sim"]
+print(f"cube (real {c['cube'][0]:+.3f}, {c['cube'][1]:+.3f} m, {c['cube'][2]:+.1f} deg) -> sim "
+      f"{[round(v, 4) for v in s['cube']]}, yaw {s['cube_yaw_deg']:+.1f} deg")
+print(f"target (real {c['target'][0]:+.3f}, {c['target'][1]:+.3f} m) -> sim {[round(v, 4) for v in s['target']]}")
+print(f"reach map: {'yes' if r['reach_map']['reachable'] else 'no'} ({r['reach_map']['reason']})")
+if r["status"] == "unreachable":
+    print(f"env: {r['reason']}")
     sys.exit(3)
-hand = float(np.degrees(env._hand_yaws[0]))
-print(f"env: servable, hand turned {hand:+.1f} deg")
-
-names = list(env._robot.arm_joints) + list(env._robot.finger_joints)
-actuators = np.concatenate((env.arm_actuator_ids, env.finger_actuator_ids))
-dt = float(env.model.opt.timestep * env.frame_skip)
-frames = [env.data.ctrl[actuators].tolist()]
-info = {}
-for step in range(env.max_steps):
-    _, _, terminated, truncated, info = env.step(scripted_palm_place(env, step))
-    frames.append(env.data.ctrl[actuators].tolist())
-    if terminated or truncated:
-        break
-delivered = bool(info.get("is_success")) and bool(info.get("success_now"))
-retries = [{"step": int(t), "phase": ph, "hand": what} for t, _, ph, what in getattr(env, "_palm_failures", [])]
-playable = delivered and not retries
-cube = env.data.xpos[env.object_body_ids[0]]
-error = float(np.linalg.norm(cube[:2] - plan["target"]))
-q = np.array(frames)
-speed = np.degrees(np.abs(np.diff(q, axis=0)).max(axis=0)) / dt
-print(f"sim: {'delivered' if delivered else 'NOT delivered'}, {error * 1000:.1f} mm from the target, "
-      f"{len(frames)} frames x {dt * 1000:.0f} ms = {len(frames) * dt:.1f} s; fastest joint "
-      f"{names[int(speed.argmax())]} {speed.max():.0f} deg/s")
-if retries:
-    print("sim retries: " + ", ".join(f"{r['phase']}@{r['step']} ({r['hand']})" for r in retries))
-code = 0 if playable else (4 if delivered else 1)
-if not playable and not args.keep:
-    print("not playable on the robot (" + ("delivered only after a retry" if delivered else "not delivered")
-          + "): no trajectory written. --keep writes it anyway, marked not playable")
-    env.close()
+print(f"env: servable, hand turned {s['hand_yaw_deg']:+.1f} deg")
+frames, dt, peak = r["positions"], r["dt"], r["peak_speed_deg_s"]
+print(f"sim: {'delivered' if r['delivered_in_sim'] else 'NOT delivered'}, {r['final_error_m'] * 1000:.1f} mm from "
+      f"the target, {len(frames)} frames x {dt * 1000:.0f} ms = {len(frames) * dt:.1f} s; fastest joint "
+      f"{peak['joint']} {peak['value']:.0f} deg/s")
+if r["retries"]:
+    print("sim retries: " + ", ".join(f"{x['phase']}@{x['step']} ({x['hand']})" for x in r["retries"]))
+code = {"playable": 0, "not delivered": 1, "retried": 4}[r["status"]]
+if not r["playable"] and not args.keep:
+    print(f"not playable on the robot ({r['reason']}): no trajectory written. "
+          "--keep writes it anyway, marked not playable")
     sys.exit(code)
 
 out = Path(args.out) if args.out else Path(E.__file__).resolve().parents[2] / "artifacts" / "trajectory.json"
 out.parent.mkdir(parents=True, exist_ok=True)
-out.write_text(json.dumps({
-    "joint_names": names, "dt": dt, "positions": frames, "unit": "rad",
-    "playable": playable, "delivered_in_sim": delivered, "retries": retries, "final_error_m": error,
-    "real": {"cube": args.cube, "target": args.target, "d": d},
-    "sim": {"cube": plan["cube"].tolist(), "target": plan["target"].tolist(),
-            "cube_yaw_deg": plan["yaw"], "hand_yaw_deg": hand},
-}, indent=1))
-print(f"wrote {out}" + ("" if playable else " (marked not playable)"))
-env.close()
+out.write_text(json.dumps(r, indent=1))
+print(f"wrote {out}" + ("" if r["playable"] else " (marked not playable)"))
 sys.exit(code)

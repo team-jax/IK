@@ -17,6 +17,7 @@
 | `assets.py` | `motion2/arm/make_arm_urdf.py`를 불러와 로봇 MJCF 조각(`RobotParts`)을 만든다. `JAX_ARM_DIR`로 위치 변경 |
 | `reachmap.npz` | 실제로 풀어 본 도달 가능 격자 + 상수 시그니처. `scripts/build_reachmap.py`로만 만든다. 실물 높이 배치는 `reachmap_real.npz`, 회전각별은 `reachmap_real_yaw.npz`(`build_reachmap.py --yaws`) |
 | `realcoords.py` | 실물 좌표(원점 어깨 롤 모터 축, x 왼쪽 +, y 뒤 +, z 위 +) → 시뮬 월드 변환과 도달 판정(`real_to_sim(x, y, D, yaw=)`, 배달 하나는 `plan(cube=(x, y, yaw), target=(x, y), D)`). numpy만 쓰고 패키지를 import하지 않아 실물 스크립트가 파일만 불러 쓴다(`__init__.py`는 MuJoCo를 불러온다). 상수는 `run_tests.sh`의 `m1_realcoords`가 env.py·모델과 대조 |
+| `real_task.py` | `plan_delivery(cube=(x, y, yaw), target=(x, y), d)`: 실물 좌표의 배달을 시뮬로 돌려 관절 궤적과 판정(`status`: playable / retried / not delivered / unreachable)을 돌려준다. `JAX_SETUP=real`로 import해야 한다. `scripts/run_real.py`와 team-jax/SimToReal의 `pick_place`가 같은 함수를 부른다 |
 | `__init__.py` | 세 환경 export |
 
 ## For AI Agents
