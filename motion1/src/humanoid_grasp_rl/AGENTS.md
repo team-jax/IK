@@ -15,7 +15,8 @@
 | `demonstration.py` | `scripted_palm_place(env, step)`: reach → down → grip → up → cross → lower → settle → let go → back 상태기계와 복구 분기. `settle`은 명령 자세를 위로 끌지 않는다(끌면 조임이 남은 손이 큐브를 들어 올린다) |
 | `ik.py` | 파지 중심 site에 대한 damped least-squares IK (`solve_site_pose`) |
 | `assets.py` | `motion2/arm/make_arm_urdf.py`를 불러와 로봇 MJCF 조각(`RobotParts`)을 만든다. `JAX_ARM_DIR`로 위치 변경 |
-| `reachmap.npz` | 실제로 풀어 본 도달 가능 격자 + 상수 시그니처. `scripts/build_reachmap.py`로만 만든다 |
+| `reachmap.npz` | 실제로 풀어 본 도달 가능 격자 + 상수 시그니처. `scripts/build_reachmap.py`로만 만든다. 실물 높이 배치는 `reachmap_real.npz` |
+| `realcoords.py` | 실물 좌표(원점 어깨 롤 모터 축, x 왼쪽 +, y 뒤 +, z 위 +) → 시뮬 월드 변환과 도달 판정(`real_to_sim(x, y, D)`). numpy만 쓰고 패키지를 import하지 않아 실물 스크립트가 파일만 불러 쓴다(`__init__.py`는 MuJoCo를 불러온다). 상수는 `run_tests.sh`의 `m1_realcoords`가 env.py·모델과 대조 |
 | `__init__.py` | 세 환경 export |
 
 ## For AI Agents

@@ -34,6 +34,17 @@ JAX_SETUP=real venv/bin/python motion1/scripts/classify_failures.py --scales 1.0
 JAX_SETUP=real venv/bin/python motion1/scripts/build_reachmap.py                 # reachmap_real.npz 재생성
 ```
 
+실물 좌표로 큐브 위치를 받아 닿는지 먼저 판단하려면 `src/humanoid_grasp_rl/realcoords.py`를 쓴다. 원점은 어깨 롤 모터 축, x는 로봇의 왼쪽 +, y는 뒤 +(앞이 −y), z는 위 +, 단위 m다. numpy만 쓰므로 실물 스크립트에서 파일만 불러 쓴다.
+
+```python
+import sys; sys.path.insert(0, "motion1/src/humanoid_grasp_rl")
+from realcoords import real_to_sim
+real_to_sim(0.10, -0.30, 0.4725)   # 앞 30 cm, 왼쪽 10 cm, 책상이 어깨 축 아래 472.5 mm
+# -> 시뮬 월드 큐브 중심 (-0.012, -0.10, 0.76), 접근 목표(파지 중심, 큐브 윗면 위 25 mm), 닿음 True
+```
+
+지금 손으로 닿는 곳은 롤 모터 축 기준 앞 25~35 cm, 왼쪽 2.5~27.5 cm다. 그 밖(앞 10~25 cm, 앞 38 cm, 오른쪽, 어깨 뒤)과 도달 맵을 만들지 않은 D는 거절한다. 앞 방향은 지시서 정의대로 팔이 뻗는 쪽(시뮬 −x)이다. 실물 책상이 거치대의 FRONT 글자 쪽(시뮬 −y)이라면 `SIM_FROM_REAL_YAW`를 0으로 바꾼다.
+
 어깨에서 472.5 mm 아래인 책상에는 손가락을 곧게 세운 자세가 어디에도 닿지 않아(어깨에서 0.78 m까지 넓힌 격자에서도 0칸) 손을 40° 기울인다. 그러면 나란히 붙은 손가락 1·2 중 하나가 36 mm 처져서 큐브 윗부분만 잡게 되고, 운반 중에 빠진다: 2026-11-04 배달 2/100(98개는 들어 올렸지만 운반 중·내려놓는 중 빠짐), 2단 0/50. 이 배치는 새 손을 시험하는 자리다. 손에 필요한 조건은 `STATUS.md`의 "책상 높이" 절에 있다.
 
 ## 설치 및 확인

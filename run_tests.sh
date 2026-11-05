@@ -117,6 +117,24 @@ shoulder = d.xanchor[env.arm_joint_ids[0]][2]
 assert abs(shoulder - 1.2075) < 1e-9 and abs(top - 0.735) < 1e-9, (shoulder, top)
 assert abs(E.STAND_SURFACE_X - edge - E.STAND_GAP) < 1e-9 and len(E.REACH_CELLS) > 0
 print(f'real setup ok: shoulder axis {shoulder:.4f} m, table {top:.4f} m, {len(E.REACH_CELLS)} reachable cells')"
+  # Real coordinates -> sim world (realcoords.py): loads without MuJoCo, reproduces the spec's worked
+  # example, and its constants match env.py's real setup and the model's shoulder roll joint.
+  step m1_realcoords "realcoords ok" env JAX_SETUP=real $P -c "
+import sys; sys.path.insert(0, 'motion1/src/humanoid_grasp_rl')
+import realcoords as RC
+assert not {'mujoco', 'gymnasium'} & set(sys.modules), 'realcoords pulled in MuJoCo'
+import numpy as np
+assert np.allclose(RC.to_sim((0.10, -0.30, -0.4725), origin=(0.34, 0.0, 0.85)), (0.04, -0.10, 0.3775), atol=1e-12)
+sys.path.insert(0, 'motion1/src')
+import humanoid_grasp_rl.env as E
+from humanoid_grasp_rl import JaxDeliveryEnv
+env = JaxDeliveryEnv(); env.reset(seed=0)
+roll = env.data.xanchor[env.arm_joint_ids[0]]
+assert np.allclose(roll, (*RC.ORIGIN_XY, RC.TABLE_Z + RC.MAP_D), atol=1e-9), roll
+s = E.SETUPS['real']
+assert (RC.TABLE_Z, RC.MAP_D, RC.CUBE_SIZE) == (s['table_z'], s['d'], s['cube_size'])
+assert RC.real_to_sim(0.10, -0.30, 0.4725)['reachable'] and not RC.real_to_sim(0.0, -0.10, 0.4725)['reachable']
+print('realcoords ok')"
 
   if [ $FULL = 1 ]; then
     echo "== motion1, full"

@@ -39,7 +39,7 @@
 ### Testing Requirements
 - `smoke_test.py`가 통과해야 한다. 컨트롤러 변경은 `classify_failures.py`로 배달 시드 0~99, 쌓기 `--stack` 시드 0~49를 다시 재고, 고정 레이아웃(`layouts.py`)으로 비교한다.
 - 현재 기준: 배달 68/100, 2단 39/50 (2026-11-04, 패드–큐브 마찰 0.4 실측, 운반 1 mm/step). 마찰 2.0이던 때는 100/100, 46/50 (2026-10-12, 2026-10-16에 다시 재서 같음). 실물 높이 배치(`JAX_SETUP=real`)는 지금 손으로 배달 2/100, 2단 0/50(큐브가 운반 중 빠짐, 손 교체 대기, `STATUS.md`).
-- 저장소 루트의 `./run_tests.sh`가 이 폴더에서 `smoke_test.py`, `tune_grasp.py`(g=0에서 패드 간격 89.7 mm), `layouts.py`, 고정 레이아웃 재생(`classify_failures.py --layouts`, 3개 중 2개 이상 배달), `render_frame.py`, 실물 높이 배치 확인(`m1_real_setup`: 어깨·책상 높이와 간격, 도달 맵이 최신인지)을 돌린다. `--full`이면 배달 시드 0~99(68개 이상), 쌓기 시드 0~49(39개 이상), `build_reachmap.py`가 저장된 맵과 같은 파일을 만드는지, 영상 2개(1920x1080)까지 확인한다.
+- 저장소 루트의 `./run_tests.sh`가 이 폴더에서 `smoke_test.py`, `tune_grasp.py`(g=0에서 패드 간격 89.7 mm), `layouts.py`, 고정 레이아웃 재생(`classify_failures.py --layouts`, 3개 중 2개 이상 배달), `render_frame.py`, 실물 높이 배치 확인(`m1_real_setup`: 어깨·책상 높이와 간격, 도달 맵이 최신인지), 실물 좌표 변환 확인(`m1_realcoords`: MuJoCo 없이 불러와지고, 지시서 숫자 추적과 같고, 상수가 env.py·모델과 맞는지)을 돌린다. `--full`이면 배달 시드 0~99(68개 이상), 쌓기 시드 0~49(39개 이상), `build_reachmap.py`가 저장된 맵과 같은 파일을 만드는지, 영상 2개(1920x1080)까지 확인한다.
 
 ### Common Patterns
 - 성공은 에피소드 끝까지 유지되는 상태로 센다(래치가 아니라 최종 판정).

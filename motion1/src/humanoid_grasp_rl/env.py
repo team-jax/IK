@@ -30,8 +30,8 @@ Stage = Literal["place", "randomize"]
 # carried cube slips out: it is the scene to try a new hand in (motion1/STATUS.md).
 # d is D, the drop from the shoulder rotation axis to the table top; the real 0.4725 is CAD's 1207.5
 # - 735, taken at the shoulder motor's corner rather than its axis, so a measured D replaces it (the
-# reach band depends on it directly). cube_size and cube_mass: the sim's 50 mm, 0.05 kg until the
-# real cube is measured (the FSR request says 55 mm). stand_surface_x is the stand's surface facing
+# reach band depends on it directly). cube_size and cube_mass: the real cube is 50 mm (user,
+# 2026-11-05), its mass not measured (0.05 kg). stand_surface_x is the stand's surface facing
 # the table at the table top (the stand, the URDF's base_link mesh, narrows upwards), read from the
 # mesh; home is the arm's rest pose (HOME_ARM_QPOS, found by scripts/find_home.py's criterion).
 SETUPS = {
@@ -49,7 +49,8 @@ TABLE_SURFACE_Z = SETUPS[SETUP]["table_z"]
 D = SETUPS[SETUP]["d"]
 SHOULDER_Z = round(TABLE_SURFACE_Z + D, 6)   # rounded: exactly 0.85 and 1.2075
 # The table's near edge stands STAND_GAP from the robot's stand, as on the real setup (the
-# user's figure, 2026-11-04; sizing the table from the reach map alone had left 68.5 mm).
+# user's figure, 2026-11-04, confirmed 2026-11-05; sizing the table from the reach map alone had
+# left 68.5 mm).
 STAND_GAP = 0.10
 STAND_SURFACE_X = SETUPS[SETUP]["stand_surface_x"]
 # 50 mm, not the 30 mm the pedestal demo in motion2 uses. The finger plates reach only 17 mm
