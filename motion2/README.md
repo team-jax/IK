@@ -1,13 +1,13 @@
 # Hand Teleop (동작 2)
 
-웹캠으로 사람의 오른손을 추적해, MuJoCo 속 팀의 최종 URDF(`../URDF_1006/JAXV2_Assembly_description`)의 7자유도 팔 + 3손가락 손을 실시간으로 따라 움직이게 하고, 받침 기둥 위의 30 mm 큐브를 집어 올린다. 손목 위치는 IK로 팔 관절각이 되고, 검지·중지·약지의 굽힘은 손가락 3개를 하나씩 움직인다. 접촉 물리가 켜져 있어 큐브를 실제 마찰로 집는다.
+웹캠으로 사람의 오른손을 추적해, MuJoCo 속 팀의 최종 URDF(`../URDF_1108/JAXV3_Assembly_description`)의 7자유도 팔 + 3손가락 손을 실시간으로 따라 움직이게 하고, 받침 기둥 위의 30 mm 큐브를 집어 올린다. 손목 위치는 IK로 팔 관절각이 되고, 검지·중지·약지의 굽힘은 손가락 3개를 하나씩 움직인다. 접촉 물리가 켜져 있어 큐브를 실제 마찰로 집는다.
 
 ```
 웹캠 → MediaPipe (손목 위치 + 손가락 굽힘) → UDP → IK → MuJoCo 시뮬레이션
                                           └→ 웹 대시보드 (브라우저 시각화)
 ```
 
-로봇 모델(`arm/`)은 `../URDF_1006`에서 `arm/make_arm_urdf.py`가 생성한다. 동작 1(`../motion1/`)이 같은 생성기와 모델을 쓰므로 `arm/` 위치는 바꾸지 않는다. 동작 2는 동작 1 없이 이 저장소만으로 돌아간다.
+로봇 모델(`arm/`)은 `../URDF_1108`(V3, 질량과 손가락 충돌은 이전 `../URDF_1006`)에서 `arm/make_arm_urdf.py`가 생성한다. 동작 1(`../motion1/`)이 같은 생성기와 모델을 쓰므로 `arm/` 위치는 바꾸지 않는다. 동작 2는 동작 1 없이 이 저장소만으로 돌아간다.
 
 ## 현재 상태 (2026-10-13)
 
@@ -106,7 +106,7 @@ curl -o motion2/models/hand_landmarker.task https://storage.googleapis.com/media
 | `BASE_Z` | 0.255 | 손가락 패드가 큐브 옆면에 오는 파지 중심 높이 |
 | `FINGER_OPEN`, `FINGER_CLOSED`, `DISTAL_SCALE` | -0.25, 0.15, 0.1 | 그리퍼 열림·닫힘. 바꾼 뒤에는 `check_grasp.py`가 9/9인지 확인한다 |
 
-모델을 바꾸려면 `../URDF_1006`을 교체하고 `venv/bin/python motion2/arm/make_arm_urdf.py`를 실행한다. IK만 따로 보려면:
+모델을 바꾸려면 `../URDF_1108`을 교체하고(확인 순서는 `../URDF_1108/JAXV3_Assembly_description/AGENTS.md`) `venv/bin/python motion2/arm/make_arm_urdf.py`를 실행한다. IK만 따로 보려면:
 
 ```bash
 venv/bin/python motion2/arm/ik.py                       # 기본 타깃 풀고 오차(mm) 출력

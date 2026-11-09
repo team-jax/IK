@@ -1,10 +1,10 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-10-13 | Updated: 2026-10-13 -->
+<!-- Generated: 2026-10-13 | Updated: 2026-11-09 -->
 
-# URDF_1006/ — 팀의 최종 URDF
+# URDF_1006/ — 이전 최종 URDF (V2)
 
 ## Purpose
-Fusion 360 디자인 `JAXV2-Assembly v4`를 2026-10-06에 export한 로봇 전체(`JAXV2_Assembly`, 링크 16, 관절 15)의 설명 패키지와 export 기록. 동작 1·2 어느 쪽에도 속하지 않는 **읽기 전용 원본**이다. `motion2/arm/make_arm_urdf.py`가 이 폴더를 읽어 한 팔 모델을 만든다.
+Fusion 360 디자인 `JAXV2-Assembly v4`를 2026-10-06에 export한 로봇 전체(`JAXV2_Assembly`, 링크 16, 관절 15)의 설명 패키지와 export 기록. 동작 1·2 어느 쪽에도 속하지 않는 **읽기 전용 원본**이다. 2026-11-09부터 최종 URDF는 `../URDF_1108`(V3)이고, `motion2/arm/make_arm_urdf.py`는 이 폴더에서 팔의 질량·관성과 손가락 충돌 STL만 읽는다(V3의 질량은 CAD 재질 값이라 팀이 실제 팔을 잴 때까지, V3의 손가락 충돌은 부풀려진 원기둥이라). 그래서 지우지 않는다.
 
 ## Key Files
 | File | Description |

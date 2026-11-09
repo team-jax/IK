@@ -48,12 +48,12 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<!-- Generated: 2026-07-02 | Updated: 2026-10-26 -->
+<!-- Generated: 2026-07-02 | Updated: 2026-11-09 -->
 <section id="역운逆運-휴머노이드-상체-로봇-프로젝트-team-jax" class="level1">
 <h1>역운(逆運) — 휴머노이드 상체 로봇 프로젝트 (Team JAX)</h1>
 <section id="purpose" class="level2">
 <h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
-<p>물건을 집어 목표 위치에 놓는 휴머노이드 상체 로봇의 소프트웨어 레포지토리. 팀의 최종 URDF(<code>URDF_1006</code>)를 원본으로, 두 개의 독립된 시뮬레이션 작업(동작 1, 동작 2)이 같은 로봇(7DOF 팔 + 3손가락 손)을 쓴다. 실제 하드웨어(STM32/Jetson/AK45)는 설계만 <code>CLAUDE.md</code>에 있고 코드는 아직 없다.</p>
+<p>물건을 집어 목표 위치에 놓는 휴머노이드 상체 로봇의 소프트웨어 레포지토리. 팀의 최종 URDF(<code>URDF_1108</code>, V3)를 원본으로, 두 개의 독립된 시뮬레이션 작업(동작 1, 동작 2)이 같은 로봇(7DOF 팔 + 3손가락 손)을 쓴다. 실제 하드웨어(STM32/Jetson/AK45)는 설계만 <code>CLAUDE.md</code>에 있고 코드는 아직 없다.</p>
 </section>
 <section id="key-files" class="level2">
 <h2 class="anchored" data-anchor-id="key-files">Key Files</h2>
@@ -123,14 +123,18 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>URDF_1006/</code></td>
-<td>팀의 최종 URDF(CAD export). 두 동작이 공용하는 원본 (see <code>URDF_1006/AGENTS.md</code>)</td>
+<td><code>URDF_1108/</code></td>
+<td>팀의 최종 URDF(CAD export V3, 2026-11-08). 두 동작이 공용하는 원본 (see <code>URDF_1108/AGENTS.md</code>)</td>
 </tr>
 <tr class="even">
-<td><code>motion1/</code></td>
-<td>동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. <strong>별도 git 저장소이며 team-jax/IK에는 올라가지 않았다</strong> (로컬에 있을 때만 see <code>motion1/AGENTS.md</code>)</td>
+<td><code>URDF_1006/</code></td>
+<td>이전 export(V2). 생성기가 팔의 질량·관성과 손가락 충돌 STL을 아직 여기서 읽는다 (see <code>URDF_1006/AGENTS.md</code>)</td>
 </tr>
 <tr class="odd">
+<td><code>motion1/</code></td>
+<td>동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. (see <code>motion1/AGENTS.md</code>)</td>
+</tr>
+<tr class="even">
 <td><code>motion2/</code></td>
 <td>동작 2: 웹캠 손 추적 텔레오퍼레이션(<code>src/</code>, <code>scripts/</code>, <code>models/</code>) + 팔 모델 생성기(<code>arm/</code>), 자체 README·STATUS (see <code>motion2/AGENTS.md</code>)</td>
 </tr>
@@ -138,26 +142,28 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>문서 계층(<code>Parent:</code> 태그로 이어지고 <code>check_docs.py</code>가 검사한다):</p>
 <pre><code>AGENTS.md
+├── URDF_1108/AGENTS.md
+│   └── JAXV3_Assembly_description/AGENTS.md
 ├── URDF_1006/AGENTS.md
 │   └── JAXV2_Assembly_description/AGENTS.md
-├── motion1/AGENTS.md          (별도 저장소, team-jax/IK에는 없음)
+├── motion1/AGENTS.md
 │   ├── scripts/AGENTS.md
 │   └── src/humanoid_grasp_rl/AGENTS.md
 └── motion2/AGENTS.md
     ├── src/AGENTS.md
     ├── scripts/AGENTS.md
     └── arm/AGENTS.md</code></pre>
-<p>문서를 두지 않는 폴더: <code>AGENTS_files/</code>, <code>motion1/README_files/</code>(Quarto 렌더 부산물), <code>.omc/</code>·<code>.omo/</code>·<code>.claude/</code>(도구 상태·설정), <code>.vscode/</code>(편집기 설정), 생성물·데이터·산출물 폴더(<code>motion2/arm/meshes/</code>, <code>motion2/models/</code>, <code>motion1/artifacts/</code>, <code>URDF_1006/JAXV2_Assembly_description/</code> 아래의 <code>config/ docs/ images/ launch/ meshes/ rviz/ urdf/</code>).</p>
+<p>문서를 두지 않는 폴더: <code>AGENTS_files/</code>, <code>motion1/README_files/</code>(Quarto 렌더 부산물), <code>.omc/</code>·<code>.omo/</code>·<code>.claude/</code>(도구 상태·설정), <code>.vscode/</code>(편집기 설정), 생성물·데이터·산출물 폴더(<code>motion2/arm/meshes/</code>, <code>motion2/models/</code>, <code>motion1/artifacts/</code>, <code>URDF_1108/JAXV3_Assembly_description/</code>·<code>URDF_1006/JAXV2_Assembly_description/</code> 아래의 <code>config/ docs/ images/ launch/ meshes/ rviz/ urdf/</code>).</p>
 </section>
 <section id="for-ai-agents" class="level2">
 <h2 class="anchored" data-anchor-id="for-ai-agents">For AI Agents</h2>
 <section id="working-in-this-directory" class="level3">
 <h3 class="anchored" data-anchor-id="working-in-this-directory">Working In This Directory</h3>
 <ul>
-<li>의존 방향은 <code>motion1 → motion2/arm/make_arm_urdf.py → URDF_1006</code> 하나뿐이다. motion2는 motion1을 import하지 않는다.</li>
+<li>의존 방향은 <code>motion1 → motion2/arm/make_arm_urdf.py → URDF_1108</code>(질량·손가락 충돌은 <code>URDF_1006</code>) 하나뿐이다. motion2는 motion1을 import하지 않는다.</li>
 <li>Python은 항상 루트 <code>venv/bin/python</code>, macOS에서 MuJoCo 뷰어를 띄우는 스크립트는 <code>venv/bin/mjpython</code>. 패키지는 <code>venv/bin/python -m pip install</code>. 폴더를 옮기거나 이름을 바꾸면 <code>venv/bin/pip</code>·<code>mjpython</code> 등의 셔뱅이 깨진다(<code>STATUS.md</code> 참고).</li>
 <li>원격 저장소는 <code>origin</code> = <a href="https://github.com/team-jax/IK" class="uri">https://github.com/team-jax/IK</a>(<code>main</code>). 이전 <code>team-jax/CV_TEST2</code>는 <code>upstream</code>으로 남아 있다.</li>
-<li><code>motion1/</code>은 자체 <code>.git</code>(원격 <code>gyumingim/Humanoid_Grasp_RL</code>)이 있다. 루트 저장소에서는 untracked로 보이고 team-jax/IK에는 올리지 않으며, 동작 1 변경은 그 안에서 커밋한다. <code>motion1/</code>이 없는 클론에서도 <code>motion2/</code>는 그대로 동작한다.</li>
+<li><code>motion1/</code>은 원래 <code>gyumingim/Humanoid_Grasp_RL</code>에서 개발했고 지금은 이 저장소(team-jax/IK)에 포함되어 있다. <code>motion1/</code>이 없는 클론에서도 <code>motion2/</code>는 그대로 동작한다.</li>
 <li>문서와 코드가 어긋나면 코드와 실제 실행 결과가 기준이다. 숫자(성공률 등)는 직접 재현한 것만, 측정한 날짜와 시드 범위를 함께 적는다.</li>
 <li>새 <code>AGENTS.md</code>를 만들면 첫 줄에 부모를 가리키는 <code>Parent</code> 주석 태그(다른 <code>AGENTS.md</code>와 같은 형식)를 달고 <code>check_docs.py</code>의 <code>DOCS</code> 목록에도 넣는다. 부모 경로는 모든 <code>AGENTS.md</code>에서 검사하지만 기호·경로 대조는 목록의 문서만 한다. 검사기는 문서에서 처음 나오는 “Parent” + 콜론 + 공백 뒤의 단어를 부모 경로로 읽으므로 본문에 그 형식의 예시를 적지 않는다. 이 파일을 고쳤으면 <code>quarto render AGENTS.md</code>로 <code>AGENTS.html</code>도 다시 만든다.</li>
 </ul>

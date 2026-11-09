@@ -7,7 +7,7 @@
 
 ## Purpose
 웹캠 손목 추적 → UDP → MuJoCo 실시간 동기화 데모(7DOF 팔 + 3손가락 그리퍼, 손 모양으로
-쥐기/펴기 제어) + 웹 대시보드 시각화를 포함한다. 로봇 모델은 최종 URDF(`../URDF_1006`)에서 생성한다.
+쥐기/펴기 제어) + 웹 대시보드 시각화를 포함한다. 로봇 모델은 최종 URDF(`../URDF_1108`, V3)에서 생성한다(질량과 손가락 충돌은 이전 `../URDF_1006`).
 Phase 2(7DOF 팔 IK + 그리퍼 kinematics + contact physics 파지: 받침대 위 큐브를 실제
 접촉/마찰로 집기)까지 구현됨; Phase 3(실제 모터 연동)은 미착수.
 
@@ -43,7 +43,8 @@ Phase 2(7DOF 팔 IK + 그리퍼 kinematics + contact physics 파지: 받침대 �
 ## Dependencies
 
 ### Internal
-- `../URDF_1006/` — `arm/make_arm_urdf.py`가 읽는 최종 URDF 원본 (URDF 관절 → 프로젝트 관절 이름 대응표는 `../URDF_1006/JAXV2_Assembly_description/AGENTS.md`)
+- `../URDF_1108/` — `arm/make_arm_urdf.py`가 읽는 최종 URDF 원본 (URDF 관절 → 프로젝트 관절 이름 대응표는 `../URDF_1108/JAXV3_Assembly_description/AGENTS.md`)
+- `../URDF_1006/` — 이전 export. 생성기가 질량·관성과 손가락 충돌 STL을 여기서 읽는다
 - `../motion1/` — `arm/make_arm_urdf.py`의 `robot_parts()`를 불러다 쓴다(동작 1이 이 폴더에 의존, 반대는 없음). 생성기 인터페이스를 바꾸면 `motion1/src/humanoid_grasp_rl/assets.py`도 확인
 - `arm/` — `src/mujoco_receiver.py`와 `arm/ik.py` 모두 `arm.urdf`, `arm.xml` 참조 (see `arm/AGENTS.md`). `arm.xml`의 그리퍼·받침대·큐브·actuator는 `arm.urdf`/ikpy 체인에는 없음 — IK와 무관한 순수 MuJoCo 전용 구조.
 - `models/` — `src/vision_sender.py`가 로드하는 MediaPipe 모델 2개(손목 위치용 `pose_landmarker_full.task`, 손가락 curl용 `hand_landmarker.task`), 레포에 커밋됨 (다운로드 URL은 `README.md`)

@@ -1,12 +1,33 @@
 # STATUS (동작 2)
 
-최종 갱신: 2026-10-13
+최종 갱신: 2026-11-09
 
 > 동작 2(`motion2/`)의 기록이다. 경로는 `motion2/` 기준이다. 현재 성적과 한계는 `README.md`, 동작 1은 `../motion1/STATUS.md`, 저장소 공통(테스트 도구, 가상환경, 뷰어 환경 문제)은 `../STATUS.md`에 있다.
 
 ## 목표
 
-웹캠 손목·손가락 추적으로 최종 URDF(`../URDF_1006/JAXV2_Assembly_description`) 기반 7DOF 팔과 3손가락 손을 MuJoCo에서 제어하고 큐브를 파지한다.
+웹캠 손목·손가락 추적으로 최종 URDF(`../URDF_1108/JAXV3_Assembly_description`, 2026-11-09부터. 질량과 손가락 충돌은 이전 `../URDF_1006`) 기반 7DOF 팔과 3손가락 손을 MuJoCo에서 제어하고 큐브를 파지한다.
+
+## 최종 URDF V3(`URDF_1108`)로 전환 — 2026-11-09
+
+사용자 지시: 새 최종 URDF(`URDF_1108`, Fusion `JAXV3-Assembly v5`, 2026-11-08 export)로 바꾸되 아래팔 롤(`wrist_pitch`) 축 방향과 팔 질량은 그대로(V2). 두 URDF를 직접 파싱해 비교한 차이와 생성기의 처리는 `../URDF_1108/JAXV3_Assembly_description/AGENTS.md`에 표로 있다.
+
+### 파라미터 변경 이력
+| 이름 | 이전 → 새 값 | 이유 | 파일 |
+|---|---|---|---|
+| 입력 URDF (`PKG`, `SRC`, `SRC_MESH`) | `URDF_1006/JAXV2_Assembly` → `URDF_1108/JAXV3_Assembly` | 최종 URDF 교체 | `arm/make_arm_urdf.py` |
+| `V2_PKG`, `V2_SRC`, `V2_MESH`, `Urdf(inertia_from=, collision_from=)` | 없음 → 질량·관성과 손가락 충돌 STL을 `URDF_1006`에서 읽음 | V3 질량은 CAD 재질 값(팔 1.827 kg, V2는 4.068 kg)이라 팀이 잴 때까지 V2. V3 손가락 첫 마디 충돌은 지름 52.6 mm 원기둥(실제 판 15.9 mm)이라 쓸 수 없다. V2 STL은 V3 손가락 외형을 0.01 mm 안에서 감싼다 | `arm/make_arm_urdf.py` |
+| `LINK_SUFFIX`, `Urdf.strip_link_suffix` | 없음 → `"_1"` | V3 익스포터가 링크 이름에 `_1`을 붙였다. 떼어서 MJCF body 이름(`MG996R`, `Finger_1_2` 등)을 그대로 둔다 | `arm/make_arm_urdf.py` |
+| `FLIPPED_JOINTS`, `Urdf.flip_child_frame` | 없음 → `shoulder_roll_to_shoulder_yaw`, `under_arm_to_wrist_pitch` | V3는 이 두 관절의 자식 프레임을 x축으로 180° 돌려 축이 반대다(한계 −50~0°, ±90°). 자식 링크를 V2 방향으로 다시 표현해 모든 관절이 로컬 +z, V2 부호를 지킨다. 확인: 생성된 모델과 원래 V3 URDF(두 관절 각도만 음수)의 링크 프레임이 21개 자세에서 4e-6 mm·3e-6° 안. 질량이 같은 `Wrist_Pitch`는 V3 관성을 뒤집으면 V2 관성과 같아진다 | `arm/make_arm_urdf.py` |
+| 관절 범위 | `shoulder_yaw` 0~0.785398 → 0~0.872665 rad(0~50°), `elbow` ±1.832596 → ±1.745329 rad(±100°) | V3 한계(V2 부호) | `arm/arm.xml`, `arm/arm.urdf` (생성) |
+| `SHOULDER_OFFSET` | (−0.16, 0, 0.85) → (−0.15, 0, 1.2125) | V3의 `base_link_to_shoulder_pitch`(`base_link`가 1.2 m 받침대 전체). `load()`가 URDF와 같은지 검사 | `arm/make_arm_urdf.py` |
+| `BASE_LINK_WORLD` | (0.50, 0, 0) → (0.49, 0, −0.3625) | 어깨 프레임을 월드 (0.34, 0, 0.85)(`ik.py`의 `BASE_POS_WORLD`)에 그대로 두기 위해. 받침대는 바닥 아래로 들어가지만 그려지기만 하고 충돌하지 않는다 | `arm/make_arm_urdf.py` |
+| `GRASP_CENTER_HAND` | (0.002, −0.001, −0.17) → (0.002, 0.0005, −0.1665) | V3 손가락이 손목 쪽으로 3.5 mm, 손가락 2가 3 mm 바깥이라 파지 중심도 손가락을 따라 옮겼다(z +3.5 mm, 손가락 1·2 가운데를 따라 y +1.5 mm). `check_grasp.py`: 그대로 0/9, z만 8/9, 둘 다 9/9. 물고 들어 올린 큐브는 손 프레임에서 V2보다 3.8 mm 손목 쪽에 앉는다(−161.6 → −157.8 mm) | `arm/make_arm_urdf.py` |
+| `Holder` body | 없음 → 받침대에 붙은 외형만 | V3의 새 링크 `Holder_1`(3.331 kg 강철 브래킷). 관성·충돌 없음, column의 마지막 자식이라 팔의 body·geom 번호는 그대로 | `arm/make_arm_urdf.py` |
+| 시각 메시 | V2 DAE → V3 DAE(파일 이름 `*_1.obj`, 17개) | V3 외형. 변환 결과가 MuJoCo에서 0.00001 mm 안에서 같은 위치 | `arm/meshes/` (생성) |
+
+- 바뀌지 않은 것: 15개 `<inertial>` 줄과 손가락 충돌 박스 6개는 이전 `arm.xml`과 바이트까지 같다(팔+손 질량 5.065155 kg). 관절 순서, qpos 배치(`nq=20`, `nu=13`), 서보 게인, 접촉 파라미터도 그대로.
+- 검증(2026-11-09): `check_grasp.py` 9/9, `check_teleop.py` 3/3, `ik.py` 0.00 mm. 받침 기둥 위 (0.12, 0)에서 손가락 아래 자세는 z 0.34까지 되고 0.37부터 안 된다(대체 풀이가 손을 26° 기울임, V2는 17°): `WORKSPACE_Z=(0.255, 0.34)`는 그대로 맞다.
 
 ## 완료된 일
 
@@ -20,7 +41,7 @@
 
 ## 현재 상태
 
-- 모델: `nq=20`, `nu=13`, MJCF 메시 16개(`arm/meshes/`에는 OBJ 16개 + 충돌 STL 6개, 박스 충돌이라 STL은 `JAX_FINGER_COLLISION=mesh`로 생성할 때만 로드)
+- 모델: `nq=20`, `nu=13`, MJCF 메시 17개(V3, `arm/meshes/`에는 OBJ 17개 + 충돌 STL 6개, 박스 충돌이라 STL은 `JAX_FINGER_COLLISION=mesh`로 생성할 때만 로드)
 - 손가락 판은 손 x 방향으로 얇고, 손가락 1·2와 손가락 3(`ROTATION_BASE_ANGLE=-π`)이 마주 본다. 판 안쪽 면 사이 간격은 근위 q=0에서 30 mm, 열림 q=-0.25에서 큐브 높이 기준 약 75~83 mm (2026-10-13 측정)
 - 손가락 닫힘은 `FINGER_CLOSED=0.15`, `DISTAL_SCALE=0.1`. `DISTAL_SCALE`이 크면 판이 기울어 큐브 모서리만 물고 들어올릴 때 미끄러진다: 0~0.10은 9/9, 0.15는 7/9, 0.20은 0/9, 0.30은 2/9이고, `DISTAL_SCALE=0.1`에서 `FINGER_CLOSED` 0.10~0.20은 모두 9/9 (2026-10-13, `check_grasp.py` 절차로 측정)
 - 12필드 패킷의 팔꿈치 스윙은 ±40°로 제한, 90°/s 이하로 램프, 손가락을 쥐는 동안(평균 curl > 0.3) 고정 (`SWIVEL_LIMIT`, `SWIVEL_MAX_RATE`, `SWIVEL_HOLD_CURL`)

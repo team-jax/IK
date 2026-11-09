@@ -1,10 +1,10 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-10-13 | Updated: 2026-10-13 -->
+<!-- Generated: 2026-10-13 | Updated: 2026-11-09 -->
 
 # JAXV2_Assembly_description/ — 최종 URDF 패키지 (Fusion 360 export)
 
 ## Purpose
-팀 로봇 전체(`JAXV2_Assembly`)를 Fusion URDF/XACRO Exporter v3.1.1이 내보낸 ROS 2 설명 패키지다. 링크 16, 관절 15(움직이는 것 14), 총 23.917 kg, 루트 `base_link`. 이 레포의 코드가 읽는 것은 **평평한 URDF와 메시뿐**이다(`motion2/arm/make_arm_urdf.py`가 읽고, 동작 1은 그 생성기를 거쳐 쓴다). 나머지는 ROS 2에서 RViz로 보거나 컨트롤러를 붙일 때 쓰는 파일이다. 읽기 전용 원본이다.
+팀 로봇 전체(`JAXV2_Assembly`)를 Fusion URDF/XACRO Exporter v3.1.1이 내보낸 ROS 2 설명 패키지다. 링크 16, 관절 15(움직이는 것 14), 총 23.917 kg, 루트 `base_link`. 2026-11-09부터 최종 URDF는 `../../URDF_1108/JAXV3_Assembly_description`(V3)이고, 이 레포의 코드가 여기서 읽는 것은 **링크의 `<inertial>`과 손가락 6개의 충돌 STL뿐**이다(`motion2/arm/make_arm_urdf.py`의 `load()`가 읽고, 동작 1은 그 생성기를 거쳐 쓴다). 나머지는 ROS 2에서 RViz로 보거나 컨트롤러를 붙일 때 쓰는 파일이다. 읽기 전용 원본이다.
 
 ## Key Files
 | File | Description |
@@ -25,7 +25,7 @@
 ## For AI Agents
 
 ### Working In This Directory
-- 수정하지 않는다. 새 CAD export로 바꿀 때는 폴더째 교체하고 이 순서로 확인한다: ① `venv/bin/python motion2/arm/make_arm_urdf.py` (관절 이름이 바뀌면 생성기의 `ARM_JOINTS`·`FINGER_JOINTS` 대응이 어긋난다) ② 생성기 상수(`GRASP_CENTER_HAND`, `BASE_LINK_WORLD`, `ROTATION_BASE_ANGLE` 등)가 새 기하와 맞는지 ③ `./run_tests.sh`와 `motion1/scripts/build_reachmap.py`. 재생성한 `arm.xml`·`arm.urdf`·`meshes/`를 커밋하지 않으면 `run_tests.sh`의 "생성기 출력 == 레포 파일" 검사가 실패한다.
+- 수정하지 않는다. 아래 표와 절차는 V2 시절의 것으로 남겨 둔다(V3는 `../../URDF_1108/JAXV3_Assembly_description/AGENTS.md`). V2 때 새 CAD export로 바꿀 때 확인한 순서: ① `venv/bin/python motion2/arm/make_arm_urdf.py` (관절 이름이 바뀌면 생성기의 `ARM_JOINTS`·`FINGER_JOINTS` 대응이 어긋난다) ② 생성기 상수(`GRASP_CENTER_HAND`, `BASE_LINK_WORLD`, `ROTATION_BASE_ANGLE` 등)가 새 기하와 맞는지 ③ `./run_tests.sh`와 `motion1/scripts/build_reachmap.py`. 재생성한 `arm.xml`·`arm.urdf`·`meshes/`를 커밋하지 않으면 `run_tests.sh`의 "생성기 출력 == 레포 파일" 검사가 실패한다.
 - 관절 이름 `finger_1_2_to_finger_2_2`는 export의 이름 착오처럼 보이지만 실제로 `Finger_2_1`→`Finger_2_2`를 잇는다(URDF를 파싱해 확인). 이름을 고치지 말고 생성기의 대응표를 따른다.
 
 ### URDF 관절 → 프로젝트 이름 (생성기의 `ARM_JOINTS`, `FINGER_JOINTS`)

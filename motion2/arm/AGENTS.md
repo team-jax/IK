@@ -1,10 +1,10 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-07-02 | Updated: 2026-10-13 -->
+<!-- Generated: 2026-07-02 | Updated: 2026-11-09 -->
 
-# arm/ — 7DOF 팔 IK 모델 (최종 URDF `JAXV2_Assembly` 기반)
+# arm/ — 7DOF 팔 IK 모델 (최종 URDF `JAXV3_Assembly` 기반)
 
 ## Purpose
-팀의 최종 URDF(`../../URDF_1006/JAXV2_Assembly_description`)에서 생성한 단일 팔(7 revolute joint) 모델.
+팀의 최종 URDF(`../../URDF_1108/JAXV3_Assembly_description`, V3)에서 생성한 단일 팔(7 revolute joint) 모델. 질량·관성과 손가락 충돌 STL은 이전 export(`../../URDF_1006`, V2)의 것을 쓰고, V3에서 축이 뒤집힌 `shoulder_yaw`·`wrist_pitch`는 V2 부호로 되돌린다(생성기의 `load()`).
 ikpy용 URDF, MuJoCo MJCF, 생성기(`make_arm_urdf.py`), IK 풀이 + 검증 스크립트로 구성된다.
 `arm.xml`에는 3손가락 손(6 hinge joint, `../src/mujoco_receiver.py`가 검지/중지/약지 curl 값으로
 손가락별 구동), 파지 대상 씬(좁은 받침 기둥 + freejoint 큐브, contact/마찰 활성), 13개 position
@@ -16,8 +16,8 @@ actuator가 있다 — `arm.urdf`/ikpy 체인에는 손이 포함되지 않으�
 |------|-------------|
 | `make_arm_urdf.py` | **생성기.** 최종 URDF를 읽어 `arm.urdf`, `arm.xml`, `meshes/`를 만든다. 튜닝 상수(파지 중심 `GRASP_CENTER_HAND`, 손가락3 회전각 `ROTATION_BASE_ANGLE`, 기둥/큐브 크기, 서보 게인, 접촉 `solref`)는 이 파일 상단에만 있다. 생성 파일은 직접 수정하지 말 것. |
 | `arm.urdf` | (생성) ikpy용 7-revolute 체인. 관절 순서: `shoulder_roll → shoulder_yaw → upper_arm_roll → elbow → wrist_pitch → wrist_yaw → hand_roll`. 모든 축은 로컬 z, 영점 자세는 팔이 아래로 늘어지며 손가락이 -z. `base_link`는 고정된 Shoulder_Pitch 프레임(기둥 오프셋은 `BASE_POS_WORLD`). `end_effector_link`는 손가락 사이 파지 중심이고 z축이 손가락 반대 방향 → 월드 +z와 정렬하면 손가락이 아래(palm-down). |
-| `arm.xml` | (생성) 같은 7관절 + 3손가락 손 + 바닥/기둥/큐브 + 13개 position actuator. 로봇 지지대 `column`은 `(0.50, 0, 0)`에 서 있고 어깨 프레임은 월드 `(0.34, 0, 0.85)`, 팔은 로컬 -x(월드 -x) 쪽으로 뻗는다. 큐브를 올려 둔 좁은 받침 기둥은 `pedestal`(`(0.12, 0, 0.125)`, 윗면 z=0.25)로 `column`과 다르다. 시각 메시는 OBJ(`meshes/`), 손가락 6개만 충돌(collision STL을 감싸는 박스, 환경변수 `JAX_FINGER_COLLISION=mesh`면 STL 그대로; 그룹 3, 뷰어에서 숨김). `nq == 20`(팔 7 + 손가락 6 + 큐브 7), `nu == 13`. |
-| `meshes/` | (생성) 최종 URDF의 DAE를 OBJ로 변환한 시각 메시 + 손가락 충돌 STL 6개. |
+| `arm.xml` | (생성) 같은 7관절 + 3손가락 손 + 바닥/기둥/큐브 + 13개 position actuator. 로봇 지지대 `column`(V3의 1.2 m 받침대, 그려지기만 함)은 `(0.49, 0, -0.3625)`에 있어 어깨 프레임이 월드 `(0.34, 0, 0.85)`에 오고, 팔은 로컬 -x(월드 -x) 쪽으로 뻗는다. 큐브를 올려 둔 좁은 받침 기둥은 `pedestal`(`(0.12, 0, 0.125)`, 윗면 z=0.25)로 `column`과 다르다. 시각 메시는 OBJ(`meshes/`), 손가락 6개만 충돌(collision STL을 감싸는 박스, 환경변수 `JAX_FINGER_COLLISION=mesh`면 STL 그대로; 그룹 3, 뷰어에서 숨김). `nq == 20`(팔 7 + 손가락 6 + 큐브 7), `nu == 13`. |
+| `meshes/` | (생성) 최종 URDF(V3)의 DAE를 OBJ로 변환한 시각 메시(파일 이름에 익스포터의 `_1`이 붙어 있음) + V2의 손가락 충돌 STL 6개. |
 | `ik.py` | ikpy로 world-space 목표(x,y,z)에 대한 IK를 풀고, 결과를 `arm.xml`에 적용해 `end_effector` site 오차를 검증. 손가락 관절은 건드리지 않음 — `apply_pose()`는 `qpos[:7]`만 씀. |
 
 ## For AI Agents
@@ -47,7 +47,8 @@ venv/bin/mjpython motion2/arm/ik.py --interactive       # 뷰어 + "x y z" 입�
 ## Dependencies
 
 ### Internal
-- `../../URDF_1006/JAXV2_Assembly_description/` — 생성기의 입력(최종 URDF + 메시). 이 폴더를 바꾸면 생성기를 다시 돌린다. URDF 관절 → 프로젝트 이름 대응표와 확인 절차는 `../../URDF_1006/JAXV2_Assembly_description/AGENTS.md`.
+- `../../URDF_1108/JAXV3_Assembly_description/` — 생성기의 입력(최종 URDF + 메시). 이 폴더를 바꾸면 생성기를 다시 돌린다. V2와 다른 점, URDF 관절 → 프로젝트 이름 대응표와 확인 절차는 `../../URDF_1108/JAXV3_Assembly_description/AGENTS.md`.
+- `../../URDF_1006/JAXV2_Assembly_description/` — 질량·관성과 손가락 충돌 STL의 출처(V2).
 - `../../CLAUDE.md` §2/§4 — 하드웨어 관절 순서 및 스펙 기준
 
 ### External

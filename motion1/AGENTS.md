@@ -32,14 +32,14 @@
 ### Working In This Directory
 - 실행은 저장소 루트에서 `venv/bin/python motion1/scripts/<script>.py` (뷰어는 `venv/bin/mjpython`). 스크립트가 `src/`를 스스로 찾는다.
 - 로봇 모델은 `../motion2/arm/make_arm_urdf.py`의 `robot_parts()`로 만든다(`assets.py`). 모델 상수는 그쪽 파일에서만 바꾼다.
-- 파지 상수(`FINGER_*`, `CUBE_GRIP`, `GRASP_DZ`, `HOME_ARM_QPOS`, 작업 영역)를 바꾸면 도달 맵을 다시 만든다: `scripts/build_reachmap.py`. 시그니처가 다르면 `env.py`가 경고한다.
+- 파지 상수(`FINGER_*`, `CUBE_GRIP`, `GRASP_DZ`, `HOME_ARM_QPOS`, 작업 영역)를 바꾸면 도달 맵을 다시 만든다: `scripts/build_reachmap.py`. 시그니처가 다르면 `env.py`가 경고한다. 시그니처는 `env.py` 상수만 보므로 로봇 모델(URDF, 생성기)을 바꿨을 때는 경고가 없다: 그때도 세 맵을 다시 만든다.
 - 배치는 `env.py`의 `SETUPS` 두 가지다: 기본 `sim`(어깨 0.85 m, 책상 0.25 m, 아래 성적의 기준)과 `JAX_SETUP=real`(실물: 어깨 회전축 1.2075 m, 책상 0.735 m, 손 40° 기울임, 도달 맵 `reachmap_real.npz`). 배치마다 `d`(어깨 회전축 → 책상 윗면, 실물은 CAD 472.5 mm라 실측값으로 바꿀 것), `cube_size`·`cube_mass`(실물 큐브 측정 전에는 50 mm, 0.05 kg)를 둔다. real의 상수를 바꾸면 `JAX_SETUP=real`로 홈 자세(`scripts/find_home.py`)와 도달 맵을 다시 만든다.
 - 큐브 회전은 `env.cube_yaw_max`(도, 기본 0)로 켠다. `classify_failures.py --yaw 45`가 회전까지 넣은 평가이고, 0이면 결과가 회전을 넣기 전과 같다. 실물 좌표의 큐브(위치 + 회전각)는 `scripts/run_real.py`로 시뮬을 돌려 관절 궤적을 만들고, 회전각별 도달 맵 `reachmap_real_yaw.npz`는 `JAX_SETUP=real`의 상수를 바꾸면 `build_reachmap.py --yaws -45 -30 -15 0 15 30`으로 다시 만든다.
 - 증상을 가리는 상수 조정보다 원인 구조를 고친다(`HARNESS.md`).
 
 ### Testing Requirements
 - `smoke_test.py`가 통과해야 한다. 컨트롤러 변경은 `classify_failures.py`로 배달 시드 0~99, 쌓기 `--stack` 시드 0~49를 다시 재고, 고정 레이아웃(`layouts.py`)으로 비교한다.
-- 현재 기준: 배달 68/100, 2단 39/50 (2026-11-04, 패드–큐브 마찰 0.4 실측, 운반 1 mm/step). 마찰 2.0이던 때는 100/100, 46/50 (2026-10-12, 2026-10-16에 다시 재서 같음). 실물 높이 배치(`JAX_SETUP=real`)는 지금 손으로 배달 2/100, 2단 0/50(큐브가 운반 중 빠짐, 손 교체 대기, `STATUS.md`).
+- 현재 기준: 배달 73/100, 2단 10/50 (2026-11-09, 최종 URDF V3, 패드–큐브 마찰 0.4 실측, 운반 1 mm/step). V2(`URDF_1006`)에서는 68/100, 39/50이었다. 2단은 고정 배치 하나(시드 24개)에 좌우되고 그 성패가 작은 변화로 뒤집힌다(`STATUS.md`). `run_tests.sh --full`의 기대값(68, 39)과 빠른 모드의 `m1_smoke` 2단·`m1_run_real` 예제는 사용자 결정 전까지 바꾸지 않아 지금 실패한다. 마찰 2.0이던 때는 100/100, 46/50 (2026-10-12, 2026-10-16에 다시 재서 같음). 실물 높이 배치(`JAX_SETUP=real`)는 지금 손으로 배달 2/100, 2단 0/50(큐브가 운반 중 빠짐, 손 교체 대기, `STATUS.md`).
 - 저장소 루트의 `./run_tests.sh`가 이 폴더에서 `smoke_test.py`, `tune_grasp.py`(g=0에서 패드 간격 89.7 mm), `layouts.py`, 고정 레이아웃 재생(`classify_failures.py --layouts`, 3개 중 2개 이상 배달), `render_frame.py`, 실물 높이 배치 확인(`m1_real_setup`: 어깨·책상 높이와 간격, 도달 맵이 최신인지), 실물 좌표 변환 확인(`m1_realcoords`: MuJoCo 없이 불러와지고, 지시서 숫자 추적과 같고, 상수가 env.py·모델과 맞는지)을 돌린다. `--full`이면 배달 시드 0~99(68개 이상), 쌓기 시드 0~49(39개 이상), `build_reachmap.py`가 저장된 맵과 같은 파일을 만드는지, 영상 2개(1920x1080)까지 확인한다.
 
 ### Common Patterns
@@ -47,7 +47,7 @@
 - 단계 마감시간 초과는 실패로 기록되고 복구 분기로 이어진다.
 
 ## Dependencies
-- Internal: `../motion2/arm/` (모델 생성기와 메시), `../URDF_1006/`
+- Internal: `../motion2/arm/` (모델 생성기와 메시), `../URDF_1108/` (최종 URDF), `../URDF_1006/` (질량·손가락 충돌)
 - External: `mujoco`, `gymnasium`, `numpy`, `scipy`, `imageio`(+ffmpeg), `pillow`
 
 <!-- MANUAL: -->

@@ -23,7 +23,7 @@
 ## For AI Agents
 
 ### Working In This Directory
-- `env.py`의 상수를 바꾸면 `reachmap.npz`를 다시 만들어야 한다(`map_signature()`가 어긋나면 경고).
+- `env.py`의 상수를 바꾸면 `reachmap.npz`를 다시 만들어야 한다(`map_signature()`가 어긋나면 경고). 로봇 모델(URDF, 생성기)이 바뀌어도 다시 만들어야 하는데, 시그니처에는 모델이 들어 있지 않아 경고가 나지 않는다.
 - 세 번째 큐브(3단)는 운반 높이(파지 중심 z≈0.39)에서 팔이 손가락을 아래로 유지하지 못해 불가능하다. `NOMINAL_SPOTS`를 늘려도 풀리지 않는다.
 - 손가락 1·2는 같은 각도로 묶여 있다(`COUPLE_FINGERS`). 판 기울기가 파지를 좌우하므로 `FINGER_OPEN/CLOSED`는 `scripts/tune_grasp.py`로 측정한 뒤 바꾼다.
 

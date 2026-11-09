@@ -1,9 +1,9 @@
-<!-- Generated: 2026-07-02 | Updated: 2026-10-26 -->
+<!-- Generated: 2026-07-02 | Updated: 2026-11-09 -->
 
 # 역운(逆運) — 휴머노이드 상체 로봇 프로젝트 (Team JAX)
 
 ## Purpose
-물건을 집어 목표 위치에 놓는 휴머노이드 상체 로봇의 소프트웨어 레포지토리. 팀의 최종 URDF(`URDF_1006`)를 원본으로, 두 개의 독립된 시뮬레이션 작업(동작 1, 동작 2)이 같은 로봇(7DOF 팔 + 3손가락 손)을 쓴다. 실제 하드웨어(STM32/Jetson/AK45)는 설계만 `CLAUDE.md`에 있고 코드는 아직 없다.
+물건을 집어 목표 위치에 놓는 휴머노이드 상체 로봇의 소프트웨어 레포지토리. 팀의 최종 URDF(`URDF_1108`, V3)를 원본으로, 두 개의 독립된 시뮬레이션 작업(동작 1, 동작 2)이 같은 로봇(7DOF 팔 + 3손가락 손)을 쓴다. 실제 하드웨어(STM32/Jetson/AK45)는 설계만 `CLAUDE.md`에 있고 코드는 아직 없다.
 
 ## Key Files
 | File | Description |
@@ -21,7 +21,8 @@
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `URDF_1006/` | 팀의 최종 URDF(CAD export). 두 동작이 공용하는 원본 (see `URDF_1006/AGENTS.md`) |
+| `URDF_1108/` | 팀의 최종 URDF(CAD export V3, 2026-11-08). 두 동작이 공용하는 원본 (see `URDF_1108/AGENTS.md`) |
+| `URDF_1006/` | 이전 export(V2). 생성기가 팔의 질량·관성과 손가락 충돌 STL을 아직 여기서 읽는다 (see `URDF_1006/AGENTS.md`) |
 | `motion1/` | 동작 1: 스크립트 상태기계로 50 mm 큐브를 집어 배달·2단 쌓기. (see `motion1/AGENTS.md`) |
 | `motion2/` | 동작 2: 웹캠 손 추적 텔레오퍼레이션(`src/`, `scripts/`, `models/`) + 팔 모델 생성기(`arm/`), 자체 README·STATUS (see `motion2/AGENTS.md`) |
 
@@ -29,6 +30,8 @@
 
 ```
 AGENTS.md
+├── URDF_1108/AGENTS.md
+│   └── JAXV3_Assembly_description/AGENTS.md
 ├── URDF_1006/AGENTS.md
 │   └── JAXV2_Assembly_description/AGENTS.md
 ├── motion1/AGENTS.md
@@ -40,12 +43,12 @@ AGENTS.md
     └── arm/AGENTS.md
 ```
 
-문서를 두지 않는 폴더: `AGENTS_files/`, `motion1/README_files/`(Quarto 렌더 부산물), `.omc/`·`.omo/`·`.claude/`(도구 상태·설정), `.vscode/`(편집기 설정), 생성물·데이터·산출물 폴더(`motion2/arm/meshes/`, `motion2/models/`, `motion1/artifacts/`, `URDF_1006/JAXV2_Assembly_description/` 아래의 `config/ docs/ images/ launch/ meshes/ rviz/ urdf/`).
+문서를 두지 않는 폴더: `AGENTS_files/`, `motion1/README_files/`(Quarto 렌더 부산물), `.omc/`·`.omo/`·`.claude/`(도구 상태·설정), `.vscode/`(편집기 설정), 생성물·데이터·산출물 폴더(`motion2/arm/meshes/`, `motion2/models/`, `motion1/artifacts/`, `URDF_1108/JAXV3_Assembly_description/`·`URDF_1006/JAXV2_Assembly_description/` 아래의 `config/ docs/ images/ launch/ meshes/ rviz/ urdf/`).
 
 ## For AI Agents
 
 ### Working In This Directory
-- 의존 방향은 `motion1 → motion2/arm/make_arm_urdf.py → URDF_1006` 하나뿐이다. motion2는 motion1을 import하지 않는다.
+- 의존 방향은 `motion1 → motion2/arm/make_arm_urdf.py → URDF_1108`(질량·손가락 충돌은 `URDF_1006`) 하나뿐이다. motion2는 motion1을 import하지 않는다.
 - Python은 항상 루트 `venv/bin/python`, macOS에서 MuJoCo 뷰어를 띄우는 스크립트는 `venv/bin/mjpython`. 패키지는 `venv/bin/python -m pip install`. 폴더를 옮기거나 이름을 바꾸면 `venv/bin/pip`·`mjpython` 등의 셔뱅이 깨진다(`STATUS.md` 참고).
 - 원격 저장소는 `origin` = <https://github.com/team-jax/IK>(`main`). 이전 `team-jax/CV_TEST2`는 `upstream`으로 남아 있다.
 - `motion1/`은 원래 `gyumingim/Humanoid_Grasp_RL`에서 개발했고 지금은 이 저장소(team-jax/IK)에 포함되어 있다. `motion1/`이 없는 클론에서도 `motion2/`는 그대로 동작한다.

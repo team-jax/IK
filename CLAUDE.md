@@ -26,12 +26,12 @@ STM32 펌웨어, Jetson/ROS 코드, 강화학습 구현 등은 아래 문서에 
 | 위치 | `motion1/` (구 `Humanoid_Grasp_RL/`, G1 버전은 그 저장소의 `g1-final` 태그) | `motion2/` (`src/` 프로그램 3개, `scripts/` 실행 래퍼·검사, `models/` MediaPipe 모델, `arm/` 모델 생성기·IK, 자체 `README.md`·`STATUS.md`) |
 | 내용 | 최종 URDF의 한 팔 + 3손가락 손이 책상 위 50mm 큐브를 집어 목표 지점에 놓기 (배달, 2단 쌓기) | 자체 제작 7DOF 팔 + 3손가락 그리퍼를 웹캠 손 추적으로 실시간 텔레오퍼레이션해 큐브 파지 (§0.2, §0.3) |
 | 제어 | 스크립트 상태기계 (`demonstration.py`) + 파지 중심 site에 대한 damped least-squares IK. RL은 중단됨 | ikpy IK + `<position>` actuator, UDP 3프로세스 파이프라인 |
-| 로봇 | 최종 URDF(`URDF_1006`)에서 `motion2/arm/make_arm_urdf.py`가 생성 — 동작 2와 같은 로봇 | 최종 URDF(`URDF_1006`)에서 생성한 `arm/arm.xml`·`arm/arm.urdf` (실제 제작 하드웨어와 대응) |
+| 로봇 | 최종 URDF(`URDF_1108`, V3)에서 `motion2/arm/make_arm_urdf.py`가 생성 — 동작 2와 같은 로봇 | 최종 URDF(`URDF_1108`, V3)에서 생성한 `arm/arm.xml`·`arm/arm.urdf` (실제 제작 하드웨어와 대응) |
 | 환경 | 루트 `venv/` (스크립트가 `src/`를 스스로 찾음, `PYTHONPATH` 불필요). 뷰어는 `venv/bin/mjpython`. 자체 `.venv/`는 선택(`pyproject.toml`) | 루트 `venv/` (Python 3.14, `motion2/scripts/run_*.sh`는 저장소 루트의 `venv/`를 사용) |
 | 문서 | `motion1/README.md`, `STATUS.md`, `HARNESS.md` (`CODE_REVIEW.md`는 G1 시절 검토라 폐기) | 이 파일 §0.1~§0.3, `motion2/README.md`·`STATUS.md` |
-| 상태 | 배달 68/100 (시드 0~99), 2단 39/50 (시드 0~49): 패드–큐브 마찰 0.4(실측)와 운반 1 mm/step 기준, 2026-11-04 측정, 완전 무작위 배치. 마찰 2.0이던 때는 100/100, 46/50. 큐브 회전 ±45°까지 넣으면(`classify_failures.py --yaw 45`) 배달 63/100, 2단 22/50(2026-11-05). 실물 좌표의 큐브(위치 + 회전각)는 `motion1/scripts/run_real.py`가 시뮬로 돌려 관절 궤적을 만들고 team-jax/SimToReal(ROS 2 Jazzy)이 실물로 재생한다. 3단은 팔 한계로 불가. 실물 높이 배치(바닥에서 어깨 회전축 1207.5 mm, 책상 735 mm, 로봇이 떠 있음)는 `JAX_SETUP=real`로 고른다. 지금 손으로는 손을 40° 기울여야 닿고 큐브가 운반 중 빠져 배달 2/100, 2단 0/50이라 그리퍼 변경을 검토 중(`motion1/STATUS.md`). 뷰어 육안 확인은 안 함 | 최종 URDF 기반 모델 생성, IK 수렴(0.00 mm), 화면 없는 시뮬레이션에서 큐브 파지·들어올리기 9/9(`check_grasp.py`, ±8 mm), UDP 파이프라인 전체 3/3(`check_teleop.py`). 실제 웹캠은 열리고 송신 루프가 27.8 fps로 돈다. 사람 추적과 육안 확인이 남음 |
+| 상태 | 최종 URDF V3(2026-11-09): 배달 73/100 (시드 0~99), 2단 10/50 (시드 0~49), 큐브 회전 ±45°까지 넣으면(`classify_failures.py --yaw 45`) 배달 53/100, 2단 17/50. 패드–큐브 마찰 0.4(실측)와 운반 1 mm/step 기준, 완전 무작위 배치. V2(`URDF_1006`)에서는 68/100, 39/50, 63/100, 22/50이었고 마찰 2.0이던 때는 100/100, 46/50. 2단은 시드 절반이 같은 고정 배치로 대체되고 그 성패가 작은 변화로 뒤집혀(V2에서도 HOME만 0.02 rad 미만 바꾸면 12/50) 크게 떨어졌다. `run_tests.sh`의 2단 관련 기대값은 사용자 결정 전까지 그대로라 지금 실패한다(`motion1/STATUS.md`). 실물 좌표의 큐브(위치 + 회전각)는 `motion1/scripts/run_real.py`가 시뮬로 돌려 관절 궤적을 만들고 team-jax/SimToReal(ROS 2 Jazzy)이 실물로 재생한다. 3단은 팔 한계로 불가. 실물 높이 배치(바닥에서 어깨 회전축 1207.5 mm, 책상 735 mm. V3 거치대는 어깨를 발에서 1212.5 mm 위에 두어 발이 바닥 5 mm 아래, 그려지기만 함)는 `JAX_SETUP=real`로 고른다. 지금 손으로는 손을 40° 기울여야 닿고 큐브가 운반 중 빠져 배달 2/100, 2단 0/50이라 그리퍼 변경을 검토 중(`motion1/STATUS.md`). 뷰어 육안 확인은 안 함 | 최종 URDF 기반 모델 생성, IK 수렴(0.00 mm), 화면 없는 시뮬레이션에서 큐브 파지·들어올리기 9/9(`check_grasp.py`, ±8 mm), UDP 파이프라인 전체 3/3(`check_teleop.py`). 실제 웹캠은 열리고 송신 루프가 27.8 fps로 돈다. 사람 추적과 육안 확인이 남음 |
 
-- `URDF_1006/`(리포 루트)은 팀의 **최종 URDF**(CAD export, `JAXV2_Assembly_description`)다. 동작 1/2 어느 쪽에도 속하지 않는 공용 원본이다. 동작 2는 `motion2/arm/make_arm_urdf.py`가 이 폴더를 읽어 모델을 생성한다(동작 1도 `motion1/src/.../assets.py`를 통해 같은 생성기를 쓴다).
+- `URDF_1108/`(리포 루트)은 팀의 **최종 URDF**(CAD export V3, `JAXV3_Assembly_description`, 2026-11-08)다. 동작 1/2 어느 쪽에도 속하지 않는 공용 원본이다. 동작 2는 `motion2/arm/make_arm_urdf.py`가 이 폴더를 읽어 모델을 생성한다(동작 1도 `motion1/src/.../assets.py`를 통해 같은 생성기를 쓴다). 이전 export `URDF_1006/`(V2)은 지우지 않았고, 생성기가 팔의 질량·관성과 손가락 충돌 STL을 아직 거기서 읽는다(V3의 질량은 CAD 재질 값이라 팀이 실제 팔을 잴 때까지, V3의 손가락 충돌은 부풀려진 원기둥이라). V3에서 축이 뒤집힌 두 관절(`shoulder_yaw`, `wrist_pitch`)은 모델에서 V2 부호로 되돌린다(`URDF_1108/JAXV3_Assembly_description/AGENTS.md`).
 - 원격 저장소는 `origin` = <https://github.com/team-jax/IK>(`main`)이다. 이전 `team-jax/CV_TEST2`는 `upstream`으로 남아 있다.
 - `motion1/`은 원래 `gyumingim/Humanoid_Grasp_RL`에서 개발했고 지금은 team-jax/IK에 포함되어 있다(그 저장소의 `main` d7a1f87 시점 + 당시 작업 트리 수정분). `motion1/` 없이도 동작 2는 그대로 돌아간다.
 - 동작 1 작업은 `motion1/README.md`, 동작 2 작업은 `motion2/README.md`를 기준으로 한다. 동작 1·2 모두 루트 `venv/`를 쓴다(예: `venv/bin/python motion1/scripts/smoke_test.py`). 동작 2의 상세는 아래 §0.1~§0.3.
@@ -64,8 +64,10 @@ be run under mjpython on macOS`가 발생하므로 venv에 함께 설치된 `mjp
 
 ### 0.2 `arm/` — 7DOF 팔 모델 + IK (Phase 2)
 
-팀의 **최종 URDF**(`URDF_1006/JAXV2_Assembly_description`, 어깨 2DOF + 상완회전 + 팔꿈치 + 손목 2DOF +
-손 회전 = 7DOF, 한 팔 기준, §2/§4 스펙)에서 생성한 한 팔 키네마틱 모델과 IK 데모.
+팀의 **최종 URDF**(`URDF_1108/JAXV3_Assembly_description`, 어깨 2DOF + 상완회전 + 팔꿈치 + 손목 2DOF +
+손 회전 = 7DOF, 한 팔 기준, §2/§4 스펙)에서 생성한 한 팔 키네마틱 모델과 IK 데모. 관절 범위(V2 부호):
+`shoulder_roll` ±45°, `shoulder_yaw` 0~50°, `upper_arm_roll` −90~240°, `elbow` ±100°, `wrist_pitch`·`wrist_yaw` ±90°,
+`hand_roll` ±120°.
 
 - `arm/make_arm_urdf.py` — **생성기.** 최종 URDF를 읽어 `arm.urdf`, `arm.xml`, `meshes/`를 만든다
   (`venv/bin/python motion2/arm/make_arm_urdf.py`). 파지 중심·손가락3 회전각·기둥/큐브 크기·서보 게인·
@@ -79,8 +81,8 @@ be run under mjpython on macOS`가 발생하므로 venv에 함께 설치된 `mjp
   palm-down 도달 영역은 높이에 따라 크게 달라서(z=0.25~0.34에서 넓고 0.38 이상은 중앙에서 불가)
   `mujoco_receiver.py`의 `WORKSPACE_*`가 그 영역에 맞춰져 있다. 상자 안에서도 한 번짜리 풀이가 다른 관절 가지로
   가면 손이 기울거나 해가 뛴다(`motion2/README.md`의 한계).
-- `arm/arm.xml` — 위 URDF와 같은 관절 순서/축/링크/질량을 갖는 MuJoCo MJCF(생성 파일). 외형은 DAE를 OBJ로
-  변환한 `arm/meshes/`, 손가락 충돌은 최종 URDF의 collision STL을 감싸는 박스(`JAX_FINGER_COLLISION` 환경변수, 그룹 3, 뷰어에서 숨김; `JAX_FINGER_COLLISION=mesh`로 생성하면 STL 그대로). 엔드 이펙터는
+- `arm/arm.xml` — 위 URDF와 같은 관절 순서/축/링크를 갖는 MuJoCo MJCF(생성 파일, 질량·관성은 V2 `URDF_1006` 값). 외형은 V3 DAE를 OBJ로
+  변환한 `arm/meshes/`, 손가락 충돌은 V2(`URDF_1006`)의 손가락 collision STL을 감싸는 박스(`JAX_FINGER_COLLISION` 환경변수, 그룹 3, 뷰어에서 숨김; `JAX_FINGER_COLLISION=mesh`로 생성하면 STL 그대로). 엔드 이펙터는
   `end_effector` site. 3손가락 손(손가락당 hinge 2개 = 관절 6개), 좁은 받침 기둥(윗면 z=0.25) 위의 30 mm
   큐브(freejoint), 바닥 plane, 팔 7관절 + 손가락 6관절을 구동하는 `<position>` actuator 13개.
   손가락 3의 배치 회전(`hand_base_to_rotation_base`)은 -π에 고정되어 손가락 1·2와 마주 본다. qpos 배치는
