@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="JAXV3_Assembly">
+
+  <!-- Materials (shared across all assemblies) -->
+  <material name="Steel">
+    <color rgba="0.627 0.627 0.627 1.0"/>
+  </material>
+  <material name="Acetal_Resin_White">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+  <material name="Generic">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+
+  <!-- Assembly includes -->
+  <xacro:include filename="$(find JAXV3_Assembly_description)/urdf/assemblies/JAXV3_Assembly.urdf.xacro"/>
+
+  <!-- Instantiate assemblies -->
+  <xacro:JAXV3_Assembly prefix=""/>
+
+</robot>

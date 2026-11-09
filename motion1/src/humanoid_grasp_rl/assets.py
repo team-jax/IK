@@ -1,4 +1,4 @@
-"""The robot: the team's final URDF (URDF_1006/JAXV2_Assembly), through motion2's generator.
+"""The robot: the team's final URDF (URDF_1108/JAXV3_Assembly), through motion2's generator.
 
 motion1 and motion2 drive the same arm and hand, so the model is written once, by
 motion2/arm/make_arm_urdf.py, and each motion composes its own scene from the pieces it
@@ -41,12 +41,14 @@ def _generator():
 
 def robot_parts(finger_sliding_friction: float | None = None, shoulder_z: float | None = None) -> RobotParts:
     """The robot's pieces; `finger_sliding_friction` replaces the pads' sliding coefficient (the
-    generator's torsional and rolling values are kept), and `shoulder_z` raises the whole robot,
-    stand included, until its shoulder frame is that high (the stand then floats above the floor)."""
+    generator's torsional and rolling values are kept), and `shoulder_z` moves the whole robot,
+    stand included, until its shoulder frame is that high. V3's stand puts the shoulder frame
+    1.2125 m above its foot, so at the measured 1.2075 m the foot is 5 mm below the floor, and at the
+    sim setup's height far below it: the stand is only drawn and collides with nothing."""
     gen = _generator()
     if finger_sliding_friction is not None:
         gen.FINGER_FRICTION = " ".join([f"{finger_sliding_friction:g}"] + gen.FINGER_FRICTION.split()[1:])
-    urdf = gen.Urdf(gen.SRC)
+    urdf = gen.load()
     if not (Path(gen.MESH_DIR) / "base_link.obj").is_file():
         gen.prepare_meshes(urdf)
     base = tuple(gen.BASE_LINK_WORLD)

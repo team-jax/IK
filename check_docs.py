@@ -12,7 +12,8 @@ import sys
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 DOCS = ["README.md", "STATUS.md", "CLAUDE.md", "AGENTS.md", "haness.md", "URDF_1006/AGENTS.md",
-        "URDF_1006/JAXV2_Assembly_description/AGENTS.md", "motion1/README.md", "motion1/AGENTS.md", "motion1/HARNESS.md", "motion1/STATUS.md",
+        "URDF_1006/JAXV2_Assembly_description/AGENTS.md", "URDF_1108/AGENTS.md",
+        "URDF_1108/JAXV3_Assembly_description/AGENTS.md", "motion1/README.md", "motion1/AGENTS.md", "motion1/HARNESS.md", "motion1/STATUS.md",
         "motion1/scripts/AGENTS.md", "motion1/src/humanoid_grasp_rl/AGENTS.md",
         "motion2/README.md", "motion2/STATUS.md", "motion2/AGENTS.md", "motion2/src/AGENTS.md",
         "motion2/scripts/AGENTS.md", "motion2/arm/AGENTS.md",
@@ -31,7 +32,8 @@ MOTION1_ONLY = {"mj_jacSite", "CODE_REVIEW.md", "HARNESS.md", "demonstration.py"
                 "watch_grasp.py", "tune_grasp.py", "classify_failures.py", "env.py", "CUBE_GRIP",
                 "LIFT_REQUIRED", "JAX_ARM_DIR"}
 BASES = [".", "motion1", "motion2", "motion2/src", "motion2/scripts", "motion2/models", "motion2/arm",
-         "motion1/scripts", "motion1/src/humanoid_grasp_rl", "URDF_1006", "URDF_1006/JAXV2_Assembly_description"]
+         "motion1/scripts", "motion1/src/humanoid_grasp_rl", "URDF_1006", "URDF_1006/JAXV2_Assembly_description",
+         "URDF_1108", "URDF_1108/JAXV3_Assembly_description"]
 
 code = ""
 for dirpath, dirnames, filenames in os.walk("."):
@@ -40,7 +42,7 @@ for dirpath, dirnames, filenames in os.walk("."):
         if name.endswith((".py", ".sh", ".xml", ".urdf", ".toml")):
             code += open(os.path.join(dirpath, name), encoding="utf-8", errors="ignore").read() + "\n"
 
-CMD_PATH = re.compile(r"(?<![\w./-])((?:motion1|motion2|URDF_1006|venv)/[\w./-]+|\./run_tests\.sh)")
+CMD_PATH = re.compile(r"(?<![\w./-])((?:motion1|motion2|URDF_1006|URDF_1108|venv)/[\w./-]+|\./run_tests\.sh)")
 problems = [(d, "missing", "document") for d in MISSING]
 for doc in DOCS:
     text = open(doc, encoding="utf-8").read()

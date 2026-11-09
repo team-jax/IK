@@ -1,6 +1,7 @@
-"""Regenerate the IK chain and MuJoCo scene from the team's final URDF (URDF_1006/JAXV2_Assembly).
+"""Regenerate the IK chain and MuJoCo scene from the team's final URDF (URDF_1108/JAXV3_Assembly).
 
-Reads ../../URDF_1006/JAXV2_Assembly_description/urdf/JAXV2_Assembly.urdf and writes
+Reads ../../URDF_1108/JAXV3_Assembly_description/urdf/JAXV3_Assembly.urdf (the arm's masses and
+the finger collision shapes from ../../URDF_1006, see load()) and writes
   arm.urdf   - 7-revolute-joint chain for ikpy (base_link = the fixed Shoulder_Pitch frame)
   arm.xml    - MuJoCo MJCF: the full arm + 3-finger hand, pedestal, cube, 13 position actuators
   meshes/    - OBJ visuals (converted from Collada) and the finger collision STLs
@@ -19,9 +20,14 @@ import numpy as np
 from scipy.spatial.transform import Rotation as Rot
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PKG = os.path.join(HERE, "..", "..", "URDF_1006", "JAXV2_Assembly_description")
-SRC = os.path.join(PKG, "urdf", "JAXV2_Assembly.urdf")
-SRC_MESH = os.path.join(PKG, "meshes", "JAXV2_Assembly")
+PKG = os.path.join(HERE, "..", "..", "URDF_1108", "JAXV3_Assembly_description")
+SRC = os.path.join(PKG, "urdf", "JAXV3_Assembly.urdf")
+SRC_MESH = os.path.join(PKG, "meshes", "JAXV3_Assembly")
+# The previous export (URDF_1006, V2). The masses/inertias and the finger collision STLs still come
+# from it (load()).
+V2_PKG = os.path.join(HERE, "..", "..", "URDF_1006", "JAXV2_Assembly_description")
+V2_SRC = os.path.join(V2_PKG, "urdf", "JAXV2_Assembly.urdf")
+V2_MESH = os.path.join(V2_PKG, "meshes", "JAXV2_Assembly")
 OUT_URDF = os.path.join(HERE, "arm.urdf")
 OUT_XML = os.path.join(HERE, "arm.xml")
 MESH_DIR = os.path.join(HERE, "meshes")
@@ -44,14 +50,34 @@ FINGER_JOINTS = [
 ]
 FINGER_LINKS = ["Finger_1_1", "Finger_1_2", "Finger_2_1", "Finger_2_2", "Finger_3_1", "Finger_3_2"]
 
+# --- What load() takes from the V3 export, and what it keeps from V2 ------------------------------
+# V3 gives the joint origins, limits and visual meshes. Four things are adapted:
+#  - Its exporter appends "_1" to every link name but base_link (Shoulder_Pitch_1, Finger_1_1_1):
+#    stripped, so the MJCF keeps the body names motion1 and motion2 refer to.
+LINK_SUFFIX = "_1"
+#  - V3 turns these two joints' frames 180 deg about their x axis, so the axis points the other way
+#    and the limits are negated (shoulder yaw -50..0 deg where V2 had 0..45). The child link is
+#    re-expressed in V2's orientation instead: every joint still turns about its local +z with V2's
+#    sign, which the IK seed, motion1's poses and reach maps and the teammates' Isaac policies
+#    (JaxIsaacLab JAXV3_Assembly.urdf flips the same two) are written in. On the original V3 URDF
+#    these two joints read the negative of the model's angle.
+FLIPPED_JOINTS = ("shoulder_roll_to_shoulder_yaw", "under_arm_to_wrist_pitch")
+#  - Masses and inertias stay V2's: V3's are CAD material values (about 1.8 kg for the arm where
+#    V2 has 4.1 kg) that the team has not confirmed by weighing the arm.
+#  - The finger collision STLs stay V2's: V3's are the exporter's primitives, bloated (a finger's
+#    first link 5 cm thick for a 1.6 cm plate), and V3's finger links are V2's parts in V2's frames.
+
 # --- Hand / grasp frame -------------------------------------------------------------------------
 # The MG996R (hand) frame has +z pointing back up the forearm and the three fingers extending
 # along -z. The end effector is the grasp center in that frame, with its z axis opposite to the
 # fingers, so "palm down" means end-frame z == world +z (the convention mujoco_receiver.py's IK
 # relies on). The finger plates are thin in the hand x axis, so the opening gap is along x.
 # Grasp center: midway between the finger-1/2 plane (x~-0.02) and finger 3 once it is swung to
-# the far side, at the height where the proximal links meet the cube.
-GRASP_CENTER_HAND = (0.002, -0.001, -0.17)
+# the far side, at the height where the proximal links meet the cube. It moves with the fingers:
+# V3 puts them 3.5 mm nearer the wrist than V2 did (z -0.17 -> -0.1665) and finger 2 3 mm further
+# from finger 1, so the pair's middle moves 1.5 mm in y (-0.001 -> 0.0005). Left at V2's place,
+# check_grasp.py lifted 0 of 9 cubes; with z alone 8 of 9; with both 9 of 9 (2026-11-09).
+GRASP_CENTER_HAND = (0.002, 0.0005, -0.1665)
 # Yaw of the end frame about the hand z axis, so a palm-down pose can put the finger gap along a
 # convenient world direction without changing the arm's own joint range.
 END_YAW = 0.0
@@ -60,10 +86,13 @@ END_YAW = 0.0
 ROTATION_BASE_ANGLE = -3.141593
 
 # --- Scene --------------------------------------------------------------------------------------
-# base_link (the column) stands on the floor at this world position; the shoulder frame sits at
-# (-0.16, 0, 0.85) from it. The arm reaches toward local -x, so the pedestal is placed at -x.
-BASE_LINK_WORLD = (0.50, 0.0, 0.0)
-SHOULDER_OFFSET = (-0.16, 0.0, 0.85)   # base_link_to_shoulder_pitch in the URDF
+# base_link (the stand) is placed at this world position; the shoulder frame sits at
+# (-0.15, 0, 1.2125) from it. That puts the shoulder frame at (0.34, 0, 0.85), where this scene and
+# arm/ik.py's BASE_POS_WORLD have it, so V3's 1.2 m stand reaches 0.3625 m below the floor (it is
+# only drawn: the stand collides with nothing). The arm reaches toward local -x, so the pedestal is
+# placed at -x.
+BASE_LINK_WORLD = (0.49, 0.0, -0.3625)
+SHOULDER_OFFSET = (-0.15, 0.0, 1.2125)   # base_link_to_shoulder_pitch in the URDF (load() checks it)
 CUBE_HALF = 0.015
 PEDESTAL_POS_XY = (0.12, 0.0)
 PEDESTAL_HALF_XY = 0.014   # a post narrower than the cube, so the fingers can reach below its bottom face
@@ -116,17 +145,72 @@ def _fmt(values):
     return " ".join(f"{v:.9g}" for v in values)
 
 
+def _set_origin(elem, xyz, rotation):
+    o = elem.find("origin")
+    if o is None:
+        o = ET.SubElement(elem, "origin")
+    o.set("xyz", _fmt(xyz))
+    o.set("rpy", _fmt(rotation.as_euler("xyz")))
+
+
 class Urdf:
-    def __init__(self, path):
-        root = ET.parse(path).getroot()
-        self.links = {l.get("name"): l for l in root.findall("link")}
-        self.joints = {j.get("name"): j for j in root.findall("joint")}
+    """A parsed URDF. `inertia_from` and `collision_from` (another Urdf, with the directory holding
+    its collision meshes) supply the inertials and the finger collision meshes instead of this one."""
+
+    def __init__(self, path, inertia_from=None, collision_from=None):
+        self.root = ET.parse(path).getroot()
+        self.inertia_from = inertia_from
+        self.collision_from = collision_from or (self, SRC_MESH)
+        self._index()
+
+    def _index(self):
+        self.links = {l.get("name"): l for l in self.root.findall("link")}
+        self.joints = {j.get("name"): j for j in self.root.findall("joint")}
         self.children = {}
         for j in self.joints.values():
             self.children.setdefault(j.find("parent").get("link"), []).append(j)
 
+    def strip_link_suffix(self, suffix):
+        """Drop `suffix` from every link name that ends with it (and from the joints naming them)."""
+        def stripped(name):
+            return name[:-len(suffix)] if name.endswith(suffix) else name
+        for link in self.root.findall("link"):
+            link.set("name", stripped(link.get("name")))
+        for joint in self.root.findall("joint"):
+            for end in ("parent", "child"):
+                joint.find(end).set("link", stripped(joint.find(end).get("link")))
+        self._index()
+
+    def flip_child_frame(self, joint):
+        """Turn `joint`'s child link frame 180 deg about its x axis. The joint's +z axis then points
+        the other way (so its limits negate), and whatever is given in the child frame (its inertial,
+        visual and collision origins, the next joints' origins) is re-expressed so nothing moves."""
+        flip = Rot.from_quat([1.0, 0.0, 0.0, 0.0])   # exactly 180 deg about x (scipy order x, y, z, w)
+        negate_yz = np.array([1.0, -1.0, -1.0])        # the same turn on a point (+ 0.0 below: no "-0")
+        j = self.joints[joint]
+        xyz, rpy = _origin(j)
+        _set_origin(j, xyz, Rot.from_euler("xyz", rpy) * flip)
+        lower, upper = self.limits(joint)
+        j.find("limit").set("lower", f"{-upper + 0.0:.9g}")   # + 0.0: no "-0"
+        j.find("limit").set("upper", f"{-lower + 0.0:.9g}")
+        child = j.find("child").get("link")
+        for i in self.links[child].findall("inertial"):   # y and z negate: so do ixy and ixz
+            xyz, rpy = _origin(i)
+            assert not np.any(rpy), f"{child}: a rotated inertial frame is not handled"
+            i.find("origin").set("xyz", _fmt(negate_yz * xyz + 0.0))
+            for k in ("ixy", "ixz"):
+                i.find("inertia").set(k, f"{-float(i.find('inertia').get(k)):.9g}")
+        for kind in ("visual", "collision"):
+            for g in self.links[child].findall(kind):
+                xyz, rpy = _origin(g)
+                _set_origin(g, negate_yz * xyz + 0.0, flip * Rot.from_euler("xyz", rpy))
+        for k in self.children.get(child, []):
+            xyz, rpy = _origin(k)
+            _set_origin(k, negate_yz * xyz + 0.0, flip * Rot.from_euler("xyz", rpy))
+
     def inertial(self, link):
-        i = self.links[link].find("inertial")
+        src = self.inertia_from or self
+        i = src.links[link].find("inertial")
         pos, _ = _origin(i)
         m = float(i.find("mass").get("value"))
         t = i.find("inertia")
@@ -147,6 +231,37 @@ class Urdf:
         pos, rpy = _origin(g)
         mesh = g.find("geometry/mesh")
         return pos, rpy, os.path.basename(mesh.get("filename")), mesh.get("scale")
+
+    def finger_collision(self, link):
+        """(pos, rpy, mesh file path, scale) of a finger link's collision mesh."""
+        src, mesh_dir = self.collision_from
+        pos, rpy, name, scale = src.geom(link, "collision")
+        return pos, rpy, os.path.join(mesh_dir, name), scale
+
+
+def load():
+    """The robot as this generator models it: URDF_1108 (V3) with V2's masses and finger collision
+    meshes, link names without the exporter's suffix and V2's joint signs (see FLIPPED_JOINTS)."""
+    v2 = Urdf(V2_SRC)
+    urdf = Urdf(SRC, inertia_from=v2, collision_from=(v2, V2_MESH))
+    urdf.strip_link_suffix(LINK_SUFFIX)
+    for joint in FLIPPED_JOINTS:
+        urdf.flip_child_frame(joint)
+    missing = [l for l in urdf.links if l not in v2.links and l in _moving_links(urdf)]
+    assert not missing, f"no V2 inertial for {missing}"
+    offset, _ = urdf.joint_frame("base_link_to_shoulder_pitch")
+    assert np.allclose(offset, SHOULDER_OFFSET), f"SHOULDER_OFFSET {SHOULDER_OFFSET} != URDF {offset}"
+    return urdf
+
+
+def _moving_links(urdf):
+    """Shoulder_Pitch and everything below it: the links the scene gives an inertial."""
+    out, todo = [], ["Shoulder_Pitch"]
+    while todo:
+        link = todo.pop()
+        out.append(link)
+        todo += [j.find("child").get("link") for j in urdf.children.get(link, [])]
+    return out
 
 
 # ------------------------------------------------------------------------------------------------
@@ -196,8 +311,8 @@ def prepare_meshes(urdf):
             convert_dae_to_obj(os.path.join(SRC_MESH, name),
                                os.path.join(MESH_DIR, name.replace(".dae", ".obj")))
     for link in FINGER_LINKS:
-        name = urdf.geom(link, "collision")[2]
-        shutil.copy(os.path.join(SRC_MESH, name), os.path.join(MESH_DIR, name))
+        path = urdf.finger_collision(link)[2]
+        shutil.copy(path, os.path.join(MESH_DIR, os.path.basename(path)))
 
 
 # ------------------------------------------------------------------------------------------------
@@ -206,8 +321,8 @@ def prepare_meshes(urdf):
 def write_ik_urdf(urdf):
     end_rpy = (0.0, 0.0, END_YAW)
     out = [f"""<?xml version="1.0"?>
-<!-- GENERATED by arm/make_arm_urdf.py from URDF_1006/JAXV2_Assembly_description — do not hand-edit.
-  7-DOF arm chain for ikpy. Every joint rotates about its local z; zero pose hangs straight down.
+<!-- GENERATED by arm/make_arm_urdf.py from URDF_1108/JAXV3_Assembly_description (masses from URDF_1006)
+  — do not hand-edit. 7-DOF arm chain for ikpy. Every joint rotates about its local z; zero pose hangs straight down.
   base_link is the fixed Shoulder_Pitch frame (the column's own offset lives in BASE_POS_WORLD,
   arm/ik.py). end_effector_link = grasp center between the fingers, z opposite to the finger
   direction, so z == world +z means fingers straight down (the palm-down convention
@@ -260,8 +375,8 @@ def build_assets(urdf):
     for link in FINGER_LINKS:
         if FINGER_COLLISION == "box":
             continue
-        name = urdf.geom(link, "collision")[2]
-        lines.append(f'    <mesh name="{_mesh_name(link, "collision")}" file="{name}" scale="0.01 0.01 0.01"/>')
+        _, _, path, scale = urdf.finger_collision(link)
+        lines.append(f'    <mesh name="{_mesh_name(link, "collision")}" file="{os.path.basename(path)}" scale="{scale}"/>')
     return "\n".join(lines)
 
 
@@ -285,8 +400,8 @@ def _stl_points(path):
 
 def _collision_box(urdf, link):
     """(pos, quat, half sizes) of the box around a link's collision STL, in the link's frame."""
-    pos, rpy, name, scale = urdf.geom(link, "collision")
-    points = _stl_points(os.path.join(SRC_MESH, name)) * float(scale.split()[0])
+    pos, rpy, path, scale = urdf.finger_collision(link)
+    points = _stl_points(path) * float(scale.split()[0])
     low, high = points.min(axis=0), points.max(axis=0)
     rotation = Rot.from_euler("xyz", rpy)
     return pos + rotation.apply((low + high) / 2), _quat_wxyz(rpy), (high - low) / 2
@@ -312,7 +427,7 @@ def _geoms(urdf, link, indent):
             lines.append(f'{pad}<geom name="{link}_collision_geom" type="box" size="{_fmt(half)}" '
                          f'pos="{_fmt(pos)}" quat="{_fmt(quat)}" {contact}/>')
         else:
-            pos, rpy, _, _ = urdf.geom(link, "collision")
+            pos, rpy, _, _ = urdf.finger_collision(link)
             lines.append(f'{pad}<geom name="{link}_collision_geom" type="mesh" mesh="{_mesh_name(link, "collision")}" '
                          f'pos="{_fmt(pos)}" quat="{_fmt(_quat_wxyz(rpy))}" {contact}/>')  # group 3: hidden in the viewer
     return lines
@@ -376,6 +491,15 @@ def robot_parts(urdf, base_link_world=BASE_LINK_WORLD):
     base_geoms = "\n".join(_geoms(urdf, "base_link", 6))
     sp_geoms = "\n".join(_geoms(urdf, "Shoulder_Pitch", 8))
     spos, smass, sfull = urdf.inertial("Shoulder_Pitch")
+    # Other parts fixed to the stand (V3's Holder): drawn only, no inertial or collision. Last in
+    # the column, so the arm's body and geom ids stay as they were.
+    fixed_lines = []
+    for j in urdf.children.get("base_link", []):
+        if j.get("name") != "base_link_to_shoulder_pitch":
+            link = j.find("child").get("link")
+            xyz, rpy = urdf.joint_frame(j.get("name"))
+            fixed_lines += [f'      <body name="{link}" pos="{_fmt(xyz)}" quat="{_fmt(_quat_wxyz(rpy))}">',
+                            *_geoms(urdf, link, 8), "      </body>"]
     column = f"""    <body name="column" pos="{_fmt(np.array(base_link_world))}">
 {base_geoms}
       <body name="base_link" pos="{_fmt(SHOULDER_OFFSET)}">
@@ -383,6 +507,7 @@ def robot_parts(urdf, base_link_world=BASE_LINK_WORLD):
 {sp_geoms}
 {chr(10).join(shoulder_lines)}
       </body>
+{chr(10).join(fixed_lines)}
     </body>"""
     arm_acts = "\n".join(
         f'    <position name="{n}_act" joint="{n}" kp="{ARM_KP}" kv="{ARM_KV}" '
@@ -400,8 +525,8 @@ def write_mjcf(urdf):
     cube_z = PEDESTAL_TOP_Z + CUBE_HALF
     px, py = PEDESTAL_POS_XY
     xml = f"""<mujoco model="upper_arm">
-  <!-- GENERATED by arm/make_arm_urdf.py from URDF_1006/JAXV2_Assembly_description — do not hand-edit.
-    Grasping scene. The 7 arm joints mirror arm/arm.urdf (same joint order, frames, limits) so
+  <!-- GENERATED by arm/make_arm_urdf.py from URDF_1108/JAXV3_Assembly_description (masses and finger
+    collision meshes from URDF_1006) — do not hand-edit. Grasping scene. The 7 arm joints mirror arm/arm.urdf (same joint order, frames, limits) so
     angles solved by ikpy map 1:1 onto qpos[0:7] — see arm/ik.py. The hand adds 6 driven finger
     hinges (qpos[7:13]); finger 3's spacing joint is held fixed (ROTATION_BASE_ANGLE). The graspable
     cube is a freejoint (qpos[13:20]); 13 position actuators are driven by mujoco_receiver.py. -->
@@ -449,7 +574,7 @@ def write_mjcf(urdf):
 
 
 def main():
-    urdf = Urdf(SRC)
+    urdf = load()
     prepare_meshes(urdf)
     write_ik_urdf(urdf)
     write_mjcf(urdf)

@@ -1,0 +1,29 @@
+# Generated ros2_control controllers
+# Publishes joint states on: /joint_states
+# Command topics use: /<controller_name>/commands
+/**:
+  controller_manager:
+    ros__parameters:
+      update_rate: 100
+
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+      position_controller:
+        type: forward_command_controller/ForwardCommandController
+      velocity_controller:
+        type: forward_command_controller/ForwardCommandController
+
+  joint_state_broadcaster:
+    ros__parameters: {}
+
+  # Command topic: /position_controller/commands
+  position_controller:
+    ros__parameters:
+      joints: [finger_1_1_to_finger_1_2, finger_1_2_to_finger_2_2, finger_3_1_to_finger_3_2, hand_base_to_finger_1_1, hand_base_to_finger_2_1, hand_base_to_rotation_base, rotation_base_to_finger_3_1, shoulder_pitch_to_shoulder_roll, shoulder_roll_to_shoulder_yaw, shoulder_yaw_to_upper_arm, under_arm_to_wrist_pitch, upper_arm_to_under_arm, wrist_pitch_to_wrist_yaw, wrist_yaw_to_hand_base]
+      interface_name: position
+
+  # Command topic: /velocity_controller/commands
+  velocity_controller:
+    ros__parameters:
+      joints: [finger_1_1_to_finger_1_2, finger_1_2_to_finger_2_2, finger_3_1_to_finger_3_2, hand_base_to_finger_1_1, hand_base_to_finger_2_1, hand_base_to_rotation_base, rotation_base_to_finger_3_1, shoulder_pitch_to_shoulder_roll, shoulder_roll_to_shoulder_yaw, shoulder_yaw_to_upper_arm, under_arm_to_wrist_pitch, upper_arm_to_under_arm, wrist_pitch_to_wrist_yaw, wrist_yaw_to_hand_base]
+      interface_name: velocity

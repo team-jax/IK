@@ -1,0 +1,649 @@
+<?xml version="1.0"?>
+<robot name="JAXV3_Assembly">
+
+  <!-- Materials -->
+  <material name="Steel">
+    <color rgba="0.627 0.627 0.627 1.0"/>
+  </material>
+  <material name="Acetal_Resin_White">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+  <material name="Generic">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.055017 0.000000 0.331791" rpy="0 0 0"/>
+      <mass value="137.266081"/>
+      <inertia ixx="2.575008e+01" ixy="0.000000e+00" ixz="-1.895989e+00"
+               iyy="2.387286e+01" iyz="0.000000e+00" izz="6.588692e+00"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/base_link.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/base_link_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Shoulder_Pitch_1">
+    <inertial>
+      <origin xyz="-0.025919 0.000000 0.000254" rpy="0 0 0"/>
+      <mass value="0.945323"/>
+      <inertia ixx="3.526088e-04" ixy="0.000000e+00" ixz="-4.945399e-06"
+               iyy="3.789174e-04" iyz="0.000000e+00" izz="3.842486e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Shoulder_Pitch_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Shoulder_Pitch_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Holder_1">
+    <inertial>
+      <origin xyz="0.191681 -0.014898 0.032704" rpy="0 0 0"/>
+      <mass value="3.331140"/>
+      <inertia ixx="1.734710e-02" ixy="1.486348e-03" ixz="-2.128939e-04"
+               iyy="4.873273e-03" iyz="-2.937509e-03" izz="1.666697e-02"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Holder_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Holder_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Shoulder_Roll_1">
+    <inertial>
+      <origin xyz="0.006736 -0.000116 0.041627" rpy="0 0 0"/>
+      <mass value="0.262799"/>
+      <inertia ixx="2.438658e-04" ixy="4.725397e-07" ixz="-9.712209e-06"
+               iyy="2.386309e-04" iyz="2.560602e-07" izz="1.815925e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Shoulder_Roll_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Shoulder_Roll_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Shoulder_Yaw_1">
+    <inertial>
+      <origin xyz="-0.000000 -0.066867 -0.014142" rpy="0 0 0"/>
+      <mass value="0.320456"/>
+      <inertia ixx="6.510216e-04" ixy="1.467003e-11" ixz="8.632501e-12"
+               iyy="2.696023e-04" iyz="-1.666095e-04" izz="6.394572e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.004500" rpy="-1.570796 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Shoulder_Yaw_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.004500" rpy="-1.570796 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Shoulder_Yaw_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Upper_Arm_1">
+    <inertial>
+      <origin xyz="0.009753 0.000235 0.085336" rpy="0 0 0"/>
+      <mass value="0.359402"/>
+      <inertia ixx="1.105148e-03" ixy="-1.458579e-06" ixz="-4.585630e-05"
+               iyy="1.087478e-03" iyz="-3.741028e-06" izz="3.229561e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="3.141593 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Upper_Arm_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="3.141593 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Upper_Arm_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Under_Arm_1">
+    <inertial>
+      <origin xyz="0.004585 0.057220 -0.010887" rpy="0 0 0"/>
+      <mass value="0.331919"/>
+      <inertia ixx="5.029360e-04" ixy="-3.480238e-05" ixz="8.832085e-06"
+               iyy="2.829254e-04" iyz="8.655003e-05" izz="5.239298e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 -0.000003 0.000000" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Under_Arm_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 -0.000003 0.000000" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Under_Arm_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Wrist_Pitch_1">
+    <inertial>
+      <origin xyz="0.009082 -0.002213 0.042135" rpy="0 0 0"/>
+      <mass value="0.189235"/>
+      <inertia ixx="3.036172e-04" ixy="2.101562e-06" ixz="-3.435637e-05"
+               iyy="2.721912e-04" iyz="1.130097e-05" izz="1.661101e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-3.141593 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Wrist_Pitch_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-3.141593 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Wrist_Pitch_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Wrist_yaw_1">
+    <inertial>
+      <origin xyz="-0.000000 0.032449 -0.004118" rpy="0 0 0"/>
+      <mass value="0.145699"/>
+      <inertia ixx="2.545399e-04" ixy="4.872936e-10" ixz="2.614622e-10"
+               iyy="1.103873e-04" iyz="6.162241e-05" izz="2.623350e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Wrist_yaw_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Wrist_yaw_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="MG996R_1">
+    <inertial>
+      <origin xyz="-0.010774 0.005867 -0.032163" rpy="0 0 0"/>
+      <mass value="0.099465"/>
+      <inertia ixx="7.803347e-05" ixy="1.050235e-06" ixz="-8.745155e-06"
+               iyy="4.395029e-05" iyz="2.492857e-06" izz="5.885032e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.013500 0.009165 -0.053571" rpy="-3.141593 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/MG996R_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Generic"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.013500 0.009165 -0.053571" rpy="-3.141593 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/MG996R_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="RotationBody_1">
+    <inertial>
+      <origin xyz="-0.019866 0.021115 0.000775" rpy="0 0 0"/>
+      <mass value="0.023314"/>
+      <inertia ixx="8.864326e-06" ixy="2.066119e-07" ixz="6.097483e-08"
+               iyy="7.945382e-06" iyz="-7.658235e-07" izz="2.101975e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.015500 0.034603 0.010897" rpy="-3.141593 -1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/RotationBody_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.015500 0.034603 0.010897" rpy="-3.141593 -1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/RotationBody_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Finger_1_1_1">
+    <inertial>
+      <origin xyz="-0.000017 -0.041052 -0.016849" rpy="0 0 0"/>
+      <mass value="0.020271"/>
+      <inertia ixx="7.911076e-06" ixy="4.618794e-09" ixz="-2.310812e-09"
+               iyy="2.084078e-06" iyz="-1.150961e-06" izz="6.364432e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.006500 0.015250 -0.042800" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_1_1_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.006500 0.015250 -0.042800" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_1_1_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Finger_2_1_1">
+    <inertial>
+      <origin xyz="-0.000017 -0.041052 -0.016849" rpy="0 0 0"/>
+      <mass value="0.020271"/>
+      <inertia ixx="7.911077e-06" ixy="4.618794e-09" ixz="-2.310714e-09"
+               iyy="2.084078e-06" iyz="-1.150960e-06" izz="6.364432e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.006500 0.015250 -0.005800" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_2_1_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.006500 0.015250 -0.005800" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_2_1_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Finger_3_1_1">
+    <inertial>
+      <origin xyz="-0.000017 -0.041052 -0.016849" rpy="0 0 0"/>
+      <mass value="0.020271"/>
+      <inertia ixx="7.911077e-06" ixy="4.619483e-09" ixz="-2.310653e-09"
+               iyy="2.084078e-06" iyz="-1.150960e-06" izz="6.364432e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.036500 0.015250 -0.010815" rpy="-1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_3_1_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.036500 0.015250 -0.010815" rpy="-1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_3_1_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Finger_1_2_1">
+    <inertial>
+      <origin xyz="0.000000 -0.027873 -0.014105" rpy="0 0 0"/>
+      <mass value="0.011312"/>
+      <inertia ixx="2.212028e-06" ixy="0.000000e+00" ixz="0.000000e+00"
+               iyy="1.076266e-06" iyz="-3.114506e-07" izz="1.397398e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.006738 0.079682 -0.043102" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_1_2_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.006738 0.079682 -0.043102" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_1_2_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Finger_2_2_1">
+    <inertial>
+      <origin xyz="0.000000 -0.027873 -0.014105" rpy="0 0 0"/>
+      <mass value="0.011312"/>
+      <inertia ixx="2.212028e-06" ixy="0.000000e+00" ixz="0.000000e+00"
+               iyy="1.076266e-06" iyz="-3.114506e-07" izz="1.397398e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.006500 0.080250 -0.005800" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_2_2_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.006500 0.080250 -0.005800" rpy="1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_2_2_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Finger_3_2_1">
+    <inertial>
+      <origin xyz="0.000000 -0.027873 -0.014105" rpy="0 0 0"/>
+      <mass value="0.011312"/>
+      <inertia ixx="2.212028e-06" ixy="0.000000e+00" ixz="0.000000e+00"
+               iyy="1.076266e-06" iyz="-3.114506e-07" izz="1.397398e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.036500 0.080250 -0.010815" rpy="-1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_3_2_1.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Acetal_Resin_White"/>
+    </visual>
+    <collision>
+      <origin xyz="0.036500 0.080250 -0.010815" rpy="-1.570796 0.000000 -1.570796"/>
+      <geometry>
+        <mesh filename="package://JAXV3_Assembly_description/meshes/JAXV3_Assembly/Finger_3_2_1_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="base_link_to_shoulder_pitch" type="fixed">
+    <parent link="base_link"/>
+    <child link="Shoulder_Pitch_1"/>
+    <origin xyz="-0.150000 0.000000 1.212500" rpy="0.000000 0.000000 0.000000"/>
+  </joint>
+
+  <joint name="base_link_to_holder" type="fixed">
+    <parent link="base_link"/>
+    <child link="Holder_1"/>
+    <origin xyz="-0.200000 -0.040000 1.232000" rpy="1.570796 0.000000 0.000000"/>
+  </joint>
+
+  <joint name="shoulder_pitch_to_shoulder_roll" type="revolute">
+    <parent link="Shoulder_Pitch_1"/>
+    <child link="Shoulder_Roll_1"/>
+    <origin xyz="-0.052000 0.000000 0.000000" rpy="-1.570796 0.000000 1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.785398" upper="0.785398" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="shoulder_roll_to_shoulder_yaw" type="revolute">
+    <parent link="Shoulder_Roll_1"/>
+    <child link="Shoulder_Yaw_1"/>
+    <origin xyz="-0.024500 0.000000 0.050000" rpy="-3.141593 1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.872665" upper="0.000000" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="shoulder_yaw_to_upper_arm" type="revolute">
+    <parent link="Shoulder_Yaw_1"/>
+    <child link="Upper_Arm_1"/>
+    <origin xyz="0.000000 -0.127000 -0.025500" rpy="1.570796 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.570796" upper="4.188790" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="upper_arm_to_under_arm" type="revolute">
+    <parent link="Upper_Arm_1"/>
+    <child link="Under_Arm_1"/>
+    <origin xyz="-0.024500 -0.000208 0.129792" rpy="1.570796 0.000000 -1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.745329" upper="1.745329" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="under_arm_to_wrist_pitch" type="revolute">
+    <parent link="Under_Arm_1"/>
+    <child link="Wrist_Pitch_1"/>
+    <origin xyz="0.000000 0.121797 -0.024500" rpy="-1.570796 1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.570796" upper="1.570796" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="wrist_pitch_to_wrist_yaw" type="revolute">
+    <parent link="Wrist_Pitch_1"/>
+    <child link="Wrist_yaw_1"/>
+    <origin xyz="-0.020000 0.000000 0.070200" rpy="1.570796 0.000000 -1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.570796" upper="1.570796" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="wrist_yaw_to_hand_base" type="revolute">
+    <parent link="Wrist_yaw_1"/>
+    <child link="MG996R_1"/>
+    <origin xyz="0.000000 0.077000 -0.020000" rpy="1.570796 1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-2.094395" upper="2.094395" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="hand_base_to_rotation_base" type="revolute">
+    <parent link="MG996R_1"/>
+    <child link="RotationBody_1"/>
+    <origin xyz="0.002087 -0.025561 -0.042240" rpy="3.141593 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-3.141593" upper="0.000000" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="hand_base_to_finger_1_1" type="revolute">
+    <parent link="MG996R_1"/>
+    <child link="Finger_1_1_1"/>
+    <origin xyz="-0.020000 -0.033335 -0.068804" rpy="1.570796 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.570796" upper="1.570796" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="hand_base_to_finger_2_1" type="revolute">
+    <parent link="MG996R_1"/>
+    <child link="Finger_2_1_1"/>
+    <origin xyz="-0.020000 0.006665 -0.068821" rpy="1.570796 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.570796" upper="1.570796" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="rotation_base_to_finger_3_1" type="revolute">
+    <parent link="RotationBody_1"/>
+    <child link="Finger_3_1_1"/>
+    <origin xyz="-0.021000 0.044775 0.026147" rpy="-1.570796 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.570796" upper="1.570796" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="finger_1_1_to_finger_1_2" type="revolute">
+    <parent link="Finger_1_1_1"/>
+    <child link="Finger_1_2_1"/>
+    <origin xyz="0.000000 -0.065000 -0.000300" rpy="0.000000 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="0.000000" upper="2.094395" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="finger_1_2_to_finger_2_2" type="revolute">
+    <parent link="Finger_2_1_1"/>
+    <child link="Finger_2_2_1"/>
+    <origin xyz="0.000000 -0.065000 -0.000300" rpy="0.000000 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="0.000000" upper="2.094395" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="finger_3_1_to_finger_3_2" type="revolute">
+    <parent link="Finger_3_1_1"/>
+    <child link="Finger_3_2_1"/>
+    <origin xyz="0.000000 -0.065000 -0.000300" rpy="0.000000 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="0.000000" upper="2.094395" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <!-- ROS 2 control: generated generic system -->
+  <ros2_control name="JAXV3_Assembly_system" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+      <param name="cmd_topic">sim/JAXV3_Assembly_system/cmd</param>
+      <param name="state_topic">sim/JAXV3_Assembly_system/state</param>
+    </hardware>
+
+    <joint name="finger_1_1_to_finger_1_2">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="finger_1_2_to_finger_2_2">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="finger_3_1_to_finger_3_2">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="hand_base_to_finger_1_1">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="hand_base_to_finger_2_1">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="hand_base_to_rotation_base">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rotation_base_to_finger_3_1">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="shoulder_pitch_to_shoulder_roll">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="shoulder_roll_to_shoulder_yaw">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="shoulder_yaw_to_upper_arm">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="under_arm_to_wrist_pitch">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="upper_arm_to_under_arm">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="wrist_pitch_to_wrist_yaw">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="wrist_yaw_to_hand_base">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+</robot>

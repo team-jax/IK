@@ -23,7 +23,8 @@ Stage = Literal["place", "randomize"]
 # the robot's stand on the floor, and the table at 0.25 - where the arm holds the hand palm-down
 # over a wide patch (swept in sim; the patch shrinks fast below 0.20 and above 0.38).
 # "real": the team's setup as measured (2026-11-04), the shoulder axis 1207.5 mm and the table top
-# 735 mm above the floor, so the stand floats 357.5 mm up. 472.5 mm below its shoulder the arm
+# 735 mm above the floor (V3's stand has the shoulder 1212.5 mm above its foot, so the foot sits
+# 5 mm below the floor; the stand is only drawn). 472.5 mm below its shoulder the arm
 # cannot hold the fingers straight down anywhere (0 usable cells over a 0.74 x 1.0 m grid), so the
 # hand leans 40 degrees about its finger-gap axis. One of fingers 1 and 2 then hangs 36 mm below
 # the grasp centre, the grasp moves 21.5 mm up the hand's axis to keep it off the table, and a
@@ -32,15 +33,17 @@ Stage = Literal["place", "randomize"]
 # - 735, taken at the shoulder motor's corner rather than its axis, so a measured D replaces it (the
 # reach band depends on it directly). cube_size and cube_mass: the real cube is 50 mm (user,
 # 2026-11-05), its mass not measured (0.05 kg). stand_surface_x is the stand's surface facing
-# the table at the table top (the stand, the URDF's base_link mesh, narrows upwards), read from the
-# mesh; home is the arm's rest pose (HOME_ARM_QPOS, found by scripts/find_home.py's criterion).
+# the table at the table top, read from V2's stand (URDF_1006's base_link mesh, which narrows
+# upwards). V3's stand is a slimmer column whose face is 12-14 cm from the table edge here, but the
+# table stays where the measured 10 cm put it until the distance is measured again (user,
+# 2026-11-09). home is the arm's rest pose (HOME_ARM_QPOS, found by scripts/find_home.py).
 SETUPS = {
     "sim": dict(table_z=0.25, d=0.60, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.4085,
                 hand_tilt=0.0, grasp_dz=0.0,
-                home=(-0.3266, 0.1621, -0.0089, 1.5628, -0.1595, -1.2349, -0.0079)),
+                home=(-0.3178, 0.1606, -0.0103, 1.5426, -0.1588, -1.2235, -0.0061)),
     "real": dict(table_z=0.735, d=0.4725, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.4297,
                  hand_tilt=-40.0, grasp_dz=0.0215,
-                 home=(0.1010, 0.3778, 0.1976, 1.8326, -0.7061, -1.5708, -0.0016)),
+                 home=(0.1301, 0.3968, 0.2164, 1.7453, -0.7855, -1.5708, -0.0013)),
 }
 SETUP = os.environ.get("JAX_SETUP", "sim")
 if SETUP not in SETUPS:
@@ -144,7 +147,7 @@ REACH_TILT = 0.02
 # when the controller's own IK is started from them: palm-down needs the shoulder roll near its
 # stop, the elbow can bend either way, and the damped-least-squares solve stays on the branch
 # it starts on, so the home picks the branch - and with it which side of the table the arm
-# serves (here y from -0.30 to about 0.05, x from -0.04 to 0.24). The arm starts here and the
+# serves (here y from -0.28 to 0.05, x from -0.02 to 0.24). The arm starts here and the
 # spare joint freedom is pulled back towards it. The real setup's home puts the grasp centre at
 # (0.20, -0.30, table + 0.10), found by the same kind of multi-start search with the hand leaning.
 HOME_ARM_QPOS = np.array(SETUPS[SETUP]["home"])

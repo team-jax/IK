@@ -23,8 +23,8 @@ from pathlib import Path
 
 import numpy as np
 
-# The shoulder roll joint's origin in the sim world: the stand at x 0.50, the shoulder frame -0.16,
-# the joint a further -0.052 along the arm (motion2/arm/make_arm_urdf.py, URDF_1006).
+# The shoulder roll joint's origin in the sim world: the stand at x 0.49, the shoulder frame -0.15,
+# the joint a further -0.052 along the arm (motion2/arm/make_arm_urdf.py, URDF_1108).
 ORIGIN_XY = (0.288, 0.0)
 SIM_FROM_REAL_YAW = -90.0
 # The real setup the reach map was solved for (env.py SETUPS["real"]): table top above the floor,
