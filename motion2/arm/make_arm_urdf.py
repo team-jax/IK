@@ -467,12 +467,14 @@ def _joint_name_map():
     return m
 
 
-def robot_parts(urdf, base_link_world=BASE_LINK_WORLD):
+def robot_parts(urdf, base_link_world=BASE_LINK_WORLD, base_yaw=0.0):
     """The robot's MJCF pieces, for any scene to compose: (asset meshes, column body, actuators).
 
     The column body holds the whole arm and hand and carries the `end_effector` site (the grasp
     centre); the meshes live in MESH_DIR, so a scene needs `meshdir` pointing there. motion1's
     scene (a table with several cubes) is built from these too, so both motions share one robot.
+    `base_yaw` (radians) turns the whole robot about the world z axis at base_link_world; this
+    file's own scene leaves it at 0.
     """
     joint_names = _joint_name_map()
     shoulder_lines = []
@@ -500,7 +502,8 @@ def robot_parts(urdf, base_link_world=BASE_LINK_WORLD):
             xyz, rpy = urdf.joint_frame(j.get("name"))
             fixed_lines += [f'      <body name="{link}" pos="{_fmt(xyz)}" quat="{_fmt(_quat_wxyz(rpy))}">',
                             *_geoms(urdf, link, 8), "      </body>"]
-    column = f"""    <body name="column" pos="{_fmt(np.array(base_link_world))}">
+    turn = f' quat="{_fmt(_quat_wxyz((0.0, 0.0, base_yaw)))}"' if base_yaw else ""
+    column = f"""    <body name="column" pos="{_fmt(np.array(base_link_world))}"{turn}>
 {base_geoms}
       <body name="base_link" pos="{_fmt(SHOULDER_OFFSET)}">
         <inertial pos="{_fmt(spos)}" mass="{smass:.6f}" fullinertia="{_fmt(sfull)}"/>

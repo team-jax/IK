@@ -33,7 +33,7 @@
 - 실행은 저장소 루트에서 `venv/bin/python motion1/scripts/<script>.py` (뷰어는 `venv/bin/mjpython`). 스크립트가 `src/`를 스스로 찾는다.
 - 로봇 모델은 `../motion2/arm/make_arm_urdf.py`의 `robot_parts()`로 만든다(`assets.py`). 모델 상수는 그쪽 파일에서만 바꾼다.
 - 파지 상수(`FINGER_*`, `CUBE_GRIP`, `GRASP_DZ`, `HOME_ARM_QPOS`, 작업 영역)를 바꾸면 도달 맵을 다시 만든다: `scripts/build_reachmap.py`. 시그니처가 다르면 `env.py`가 경고한다. 시그니처는 `env.py` 상수만 보므로 로봇 모델(URDF, 생성기)을 바꿨을 때는 경고가 없다: 그때도 세 맵을 다시 만든다.
-- 배치는 `env.py`의 `SETUPS` 두 가지다: 기본 `sim`(어깨 0.85 m, 책상 0.25 m, 아래 성적의 기준)과 `JAX_SETUP=real`(실물: 어깨 회전축 1.2075 m, 책상 0.735 m, 손 40° 기울임, 도달 맵 `reachmap_real.npz`). 배치마다 `d`(어깨 회전축 → 책상 윗면, 실물은 CAD 472.5 mm라 실측값으로 바꿀 것), `cube_size`·`cube_mass`(실물 큐브 측정 전에는 50 mm, 0.05 kg)를 둔다. real의 상수를 바꾸면 `JAX_SETUP=real`로 홈 자세(`scripts/find_home.py`)와 도달 맵을 다시 만든다.
+- 배치는 `env.py`의 `SETUPS` 두 가지다: 기본 `sim`(어깨 0.85 m, 책상 0.25 m, 아래 성적의 기준)과 `JAX_SETUP=real`(실물: 어깨 회전축 1.2125 m(V3 URDF), 책상 0.735 m, 책상은 거치대 FRONT 쪽 앞이라 로봇을 −90° 돌림(`robot_yaw`), 책상 앞 모서리는 어깨 축에서 22.5 cm(`shoulder_to_table`), 손 40° 기울임, 도달 맵 `reachmap_real.npz`). 배치마다 `d`(어깨 회전축 → 책상 윗면, 실물 477.5 mm), `cube_size`·`cube_mass`(실물 큐브 측정 전에는 50 mm, 0.05 kg)를 둔다. real의 상수를 바꾸면 `JAX_SETUP=real`로 홈 자세(`scripts/find_home.py`)와 도달 맵을 다시 만든다.
 - 큐브 회전은 `env.cube_yaw_max`(도, 기본 0)로 켠다. `classify_failures.py --yaw 45`가 회전까지 넣은 평가이고, 0이면 결과가 회전을 넣기 전과 같다. 실물 좌표의 큐브(위치 + 회전각)는 `scripts/run_real.py`로 시뮬을 돌려 관절 궤적을 만들고, 회전각별 도달 맵 `reachmap_real_yaw.npz`는 `JAX_SETUP=real`의 상수를 바꾸면 `build_reachmap.py --yaws -45 -30 -15 0 15 30`으로 다시 만든다.
 - 증상을 가리는 상수 조정보다 원인 구조를 고친다(`HARNESS.md`).
 

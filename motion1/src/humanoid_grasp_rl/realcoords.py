@@ -5,15 +5,16 @@ loads the file on its own:
 
     sys.path.insert(0, "<repo>/motion1/src/humanoid_grasp_rl")
     from realcoords import real_to_sim
-    real_to_sim(0.10, -0.38, 0.4725)   # cube 38 cm ahead, 10 cm to the left, table 472.5 mm down
-    plan((0.10, -0.30, 20.0), (0.05, -0.27), 0.4725)   # that cube turned 20 deg, and where it goes
+    real_to_sim(0.10, -0.38, 0.4775)   # cube 38 cm ahead, 10 cm to the left, table 477.5 mm down
+    plan((0.10, -0.30, 20.0), (0.05, -0.27), 0.4775)   # that cube turned 20 deg, and where it goes
 
 Real coordinates (user, 2026-11-05), in metres: origin on the axis of the shoulder roll motor (the
 first arm joint, `shoulder_roll`, at its joint origin: in CAD the motor's corner is 1 mm from it),
 x to the robot's left, y backwards (the front is -y), z up; right-handed.
 The sim world is that frame turned by SIM_FROM_REAL_YAW about z. The spec's -90 degrees puts the
-front on the side the arm reaches to, sim -x: x_real = -y_sim, y_real = x_sim. The user confirmed
-this front on the real robot (2026-11-05); the stand's FRONT lettering (sim -y) is not the front.
+front on sim -x: x_real = -y_sim, y_real = x_sim. The front is the stand's FRONT side, where the
+table is (user 2026-11-10; on 2026-11-05 it was taken to be the side the shoulder sticks out to),
+and the real setup turns the robot so that side faces sim -x (env.py, robot_yaw).
 A cube's yaw is in degrees, counter-clockwise seen from above, of one of its faces' normals from the
 real +x axis. In the sim it is that plus SIM_FROM_REAL_YAW, folded to [-45, 45) since a cube looks
 the same every 90 degrees (env.fold_yaw).
@@ -23,14 +24,15 @@ from pathlib import Path
 
 import numpy as np
 
-# The shoulder roll joint's origin in the sim world: the stand at x 0.49, the shoulder frame -0.15,
-# the joint a further -0.052 along the arm (motion2/arm/make_arm_urdf.py, URDF_1108).
-ORIGIN_XY = (0.288, 0.0)
+# The shoulder roll joint's origin in the sim world: the shoulder frame at x 0.34, y 0, and the joint
+# 0.052 from it along the stand's -x, which the real setup's robot, turned -90 degrees, points to
+# world +y (motion2/arm/make_arm_urdf.py, URDF_1108; env.py, robot_yaw).
+ORIGIN_XY = (0.34, 0.052)
 SIM_FROM_REAL_YAW = -90.0
 # The real setup the reach map was solved for (env.py SETUPS["real"]): table top above the floor,
 # D (shoulder axis down to the table top) and the cube.
 TABLE_Z = 0.735
-MAP_D = 0.4725
+MAP_D = 0.4775
 CUBE_SIZE = 0.05
 # Where the grasp centre (the `end_effector` site, between the fingers) is sent before it goes down:
 # this far above the cube's top face (the spec asks for 2-3 cm).

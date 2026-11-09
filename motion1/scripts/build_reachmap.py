@@ -68,6 +68,8 @@ def solve(hand_yaw_deg):
     # leaves the controller a pose's worth of margin in every direction.
     padded = np.pad(both, 1, constant_values=False)
     feasible = (both & padded[:-2, 1:-1] & padded[2:, 1:-1] & padded[1:-1, :-2] & padded[1:-1, 2:])
+    # And a cube there must stand on the table.
+    feasible &= (xs <= E.CUBE_X_MAX)[:, None]
     return grasp, place, feasible
 
 

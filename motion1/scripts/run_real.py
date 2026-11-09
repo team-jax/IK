@@ -1,6 +1,6 @@
 """A delivery given in real coordinates: run it in the sim and save the joint trajectory for the robot.
 
-    JAX_SETUP=real venv/bin/python motion1/scripts/run_real.py --cube 0.10 -0.30 20 --target 0.05 -0.27
+    JAX_SETUP=real venv/bin/python motion1/scripts/run_real.py --cube 0.03 -0.30 -20 --target 0.05 -0.27
     JAX_SETUP=real venv/bin/python motion1/scripts/run_real.py --cube ... --target ... --out motion1/artifacts/traj.json
 
 --cube is x y yaw and --target x y in the real frame of realcoords.py (origin on the shoulder roll

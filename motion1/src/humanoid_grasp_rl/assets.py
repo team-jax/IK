@@ -8,6 +8,7 @@ JAX_ARM_DIR environment variable) and makes sure the OBJ/STL meshes it writes ex
 from __future__ import annotations
 
 import importlib.util
+import math
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -39,23 +40,32 @@ def _generator():
     return module
 
 
-def robot_parts(finger_sliding_friction: float | None = None, shoulder_z: float | None = None) -> RobotParts:
+def robot_parts(finger_sliding_friction: float | None = None, shoulder_z: float | None = None,
+                base_yaw_deg: float = 0.0) -> RobotParts:
     """The robot's pieces; `finger_sliding_friction` replaces the pads' sliding coefficient (the
     generator's torsional and rolling values are kept), and `shoulder_z` moves the whole robot,
     stand included, until its shoulder frame is that high. V3's stand puts the shoulder frame
-    1.2125 m above its foot, so at the measured 1.2075 m the foot is 5 mm below the floor, and at the
-    sim setup's height far below it: the stand is only drawn and collides with nothing."""
+    1.2125 m above its foot, so at the real setup's 1.2125 m the foot stands on the floor, and at
+    the sim setup's height far below it: the stand is only drawn and collides with nothing.
+    `base_yaw_deg` turns the robot about the vertical through its shoulder frame, which stays where
+    the generator puts it (world x 0.34, y 0): -90 faces the stand's FRONT side towards world -x."""
     gen = _generator()
     if finger_sliding_friction is not None:
         gen.FINGER_FRICTION = " ".join([f"{finger_sliding_friction:g}"] + gen.FINGER_FRICTION.split()[1:])
     urdf = gen.load()
     if not (Path(gen.MESH_DIR) / "base_link.obj").is_file():
         gen.prepare_meshes(urdf)
-    base = tuple(gen.BASE_LINK_WORLD)
-    if shoulder_z is not None:   # rounded so that the generator's own height gives exactly its base
-        base = (base[0], base[1], round(shoulder_z - gen.SHOULDER_OFFSET[2], 6))
-    assets, column, actuators = gen.robot_parts(urdf, base_link_world=base)
-    shoulder = tuple(b + o for b, o in zip(base, gen.SHOULDER_OFFSET))
+    shoulder = [b + o for b, o in zip(gen.BASE_LINK_WORLD, gen.SHOULDER_OFFSET)]
+    if shoulder_z is not None:
+        shoulder[2] = shoulder_z
+    yaw = math.radians(base_yaw_deg)
+    c, s = round(math.cos(yaw), 12), round(math.sin(yaw), 12)   # exact for quarter turns
+    ox, oy, oz = gen.SHOULDER_OFFSET
+    # rounded so that the generator's own placement gives exactly its base
+    base = tuple(round(v, 6) for v in (shoulder[0] - (c * ox - s * oy), shoulder[1] - (s * ox + c * oy),
+                                       shoulder[2] - oz))
+    assets, column, actuators = gen.robot_parts(urdf, base_link_world=base, base_yaw=yaw)
+    shoulder = tuple(shoulder)
     return RobotParts(
         assets=assets, column=column, actuators=actuators, mesh_dir=str(Path(gen.MESH_DIR).resolve()),
         base_link_world=base, shoulder_world=shoulder,

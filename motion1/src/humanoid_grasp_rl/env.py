@@ -22,41 +22,51 @@ Stage = Literal["place", "randomize"]
 # "sim" (the default, where every result in README was measured): the shoulder axis at 0.85 with
 # the robot's stand on the floor, and the table at 0.25 - where the arm holds the hand palm-down
 # over a wide patch (swept in sim; the patch shrinks fast below 0.20 and above 0.38).
-# "real": the team's setup as measured (2026-11-04), the shoulder axis 1207.5 mm and the table top
-# 735 mm above the floor (V3's stand has the shoulder 1212.5 mm above its foot, so the foot sits
-# 5 mm below the floor; the stand is only drawn). 472.5 mm below its shoulder the arm
-# cannot hold the fingers straight down anywhere (0 usable cells over a 0.74 x 1.0 m grid), so the
-# hand leans 40 degrees about its finger-gap axis. One of fingers 1 and 2 then hangs 36 mm below
-# the grasp centre, the grasp moves 21.5 mm up the hand's axis to keep it off the table, and a
-# carried cube slips out: it is the scene to try a new hand in (motion1/STATUS.md).
-# d is D, the drop from the shoulder rotation axis to the table top; the real 0.4725 is CAD's 1207.5
-# - 735, taken at the shoulder motor's corner rather than its axis, so a measured D replaces it (the
-# reach band depends on it directly). cube_size and cube_mass: the real cube is 50 mm (user,
-# 2026-11-05), its mass not measured (0.05 kg). stand_surface_x is the stand's surface facing
-# the table at the table top, sliced from V3's stand (URDF_1108's base_link mesh): a column 80 mm
-# square, its face at x 0.45 at every height between the foot plate and the shoulder bracket, so
-# the same in both setups (V2's stand narrowed upwards: 0.4085 and 0.4297; user 2026-11-09, all
-# but height, mass and sign from V3). home is the arm's rest pose (HOME_ARM_QPOS, found by
-# scripts/find_home.py).
+# "real": the team's setup. The table top is 735 mm above the floor (measured 2026-11-04) and the
+# robot stands on the floor as V3's URDF builds it, the shoulder axis 1212.5 mm up, so D is 477.5 mm
+# (user 2026-11-10, as JaxIsaacLab's deploy_2026-11-05 has it; the CAD figure was 1207.5). The
+# table is in front of the stand's FRONT side (user 2026-11-10; before, it was on the side the
+# shoulder sticks out to): the robot is turned -90 degrees about the vertical through its shoulder
+# (robot_yaw), so that side faces world -x, where the table is, and the arm hangs beside the stand
+# on its +y side. The table's front edge is 22.5 cm from the shoulder axis, measured horizontally
+# (shoulder_to_table, JaxIsaacLab's figure). Below its shoulder the arm cannot hold the fingers
+# straight down, so the hand leans HAND_TILT degrees about its finger-gap axis; one of fingers 1
+# and 2 then hangs 36 mm below the grasp centre, and the grasp moves 21.5 mm up the hand's axis to
+# keep it off the table. It is the scene to try a new hand in (motion1/STATUS.md).
+# d is D, the drop from the shoulder rotation axis to the table top (the reach band depends on it
+# directly). cube_size and cube_mass: the real cube is 50 mm (user, 2026-11-05), its mass not
+# measured (0.05 kg). In the sim setup the table's near edge is STAND_GAP from the stand's surface
+# facing it at the table top, stand_surface_x, sliced from V3's stand (URDF_1108's base_link mesh):
+# a column 80 mm square, its face at x 0.45 at every height between the foot plate and the
+# shoulder bracket (V2's stand narrowed upwards: 0.4085). home is the arm's rest pose
+# (HOME_ARM_QPOS, found by scripts/find_home.py).
 SETUPS = {
-    "sim": dict(table_z=0.25, d=0.60, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.45,
+    "sim": dict(table_z=0.25, d=0.60, cube_size=0.05, cube_mass=0.05, robot_yaw=0.0, stand_surface_x=0.45,
                 hand_tilt=0.0, grasp_dz=0.0,
                 home=(-0.3178, 0.1606, -0.0103, 1.5426, -0.1588, -1.2235, -0.0061)),
-    "real": dict(table_z=0.735, d=0.4725, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.45,
+    "real": dict(table_z=0.735, d=0.4775, cube_size=0.05, cube_mass=0.05, robot_yaw=-90.0, shoulder_to_table=0.225,
                  hand_tilt=-40.0, grasp_dz=0.0215,
-                 home=(0.1301, 0.3968, 0.2164, 1.7453, -0.7855, -1.5708, -0.0013)),
+                 home=(0.0321, 0.8430, -0.3609, 1.6117, -1.4877, -0.7985, -1.4626)),
 }
 SETUP = os.environ.get("JAX_SETUP", "sim")
 if SETUP not in SETUPS:
     raise ValueError(f"JAX_SETUP={SETUP!r}: the setups are {', '.join(SETUPS)}")
 TABLE_SURFACE_Z = SETUPS[SETUP]["table_z"]
 D = SETUPS[SETUP]["d"]
-SHOULDER_Z = round(TABLE_SURFACE_Z + D, 6)   # rounded: exactly 0.85 and 1.2075
-# The table's near edge stands STAND_GAP from the robot's stand, as on the real setup (the
-# user's figure, 2026-11-04, confirmed 2026-11-05; sizing the table from the reach map alone had
-# left 68.5 mm).
+SHOULDER_Z = round(TABLE_SURFACE_Z + D, 6)   # rounded: exactly 0.85 and 1.2125
+ROBOT_YAW = SETUPS[SETUP]["robot_yaw"]
+# The shoulder frame's world x: motion2's generator puts it there (BASE_LINK_WORLD + SHOULDER_OFFSET),
+# and turning the robot (assets.robot_parts) keeps it there. run_tests.sh checks it on the model.
+SHOULDER_X = 0.34
+# The table's near edge. Sim setup: STAND_GAP from the robot's stand (the user's figure, 2026-11-04,
+# confirmed 2026-11-05; sizing the table from the reach map alone had left 68.5 mm). Real setup:
+# shoulder_to_table in front of the shoulder axis.
 STAND_GAP = 0.10
-STAND_SURFACE_X = SETUPS[SETUP]["stand_surface_x"]
+STAND_SURFACE_X = SETUPS[SETUP].get("stand_surface_x")   # sim setup only
+if STAND_SURFACE_X is None:
+    TABLE_NEAR_X = round(SHOULDER_X - SETUPS[SETUP]["shoulder_to_table"], 6)
+else:
+    TABLE_NEAR_X = round(STAND_SURFACE_X - STAND_GAP, 6)
 # 50 mm, not the 30 mm the pedestal demo in motion2 uses. The finger plates reach only 17 mm
 # below the grasp centre, so on a table the pads cannot go below a cube's bottom face and
 # meet it over its upper part; a 30 mm cube then slips or is shot out, a 40 mm one holds in
@@ -65,6 +75,10 @@ OBJECT_SIZE = SETUPS[SETUP]["cube_size"]
 OBJECT_MASS = SETUPS[SETUP]["cube_mass"]
 OBJECT_HALF_SIZE = OBJECT_SIZE / 2
 OBJECT_Z = TABLE_SURFACE_Z + OBJECT_HALF_SIZE
+# The nearest a cube spot may be to the robot and still stand on the table: a spot is a cell
+# jittered by up to 0.01 (_draw_spot). The reach map leaves out the cells past it (in the sim
+# setup none of its grid is).
+CUBE_X_MAX = round(TABLE_NEAR_X - 0.01 - OBJECT_HALF_SIZE, 6)
 # Each cube has its own goal spot marked on the table in the cube's colour.
 TARGET_TOLERANCE = 0.05
 TARGET_MIN_SEPARATION = 0.15
@@ -275,7 +289,8 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
         # lifting, crossing, lowering, letting the cube lie down flat, opening and then 20
         # steps of stillness with the hand clear before the task counts it.
         self.max_steps = max_steps if max_steps is not None else 700
-        self._robot = robot_parts(finger_sliding_friction=CUBE_FRICTION, shoulder_z=SHOULDER_Z)
+        self._robot = robot_parts(finger_sliding_friction=CUBE_FRICTION, shoulder_z=SHOULDER_Z,
+                                  base_yaw_deg=ROBOT_YAW)
         self.model = mujoco.MjModel.from_xml_string(self._scene_xml())
         self.data = mujoco.MjData(self.model)
         self.frame_skip = CONTROL_FRAME_SKIP
@@ -377,8 +392,8 @@ class JaxGraspEnv(gym.Env[np.ndarray, np.ndarray]):
     def _scene_xml(self) -> str:
         robot = self._robot
         layout_objects, layout_targets = nominal_layout(self.n_objects)
-        # The table runs from 10 cm beyond the farthest cube spots to STAND_GAP short of the stand.
-        near_edge, far_edge = STAND_SURFACE_X - STAND_GAP, WORK_X_MIN - 0.10
+        # The table runs from 10 cm beyond the farthest cube spots to its near edge (TABLE_NEAR_X).
+        near_edge, far_edge = TABLE_NEAR_X, WORK_X_MIN - 0.10
         # A spot is a cell jittered by up to 0.01 (_draw_spot), and the nearest cubes must still stand on the table.
         if WORK_X_MAX + 0.01 + OBJECT_HALF_SIZE > near_edge:
             raise ValueError(f"cube spots reach x = {WORK_X_MAX + 0.01 + OBJECT_HALF_SIZE:.3f}, past the table edge at {near_edge:.3f}")

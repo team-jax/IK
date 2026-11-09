@@ -73,7 +73,8 @@ def band() -> np.ndarray:
             both[i, j] = (reachable(pick) and reachable(over_pick)
                           and reachable(drop) and reachable(over_drop))
     padded = np.pad(both, 1, constant_values=False)
-    return both & padded[:-2, 1:-1] & padded[2:, 1:-1] & padded[1:-1, :-2] & padded[1:-1, 2:]
+    on_table = (xs <= E.CUBE_X_MAX)[:, None]
+    return both & padded[:-2, 1:-1] & padded[2:, 1:-1] & padded[1:-1, :-2] & padded[1:-1, 2:] & on_table
 
 
 def solve(start: np.ndarray):

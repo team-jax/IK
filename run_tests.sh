@@ -104,9 +104,10 @@ if [ -d motion1/scripts ]; then
   # At the measured pad friction (0.4) the second layout's cube slips out in the carry: 2 of 3.
   step m1_replay "[23] delivered" $P motion1/scripts/classify_failures.py --layouts "$LOGS/layouts.json" --seeds 3
   step m1_render "scene.png" $P motion1/scripts/render_frame.py
-  # The real setup (shoulder axis 1207.5 mm, table 735 mm above the floor) builds at those heights on
-  # its own, current reach map (a stale one warns, made an error here). No success rate: the hand
-  # there cannot carry a cube (motion1/STATUS.md).
+  # The real setup (shoulder axis 1212.5 mm, table 735 mm above the floor, the table's front edge 22.5 cm
+  # in front of the shoulder axis, the robot turned -90 degrees so its FRONT side faces it) builds that
+  # way on its own, current reach map (a stale one warns, made an error here). No success rate: the
+  # hand there cannot carry a cube (motion1/STATUS.md).
   step m1_real_setup "real setup ok" env JAX_SETUP=real $P -W error::UserWarning -c "
 import sys; sys.path.insert(0, 'motion1/src')
 import humanoid_grasp_rl.env as E
@@ -115,8 +116,10 @@ env = JaxDeliveryEnv(); env.reset(seed=0)
 t, d, m = env.table_geom_id, env.data, env.model
 top, edge = d.geom_xpos[t][2] + m.geom_size[t][2], d.geom_xpos[t][0] + m.geom_size[t][0]
 shoulder = d.xanchor[env.arm_joint_ids[0]][2]
-assert abs(shoulder - 1.2075) < 1e-9 and abs(top - 0.735) < 1e-9, (shoulder, top)
-assert abs(E.STAND_SURFACE_X - edge - E.STAND_GAP) < 1e-9 and len(E.REACH_CELLS) > 0
+assert abs(shoulder - 1.2125) < 1e-9 and abs(top - 0.735) < 1e-9, (shoulder, top)
+sx = d.xpos[env.model.body('base_link').id][0]
+assert abs(sx - E.SHOULDER_X) < 1e-9 and abs(E.SHOULDER_X - edge - 0.225) < 1e-9, (sx, edge)
+assert abs(d.xquat[env.model.body('column').id][3] + 0.5 ** 0.5) < 1e-9 and len(E.REACH_CELLS) > 0
 print(f'real setup ok: shoulder axis {shoulder:.4f} m, table {top:.4f} m, {len(E.REACH_CELLS)} reachable cells')"
   # Real coordinates -> sim world (realcoords.py): loads without MuJoCo, reproduces the spec's worked
   # example, and its constants match env.py's real setup and the model's shoulder roll joint.
@@ -134,7 +137,7 @@ roll = env.data.xanchor[env.arm_joint_ids[0]]
 assert np.allclose(roll, (*RC.ORIGIN_XY, RC.TABLE_Z + RC.MAP_D), atol=1e-9), roll
 s = E.SETUPS['real']
 assert (RC.TABLE_Z, RC.MAP_D, RC.CUBE_SIZE) == (s['table_z'], s['d'], s['cube_size'])
-assert RC.real_to_sim(0.10, -0.30, 0.4725)['reachable'] and not RC.real_to_sim(0.0, -0.10, 0.4725)['reachable']
+assert RC.real_to_sim(0.10, -0.30, 0.4775)['reachable'] and not RC.real_to_sim(0.0, -0.10, 0.4775)['reachable']
 print('realcoords ok')"
   # Cube yaw on the real setup: realcoords' fold and hand turns are env's, its per-yaw map is current,
   # a turned cube the env can serve is accepted with the turn the map names, an unreachable one is
@@ -148,14 +151,14 @@ for v in (-180, -95, -45, -44.9, 0, 20, 44.9, 45, 90, 135, 200):
     assert RC.fold_yaw(v) == E.fold_yaw(v) and RC.hand_turns(v) == E.hand_turns(v), v
 with np.load(RC.YAW_REACH_FILE) as m:
     assert np.allclose(m['signature'], E.map_signature()), 'reachmap_real_yaw.npz is stale: build_reachmap.py --yaws'
-p = RC.plan((0.10, -0.30, 0.0), (0.05, -0.27), 0.4725)
-assert p['reachable'] and p['hand_yaw'] == 0.0 and RC.plan((0.10, -0.30, 90.0), (0.05, -0.27), 0.4725)['yaw'] == 0.0
+p = RC.plan((0.10, -0.30, 0.0), (0.05, -0.27), 0.4775)
+assert p['reachable'] and p['hand_yaw'] == 0.0 and RC.plan((0.10, -0.30, 90.0), (0.05, -0.27), 0.4775)['yaw'] == 0.0
 env = JaxDeliveryEnv()
-p = RC.plan((0.05, -0.32, 20.0), (0.10, -0.30), 0.4725)
+p = RC.plan((0.03, -0.30, -20.0), (0.10, -0.30), 0.4775)
 env.reset(seed=0, options={'objects': [[*p['cube'][:2], p['yaw']]], 'targets': [p['target']]})
-assert abs(np.degrees(env._hand_yaws[0]) - 20.0) < 1e-9
+assert abs(np.degrees(env._hand_yaws[0]) + 20.0) < 1e-9
 q = env.data.qpos[env.model.jnt_qposadr[env.object_joint_ids[0]]:][:7]
-assert abs(2 * np.degrees(np.arctan2(q[6], q[3])) - 20.0) < 1e-9
+assert abs(2 * np.degrees(np.arctan2(q[6], q[3])) + 20.0) < 1e-9
 try:
     env.reset(seed=0, options={'objects': [[0.5, 0.5, 0.0]], 'targets': [p['target']]}); raise SystemExit('accepted')
 except ValueError: pass
