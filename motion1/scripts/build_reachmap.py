@@ -91,6 +91,9 @@ if args.yaws:
     raise SystemExit(0)
 
 grasp, place, feasible = solve(0.0)
+np.savez_compressed(E.REACH_FILE,   # the map of the setup JAX_SETUP picks (env.py)
+                    xs=xs, ys=ys, grasp=grasp, place=place, feasible=feasible,
+                    signature=E.map_signature())
 print(f"격자 {grasp.size},  파지가능 {grasp.sum()},  놓기가능 {place.sum()},  "
       f"둘다 {feasible.sum()} ({100 * feasible.mean():.0f}%)")
 idx = np.argwhere(feasible)

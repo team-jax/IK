@@ -52,8 +52,9 @@ alive() {     # alive <name> <process pattern> <command...>: the viewer must sti
   fi
   pkill -f "$pattern" 2>/dev/null; sleep 1
 }
-delivered() { # delivered <log>: the N in the last "N delivered" line
-  tail -n 1 "$1" | sed -nE 's/^ *([0-9]+) delivered.*/\1/p'
+delivered() { # delivered <log>: the N of "N delivered" in the last line, wherever it stands: classify_failures
+  # sorts the tally by count, so "39 placed short,  10 delivered" once read as 0
+  tail -n 1 "$1" | sed -nE 's/^(.*[^0-9])?([0-9]+) delivered.*/\2/p'
 }
 
 echo "== static"
