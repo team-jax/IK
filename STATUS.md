@@ -29,7 +29,7 @@
 - 동작 1의 `watch_grasp.py` 뷰어 재생을 육안 확인
 - 동작 1의 한계(탑 2단까지, 도달 띠가 y -0.28~+0.05로 치우침)는 `motion1/README.md` 참고
 - 최종 URDF V3 전환 뒤 동작 1의 2단 기대값(`run_tests.sh`의 39, `m1_smoke` 2단, `m1_run_real` 예제)을 새 성적에 맞출지, 동작 1을 V3에 맞게 다시 조정할지 결정(`motion1/STATUS.md`)
-- 어깨 축 높이(URDF 1212.5 mm, 실측 1207.5 mm)와 어깨–책상 수평 거리(V3 기둥 면에서 책상까지 12~14 cm, 지금 시뮬은 V2 거치대 기준 10 cm) 다시 재기. 팔 실제 질량 재기(지금은 V2 질량)
+- 어깨 축 높이(URDF 1212.5 mm, 실측 1207.5 mm) 다시 재기. 책상은 V3 거치대 기둥 면에서 10 cm로 옮겼으니(2026-11-09) 실물 간격이 그 기둥 면 기준인지 확인. 팔 실제 질량 재기(지금은 V2 질량)
 
 ## 문제점과 해결 (공통·동작 1)
 
@@ -39,6 +39,7 @@
 
 - 생성기가 V3를 읽게 바꾸고(`motion2/STATUS.md`의 변경 이력), 바꾸기 전 기준선(`run_tests.sh --full` 31/31, 배달 68/100, 2단 39/50 등)과 같은 명령으로 다시 쟀다(`motion1/STATUS.md`).
 - 찾아서 고친 것: ① `motion1/scripts/build_reachmap.py`가 11-05 커밋 `298106d` 뒤로 회전 없는 도달 지도를 저장하지 않아 `--full`의 "다시 만든 지도 == 레포 지도" 검사가 늘 통과했다 → 저장을 되살림 ② 실물 배치 HOME의 팔꿈치가 V2 한계 105°에 붙어 있어 V3(±100°) 범위 밖 → `find_home.py`로 다시 찾음 ③ `map_signature()`에 로봇 모델이 들어 있지 않아 모델이 바뀌어도 낡은 지도 경고가 나지 않는다 → 문서에 적고 세 지도를 다시 만듦(시그니처 자체는 그대로) ④ `run_tests.sh`의 `delivered()`가 마지막 줄이 "N delivered"로 시작할 때만 숫자를 읽어, 집계가 "39 placed short,  10 delivered" 순서로 나오자 2단을 0/50으로 보고했다 → 줄 어디에 있든 읽게 고침(기준값은 그대로)
+- V3와 다시 대조(사용자 지시: 수직 높이·질량·부호만 V2, 나머지는 모두 V3): 관절 원점·축·범위, 외형 메시, 손가락 위치, 파지 중심은 이미 V3였다. 손가락 충돌은 V2 STL을 쓰지만 V3의 실제 손가락 모양(외형 메시)과 같고, V3 자체의 충돌 STL은 내보내기 도구가 만든 원기둥이다(`robot_data.yaml`의 `collision_source: primitive`). 남아 있던 V2 값은 책상 위치를 정하는 거치대 면(`stand_surface_x`, V2 거치대에서 읽음) 하나였다 → V3 기둥 면 x 0.45로 바꿈. 성적 출력은 바이트까지 같다(`motion1/STATUS.md`)
 - SimToReal과 team-jax/jax_ros2의 보정 파일(calibration.json의 sim_range_deg와 AK45 limit_deg)도 `shoulder_yaw` 0~50°, `elbow` ±100°로 맞춰야 그쪽 시험(check_protocol.py가 이 레포의 `arm.xml`과 대조)이 통과한다.
 
 2026-10-26:

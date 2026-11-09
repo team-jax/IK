@@ -33,15 +33,16 @@ Stage = Literal["place", "randomize"]
 # - 735, taken at the shoulder motor's corner rather than its axis, so a measured D replaces it (the
 # reach band depends on it directly). cube_size and cube_mass: the real cube is 50 mm (user,
 # 2026-11-05), its mass not measured (0.05 kg). stand_surface_x is the stand's surface facing
-# the table at the table top, read from V2's stand (URDF_1006's base_link mesh, which narrows
-# upwards). V3's stand is a slimmer column whose face is 12-14 cm from the table edge here, but the
-# table stays where the measured 10 cm put it until the distance is measured again (user,
-# 2026-11-09). home is the arm's rest pose (HOME_ARM_QPOS, found by scripts/find_home.py).
+# the table at the table top, sliced from V3's stand (URDF_1108's base_link mesh): a column 80 mm
+# square, its face at x 0.45 at every height between the foot plate and the shoulder bracket, so
+# the same in both setups (V2's stand narrowed upwards: 0.4085 and 0.4297; user 2026-11-09, all
+# but height, mass and sign from V3). home is the arm's rest pose (HOME_ARM_QPOS, found by
+# scripts/find_home.py).
 SETUPS = {
-    "sim": dict(table_z=0.25, d=0.60, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.4085,
+    "sim": dict(table_z=0.25, d=0.60, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.45,
                 hand_tilt=0.0, grasp_dz=0.0,
                 home=(-0.3178, 0.1606, -0.0103, 1.5426, -0.1588, -1.2235, -0.0061)),
-    "real": dict(table_z=0.735, d=0.4725, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.4297,
+    "real": dict(table_z=0.735, d=0.4725, cube_size=0.05, cube_mass=0.05, stand_surface_x=0.45,
                  hand_tilt=-40.0, grasp_dz=0.0215,
                  home=(0.1301, 0.3968, 0.2164, 1.7453, -0.7855, -1.5708, -0.0013)),
 }
