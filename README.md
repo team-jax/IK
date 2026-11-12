@@ -28,10 +28,19 @@
 |---|---|---|
 | 폴더 | [`motion1/`](motion1/README.md) | [`motion2/`](motion2/README.md) |
 | 하는 일 | 스크립트 컨트롤러로 50 mm 큐브를 집어 목표 지점에 놓기(배달), 2단 쌓기 | 웹캠으로 사람의 손을 추적해 팔과 손가락을 실시간으로 조종하고 큐브 집기 |
-| 상태 | 최종 URDF V3에서 배달 73/100, 2단 쌓기 10/50 (마찰 0.4 실측, 2026-11-09; V2에서는 68/100, 39/50). 2단은 고정 배치 하나에 좌우된다(`motion1/STATUS.md`). 실물 배치(`JAX_SETUP=real`, 어깨 1212.5 mm·책상 735 mm, 책상은 거치대 FRONT 쪽)에서는 지금 손으로 배달 2/100 | 모델 생성, IK 0.00 mm, 파지 9/9, UDP 파이프라인 3/3. 실제 사람 추적의 육안 확인이 남음 |
+| 상태 | 최종 URDF V3에서 배달 73/100, 2단 쌓기 40/50 (마찰 0.4 실측; 2단은 2026-11-10에 제어기 두 곳을 고쳐 10/50 → 39/50, 2026-11-11 물러나기 판정으로 40/50; V2에서는 68/100, 39/50). 2단은 고정 배치 하나에 좌우된다(`motion1/STATUS.md`). 실물 배치(`JAX_SETUP=real`, 어깨 1212.5 mm·책상 735 mm, 방향은 JaxIsaacLab처럼 거치대 FRONT 면이 책상을 봄, 기둥 면에서 10 cm, 2026-11-12)에서는 손가락 안쪽 마찰 2.0(팀이 덮을 예정, 아직 안 잼)으로 배달 100/100(재시도 없이 100), 2단 50/50, 회전 ±45° 배달 94/100·2단 48/50 (2026-11-11 브래킷 쪽 배치 100/100(97), 49/50, 94/100, 44/50; 2026-11-10 FRONT 22.5 cm 배치 99/100, 50/50, 99/100, 45/50) | 모델 생성, IK 0.00 mm, 파지 9/9, UDP 파이프라인 3/3. 실제 사람 추적의 육안 확인이 남음 |
 | 문서 | `motion1/README.md`, `motion1/STATUS.md` (동작 1 저장소 안) | [`motion2/README.md`](motion2/README.md), [`STATUS.md`](motion2/STATUS.md) |
 
 **이 저장소(team-jax/IK)에는 동작 1(`motion1/`), 동작 2(`motion2/`), 공용 URDF가 함께 들어 있다.** 동작 1은 원래 `gyumingim/Humanoid_Grasp_RL`에서 개발했고 그 시점의 코드를 여기에 가져왔다. 동작 2는 동작 1을 import하지 않으므로 `motion1/` 없이도 그대로 돌아가고, `motion1/`이 있으면 `run_tests.sh`가 동작 1 검사도 함께 돌린다.
+
+## 정우 님 체인의 MuJoCo 이식 (`sim2sim/`)
+
+team-jax/JaxIsaacLab `artifacts/deploy_2026-11-05`의 로봇(V3), 정책(`grasp_lift_23025`), 조회표를 MuJoCo 장면 하나로 합쳐 늘어뜨린 팔부터 넘겨주기까지 같은 체인을 돌린다. 배치와 서 있는 방향은 정우 기준이다. Isaac(PhysX)과 다른 점과 처리, 결과(27곳 23/27)는 [`sim2sim/README.md`](sim2sim/README.md)에 있다.
+
+```bash
+venv/bin/python sim2sim/check_spec.py    # deploy 문서 수치와 대조
+venv/bin/python sim2sim/run_eval.py      # 27곳 평가
+```
 
 ## 빠른 시작 (저장소 루트에서)
 

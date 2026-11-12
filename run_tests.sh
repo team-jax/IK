@@ -1,9 +1,10 @@
 #!/bin/bash
 # Whole-repo test in one command (run it from anywhere):
 #
-#   ./run_tests.sh              quick: static checks, motion2 checks, motion1 smoke tests   (about 1 min)
+#   ./run_tests.sh              quick: static checks, motion2 checks, sim2sim checks, motion1 smoke tests
+#                                                                                            (about 1 min)
 #   ./run_tests.sh --full       also the 100-seed delivery and 50-seed stacking success rates,
-#                               the reach map and two videos                                (about 3 min more)
+#                               the reach map, two videos and sim2sim's 27-spot run          (about 3 min more)
 #   ./run_tests.sh --viewers    also keeps each MuJoCo viewer open for 9 s (windows pop up; the screen must
 #                               be awake and unlocked: with the display off GLFW finds no monitor and the viewer
 #                               segfaults, and with the console locked mjpython itself can hang)
@@ -60,7 +61,7 @@ delivered() { # delivered <log>: the N of "N delivered" in the last line, wherev
 echo "== static"
 step py_syntax "files parse" $P -c "
 import ast, glob
-required = ['motion2/src/*.py', 'motion2/scripts/*.py', 'motion2/arm/*.py', '*.py']
+required = ['motion2/src/*.py', 'motion2/scripts/*.py', 'motion2/arm/*.py', 'sim2sim/*.py', '*.py']
 optional = ['motion1/scripts/*.py', 'motion1/src/humanoid_grasp_rl/*.py']    # motion1 may be absent: motion2 runs without it
 for pattern in required:
     assert glob.glob(pattern), 'no files match ' + pattern                   # a stale glob must not pass silently
@@ -94,6 +95,26 @@ step m2_sender "sender: ok" $P motion2/scripts/check_sender.py
 step m2_teleop "teleop: 3/3 scenarios passed" $P motion2/scripts/check_teleop.py
 step m2_dashboard "dashboard: ok" $P motion2/scripts/check_dashboard.py
 
+echo "== sim2sim (Jungwoo's JaxIsaacLab deploy chain in MuJoCo)"
+S2S_BEFORE=$(cksum < sim2sim/jax_v3_scene.xml)
+step s2s_generate "wrote sim2sim/jax_v3_scene.xml" $P sim2sim/build_scene.py
+[ "$S2S_BEFORE" = "$(cksum < sim2sim/jax_v3_scene.xml)" ] \
+  && ok "scene generator output == sim2sim/jax_v3_scene.xml" || bad "build_scene.py changed jax_v3_scene.xml (regenerate and commit it)"
+# Layout and FK against Isaac's recorded hand-over states, the lookup tables against README's worked numbers,
+# the numpy policy against the ONNX weights.
+step s2s_spec "spec ok" $P sim2sim/check_spec.py
+# The reference cube (x 0, y 0, 0 deg) runs the whole chain to the done check; plain MuJoCo settings drop it.
+step s2s_chain "chain ok" $P -c "
+import sys; sys.path.insert(0, 'sim2sim')
+import chain as C
+s, _ = C.run(0.0, 0.0, 0.0)
+assert s['handover_by'] == 'converged' and s['phase_t_s']['INSERT'] == 8.65, s['phase_t_s']
+assert s['done'] and 5.0 < s['phase_t_s']['DONE'] - s['phase_t_s']['GRASP_LIFT'] < 5.6, s['phase_t_s']
+assert abs(s['done_state']['hand_pos_m'][2] - 0.962) < 0.002, s['done_state']['hand_pos_m']
+p, _ = C.run(0.0, 0.0, 0.0, physics='plain')
+assert not p['done'], 'plain MuJoCo settings now finish the chain: recheck sim2sim/README.md'
+print('chain ok: close -> done', round(s['phase_t_s']['DONE'] - s['phase_t_s']['GRASP_LIFT'], 2), 's')"
+
 if [ -d motion1/scripts ]; then
   echo "== motion1"
   step m1_smoke "smoke test passed" $P motion1/scripts/smoke_test.py
@@ -104,12 +125,13 @@ if [ -d motion1/scripts ]; then
   # At the measured pad friction (0.4) the second layout's cube slips out in the carry: 2 of 3.
   step m1_replay "[23] delivered" $P motion1/scripts/classify_failures.py --layouts "$LOGS/layouts.json" --seeds 3
   step m1_render "scene.png" $P motion1/scripts/render_frame.py
-  # The real setup (shoulder axis 1212.5 mm, table 735 mm above the floor, the table's front edge 22.5 cm
-  # in front of the shoulder axis, the robot turned -90 degrees so its FRONT side faces it) builds that
+  # The real setup (shoulder axis 1212.5 mm, table 735 mm above the floor, in front of the stand's FRONT side
+  # with its near edge 10 cm from the stand's column, the robot turned -90 degrees as in JaxIsaacLab) builds that
   # way on its own, current reach map (a stale one warns, made an error here). No success rate: the
   # hand there cannot carry a cube (motion1/STATUS.md).
   step m1_real_setup "real setup ok" env JAX_SETUP=real $P -W error::UserWarning -c "
 import sys; sys.path.insert(0, 'motion1/src')
+import numpy as np
 import humanoid_grasp_rl.env as E
 from humanoid_grasp_rl import JaxDeliveryEnv
 env = JaxDeliveryEnv(); env.reset(seed=0)
@@ -118,8 +140,8 @@ top, edge = d.geom_xpos[t][2] + m.geom_size[t][2], d.geom_xpos[t][0] + m.geom_si
 shoulder = d.xanchor[env.arm_joint_ids[0]][2]
 assert abs(shoulder - 1.2125) < 1e-9 and abs(top - 0.735) < 1e-9, (shoulder, top)
 sx = d.xpos[env.model.body('base_link').id][0]
-assert abs(sx - E.SHOULDER_X) < 1e-9 and abs(E.SHOULDER_X - edge - 0.225) < 1e-9, (sx, edge)
-assert abs(d.xquat[env.model.body('column').id][3] + 0.5 ** 0.5) < 1e-9 and len(E.REACH_CELLS) > 0
+assert abs(sx - E.SHOULDER_X) < 1e-9 and abs(edge - (0.30 - 0.10)) < 1e-9, (sx, edge)
+assert np.allclose(d.xquat[env.model.body('column').id], (0.5 ** 0.5, 0, 0, -0.5 ** 0.5), atol=1e-9) and len(E.REACH_CELLS) > 0
 print(f'real setup ok: shoulder axis {shoulder:.4f} m, table {top:.4f} m, {len(E.REACH_CELLS)} reachable cells')"
   # Real coordinates -> sim world (realcoords.py): loads without MuJoCo, reproduces the spec's worked
   # example, and its constants match env.py's real setup and the model's shoulder roll joint.
@@ -154,7 +176,7 @@ with np.load(RC.YAW_REACH_FILE) as m:
 p = RC.plan((0.10, -0.30, 0.0), (0.05, -0.27), 0.4775)
 assert p['reachable'] and p['hand_yaw'] == 0.0 and RC.plan((0.10, -0.30, 90.0), (0.05, -0.27), 0.4775)['yaw'] == 0.0
 env = JaxDeliveryEnv()
-p = RC.plan((0.03, -0.30, -20.0), (0.10, -0.30), 0.4775)
+p = RC.plan((0.10, -0.30, -20.0), (0.03, -0.30), 0.4775)
 env.reset(seed=0, options={'objects': [[*p['cube'][:2], p['yaw']]], 'targets': [p['target']]})
 assert abs(np.degrees(env._hand_yaws[0]) + 20.0) < 1e-9
 q = env.data.qpos[env.model.jnt_qposadr[env.object_joint_ids[0]]:][:7]
@@ -177,10 +199,17 @@ print('real yaw ok')"
     [ "${n:-0}" -ge 68 ] && ok "delivery, seeds 0-99: $n/100 delivered" || bad "delivery, seeds 0-99: ${n:-0}/100 delivered (README says 68)" "$LOGS/m1_delivery100.log"
     grep -q " False " "$LOGS/m1_delivery100.log" && bad "a delivered cube is marked picked=False" || ok "picked flag consistent with delivered"
     wait $STACK; n=$(delivered "$LOGS/m1_stack50.log")
-    [ "${n:-0}" -ge 39 ] && ok "stacking, seeds 0-49: $n/50 delivered" || bad "stacking, seeds 0-49: ${n:-0}/50 delivered (README says 39)" "$LOGS/m1_stack50.log"
+    [ "${n:-0}" -ge 40 ] && ok "stacking, seeds 0-49: $n/50 delivered" || bad "stacking, seeds 0-49: ${n:-0}/50 delivered (README says 40)" "$LOGS/m1_stack50.log"
     step m1_video_delivery "written to .*1920, 1080" $P motion1/scripts/record_delivery.py --seed 3 --randomization-scale 1.0 --output "$LOGS/delivery.mp4"
     step m1_video_stack "written to .*1920, 1080" $P motion1/scripts/record_delivery.py --stack --seed 3 --randomization-scale 1.0 --output "$LOGS/stack.mp4"
   fi
+fi
+
+if [ $FULL = 1 ]; then
+  echo "== sim2sim, full"
+  step s2s_eval "\\[base\\] done" $P sim2sim/run_eval.py --cond base --out "$LOGS/s2s"
+  n=$(sed -nE 's/^\[base\] done ([0-9]+)\/27.*/\1/p' "$LOGS/s2s_eval.log")
+  [ "${n:-0}" -ge 23 ] && ok "sim2sim, 27 spots: $n/27 done" || bad "sim2sim, 27 spots: ${n:-0}/27 done (sim2sim/README.md says 23)" "$LOGS/s2s_eval.log"
 fi
 
 if [ $VIEWERS = 1 ]; then

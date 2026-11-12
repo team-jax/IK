@@ -17,7 +17,7 @@ DOCS = ["README.md", "STATUS.md", "CLAUDE.md", "AGENTS.md", "haness.md", "URDF_1
         "motion1/scripts/AGENTS.md", "motion1/src/humanoid_grasp_rl/AGENTS.md",
         "motion2/README.md", "motion2/STATUS.md", "motion2/AGENTS.md", "motion2/src/AGENTS.md",
         "motion2/scripts/AGENTS.md", "motion2/arm/AGENTS.md",
-        "motion1/.claude/agents/fable-max.md"]
+        "motion1/.claude/agents/fable-max.md", "sim2sim/README.md"]
 MISSING = [d for d in DOCS if not d.startswith("motion1/") and not os.path.exists(d)]   # a stale list must not pass silently
 DOCS = [d for d in DOCS if os.path.exists(d)]          # motion1/ may be absent: motion2 runs without it
 SKIP_DIRS = {"venv", ".git", ".omc", ".omo", "__pycache__", "meshes", "artifacts", "AGENTS_files",
@@ -25,7 +25,11 @@ SKIP_DIRS = {"venv", ".git", ".omc", ".omo", "__pycache__", "meshes", "artifacts
 # Mentioned on purpose: history, removed scripts, or words that are not identifiers.
 ALLOWED = {"MAX_CURL", "One_Arm_JAX_URDF", "audit_contacts", "trace_carry", "teleop.py", "audit_contacts.py",
            "trace_carry.py", "requirements.txt", "reacher.xml", "record_delivery", "render_frame", "smoke_test",
-           "route.json", "scene_audit", ".py", ".sh", ".task", "/wrist.json"}
+           "route.json", "scene_audit", ".py", ".sh", ".task", "/wrist.json",
+           # team-jax/JaxIsaacLab code that sim2sim/README.md cites (not in this repo), and the per-spot result
+           # files run_eval.py writes (git-ignored)
+           "get_gravity_compensation_forces", "merge_fixed_joints", "jax_v3_assembly_1108.py",
+           "render_front_grasp.py", "v2_front_grasp_lift.py", "summary.json", "trace.npz"}
 # Names that only motion1/ defines. In a checkout without motion1/ these cannot be verified and are not
 # reported (with motion1/ present nothing is skipped).
 MOTION1_ONLY = {"mj_jacSite", "CODE_REVIEW.md", "HARNESS.md", "demonstration.py", "pyproject.toml",
@@ -33,7 +37,7 @@ MOTION1_ONLY = {"mj_jacSite", "CODE_REVIEW.md", "HARNESS.md", "demonstration.py"
                 "LIFT_REQUIRED", "JAX_ARM_DIR"}
 BASES = [".", "motion1", "motion2", "motion2/src", "motion2/scripts", "motion2/models", "motion2/arm",
          "motion1/scripts", "motion1/src/humanoid_grasp_rl", "URDF_1006", "URDF_1006/JAXV2_Assembly_description",
-         "URDF_1108", "URDF_1108/JAXV3_Assembly_description"]
+         "URDF_1108", "URDF_1108/JAXV3_Assembly_description", "sim2sim", "sim2sim/deploy"]
 
 code = ""
 for dirpath, dirnames, filenames in os.walk("."):

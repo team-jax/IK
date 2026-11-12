@@ -1,0 +1,604 @@
+{
+ "base": {
+  "runs": 27,
+  "done": 23,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": 5.167,
+   "median": 5.266,
+   "max": 5.783
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 15.81
+  },
+  "raise_insert_cube_robot_force_max_n": 1.276,
+  "cube_tilt_at_done_deg": {
+   "median": 15.95,
+   "p90": 24.252,
+   "max": 36.77
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": 5.44,
+   "max": 22.08
+  },
+  "cube_rise_at_done_m": {
+   "min": 0.162,
+   "median": 0.179
+  },
+  "pad_N_at_done_median": [
+   0.0,
+   0.0,
+   0.0,
+   2.92,
+   3.01,
+   6.14
+  ],
+  "still_up_2s_after_done": 23,
+  "max_joint_speed_rad_s": 1.0,
+  "failures": {
+   "cube dropped after rising": [
+    [
+     -8.0,
+     18.0,
+     35.0
+    ],
+    [
+     -14.0,
+     6.0,
+     -45.0
+    ],
+    [
+     -6.23,
+     21.81,
+     39.06
+    ]
+   ],
+   "cube not 4 cm up for 0.5 s (no L return)": [
+    [
+     -13.17,
+     -5.35,
+     -27.13
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "matched",
+   "mujoco_dt": 0.000833333333333,
+   "contact_tc": 0.002,
+   "cone": "elliptic",
+   "impratio": 10.0,
+   "velocity_limit": 1.0
+  }
+ },
+ "m30": {
+  "runs": 27,
+  "done": 25,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": 5.117,
+   "median": 5.267,
+   "max": 5.833
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 16.14
+  },
+  "raise_insert_cube_robot_force_max_n": 0.935,
+  "cube_tilt_at_done_deg": {
+   "median": 15.11,
+   "p90": 20.862,
+   "max": 41.34
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": 5.96,
+   "max": 29.99
+  },
+  "cube_rise_at_done_m": {
+   "min": 0.16,
+   "median": 0.179
+  },
+  "pad_N_at_done_median": [
+   0.0,
+   0.0,
+   0.0,
+   3.03,
+   2.92,
+   6.18
+  ],
+  "still_up_2s_after_done": 25,
+  "max_joint_speed_rad_s": 1.0,
+  "failures": {
+   "cube not 4 cm up for 0.5 s (no L return)": [
+    [
+     -8.0,
+     18.0,
+     35.0
+    ]
+   ],
+   "cube dropped after rising": [
+    [
+     -14.0,
+     6.0,
+     -45.0
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "matched",
+   "mujoco_dt": 0.000833333333333,
+   "contact_tc": 0.002,
+   "cone": "elliptic",
+   "impratio": 10.0,
+   "velocity_limit": 1.0
+  }
+ },
+ "m50": {
+  "runs": 27,
+  "done": 23,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": 5.2,
+   "median": 5.267,
+   "max": 5.85
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 15.22
+  },
+  "raise_insert_cube_robot_force_max_n": 2.983,
+  "cube_tilt_at_done_deg": {
+   "median": 18.39,
+   "p90": 29.698,
+   "max": 33.89
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": 6.32,
+   "max": 34.78
+  },
+  "cube_rise_at_done_m": {
+   "min": 0.16,
+   "median": 0.181
+  },
+  "pad_N_at_done_median": [
+   0.0,
+   0.0,
+   0.0,
+   3.01,
+   3.04,
+   6.27
+  ],
+  "still_up_2s_after_done": 23,
+  "max_joint_speed_rad_s": 1.0,
+  "failures": {
+   "not all three digits touched the cube": [
+    [
+     2.0,
+     28.0,
+     20.0
+    ]
+   ],
+   "cube never 4 cm up": [
+    [
+     -8.0,
+     18.0,
+     35.0
+    ],
+    [
+     -6.79,
+     16.59,
+     -24.24
+    ]
+   ],
+   "cube dropped after rising": [
+    [
+     -14.0,
+     6.0,
+     -45.0
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "matched",
+   "mujoco_dt": 0.000833333333333,
+   "contact_tc": 0.002,
+   "cone": "elliptic",
+   "impratio": 10.0,
+   "velocity_limit": 1.0
+  }
+ },
+ "yawerr": {
+  "runs": 27,
+  "done": 23,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": 5.2,
+   "median": 5.267,
+   "max": 5.6
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 15.81
+  },
+  "raise_insert_cube_robot_force_max_n": 1.276,
+  "cube_tilt_at_done_deg": {
+   "median": 14.24,
+   "p90": 22.58,
+   "max": 34.57
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": 5.4,
+   "max": 17.23
+  },
+  "cube_rise_at_done_m": {
+   "min": 0.172,
+   "median": 0.18
+  },
+  "pad_N_at_done_median": [
+   0.0,
+   0.0,
+   0.0,
+   3.06,
+   3.06,
+   6.18
+  ],
+  "still_up_2s_after_done": 23,
+  "max_joint_speed_rad_s": 1.0,
+  "failures": {
+   "cube never 4 cm up": [
+    [
+     -8.0,
+     18.0,
+     35.0
+    ],
+    [
+     -14.0,
+     6.0,
+     -45.0
+    ]
+   ],
+   "cube dropped after rising": [
+    [
+     -2.98,
+     -6.22,
+     -32.84
+    ],
+    [
+     -13.17,
+     -5.35,
+     -27.13
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "matched",
+   "mujoco_dt": 0.000833333333333,
+   "contact_tc": 0.002,
+   "cone": "elliptic",
+   "impratio": 10.0,
+   "velocity_limit": 1.0
+  }
+ },
+ "plain": {
+  "runs": 27,
+  "done": 0,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": null,
+   "median": null,
+   "max": null
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 25.43
+  },
+  "raise_insert_cube_robot_force_max_n": 3.492,
+  "cube_tilt_at_done_deg": {
+   "median": null,
+   "p90": null,
+   "max": null
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": null,
+   "max": null
+  },
+  "cube_rise_at_done_m": {
+   "min": null,
+   "median": null
+  },
+  "pad_N_at_done_median": null,
+  "still_up_2s_after_done": 0,
+  "max_joint_speed_rad_s": 1.0,
+  "failures": {
+   "cube dropped after rising": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     -3.81,
+     -12.89,
+     -41.31
+    ],
+    [
+     -13.17,
+     -5.35,
+     -27.13
+    ]
+   ],
+   "not all three digits touched the cube": [
+    [
+     2.0,
+     28.0,
+     20.0
+    ],
+    [
+     -8.0,
+     18.0,
+     35.0
+    ],
+    [
+     -8.0,
+     -18.0,
+     -35.0
+    ],
+    [
+     0.6,
+     5.97,
+     20.65
+    ],
+    [
+     -3.27,
+     8.24,
+     10.38
+    ],
+    [
+     -2.98,
+     -6.22,
+     -32.84
+    ],
+    [
+     -2.46,
+     1.42,
+     -17.08
+    ],
+    [
+     -4.49,
+     -9.08,
+     -9.75
+    ],
+    [
+     -6.79,
+     16.59,
+     -24.24
+    ],
+    [
+     -12.55,
+     4.5,
+     -18.12
+    ],
+    [
+     -3.93,
+     23.92,
+     -5.37
+    ]
+   ],
+   "cube not 4 cm up for 0.5 s (no L return)": [
+    [
+     2.0,
+     -28.0,
+     -20.0
+    ],
+    [
+     -14.0,
+     6.0,
+     -45.0
+    ],
+    [
+     -5.34,
+     -11.22,
+     -6.96
+    ],
+    [
+     1.69,
+     10.39,
+     13.54
+    ],
+    [
+     -6.23,
+     21.81,
+     39.06
+    ],
+    [
+     -1.41,
+     -14.6,
+     33.88
+    ],
+    [
+     -13.06,
+     -9.18,
+     -31.47
+    ],
+    [
+     -3.25,
+     -16.83,
+     39.79
+    ]
+   ],
+   "cube never 4 cm up": [
+    [
+     -14.0,
+     -8.0,
+     45.0
+    ],
+    [
+     -2.33,
+     -18.16,
+     32.69
+    ],
+    [
+     -8.28,
+     4.01,
+     -16.03
+    ],
+    [
+     0.24,
+     -15.28,
+     11.09
+    ],
+    [
+     1.27,
+     -0.01,
+     -6.73
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "plain",
+   "mujoco_dt": 0.008333333333333333,
+   "contact_tc": 0.02,
+   "cone": "pyramidal",
+   "impratio": 1.0,
+   "velocity_limit": 1.0
+  }
+ },
+ "diag_novlim": {
+  "runs": 27,
+  "done": 26,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": 5.117,
+   "median": 5.283,
+   "max": 5.733
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 16.93
+  },
+  "raise_insert_cube_robot_force_max_n": 3.582,
+  "cube_tilt_at_done_deg": {
+   "median": 16.26,
+   "p90": 30.66,
+   "max": 44.37
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": 7.385,
+   "max": 31.55
+  },
+  "cube_rise_at_done_m": {
+   "min": 0.162,
+   "median": 0.182
+  },
+  "pad_N_at_done_median": [
+   0.0,
+   0.0,
+   0.0,
+   3.07,
+   3.17,
+   6.41
+  ],
+  "still_up_2s_after_done": 25,
+  "max_joint_speed_rad_s": 3.095,
+  "failures": {
+   "cube never 4 cm up": [
+    [
+     -14.0,
+     6.0,
+     -45.0
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "matched",
+   "mujoco_dt": 0.000833333333333,
+   "contact_tc": 0.002,
+   "cone": "elliptic",
+   "impratio": 10.0,
+   "velocity_limit": null
+  }
+ },
+ "diag_imp100": {
+  "runs": 27,
+  "done": 26,
+  "handover_t_s": [
+   8.65,
+   8.683
+  ],
+  "handover_timeouts": 0,
+  "close_to_done_s": {
+   "min": 5.183,
+   "median": 5.267,
+   "max": 5.833
+  },
+  "cube_shift_before_grasp_mm": {
+   "median": 0.0,
+   "max": 15.81
+  },
+  "raise_insert_cube_robot_force_max_n": 3.008,
+  "cube_tilt_at_done_deg": {
+   "median": 11.035,
+   "p90": 32.85,
+   "max": 39.72
+  },
+  "cube_turn_in_hand_after_lift_deg": {
+   "median": 3.2,
+   "max": 40.78
+  },
+  "cube_rise_at_done_m": {
+   "min": 0.163,
+   "median": 0.181
+  },
+  "pad_N_at_done_median": [
+   0.0,
+   0.0,
+   0.0,
+   2.93,
+   3.09,
+   6.33
+  ],
+  "still_up_2s_after_done": 26,
+  "max_joint_speed_rad_s": 1.0,
+  "failures": {
+   "not all three digits touched the cube": [
+    [
+     -8.0,
+     18.0,
+     35.0
+    ]
+   ]
+  },
+  "physics": {
+   "mode": "matched",
+   "mujoco_dt": 0.000833333333333,
+   "contact_tc": 0.002,
+   "cone": "elliptic",
+   "impratio": 100.0,
+   "velocity_limit": 1.0
+  }
+ }
+}
