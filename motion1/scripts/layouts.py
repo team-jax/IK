@@ -23,6 +23,10 @@ ENVS = {"JaxDeliveryEnv": JaxDeliveryEnv, "JaxStackEnv": JaxStackEnv}
 
 def replay(path, **kwargs):
     """An env that serves the saved layouts, one per seed, whatever the map now says."""
+    if not Path(path).is_file():
+        # artifacts/ is git-ignored, so a fresh checkout has no layout file yet
+        raise SystemExit(f"{path} does not exist: make it first with\n"
+                         f"  venv/bin/python motion1/scripts/layouts.py --scale 1.0 --seeds 10 --out {path}")
     saved = json.loads(Path(path).read_text())
     # Files from before the setups existed are the sim setup's. A sim file replayed in the real setup
     # put its cubes past the real table's edge, without a word.

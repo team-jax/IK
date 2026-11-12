@@ -116,7 +116,7 @@ JAX_SETUP=real venv/bin/python motion1/scripts/find_home.py --spot 0.13 0.15 0.1
 venv/bin/python motion1/scripts/tune_grasp.py
 
 # 레이아웃 고정 - 맵이 바뀌어도 같은 장면을 재생하도록 (watch_grasp --layouts 쓰기 전에 먼저 만들어야 함)
-venv/bin/python motion1/scripts/layouts.py --scale 1.0 --out motion1/artifacts/layouts_10.json
+venv/bin/python motion1/scripts/layouts.py --scale 1.0 --seeds 10 --out motion1/artifacts/layouts_10.json
 
 # 실패 분류: 집지 못함 / 짧게 놓임 / 방출에서 잃음  (--stack 이면 2단 쌓기)
 # 기본은 배율마다 시드 12개. 위 성적표의 숫자는 아래 두 명령으로 얻는다 (각각 수 분 걸림).
@@ -136,4 +136,4 @@ venv/bin/python motion1/scripts/record_delivery.py --stack --randomization-scale
 venv/bin/python motion1/scripts/render_frame.py        # artifacts/scene.png
 ```
 
-`motion1/artifacts/`는 Git에서 제외된다(그래서 처음엔 비어 있다). 위 성적표의 숫자는 레이아웃 파일이 아니라 시드(`classify_failures.py --seeds`)로 얻은 것이다. 고정 레이아웃 파일(`artifacts/layouts_*.json`)은 맵이나 컨트롤러를 바꾼 뒤에도 같은 장면으로 비교하려고 만드는 로컬 파일이다. 비교하는 동안 장면이 바뀌면 안 되니 덮어쓰지 말고 새 이름으로 만든다. G1 시절의 `teleop.py`, `audit_contacts.py`, `trace_carry.py`는 이 로봇에 맞게 옮기지 않았다(`g1-final` 태그에 있다).
+`motion1/artifacts/`는 Git에서 제외되지만, 첫 줄이 쓰는 `artifacts/layouts_10.json` 하나는 저장소에 들어 있다(2026-11-12부터, 시뮬 배치용 10개). 녹화와 장면 그림은 폴더를 스스로 만든다. 레이아웃 파일 없이 보려면 `watch_grasp.py --seed 3 --randomization-scale 1.0`. 위 성적표의 숫자는 레이아웃 파일이 아니라 시드(`classify_failures.py --seeds`)로 얻은 것이다. 그 밖의 고정 레이아웃 파일(`artifacts/layouts_*.json`)은 맵이나 컨트롤러를 바꾼 뒤에도 같은 장면으로 비교하려고 만드는 로컬 파일이다. 비교하는 동안 장면이 바뀌면 안 되니 덮어쓰지 말고 새 이름으로 만든다. G1 시절의 `teleop.py`, `audit_contacts.py`, `trace_carry.py`는 이 로봇에 맞게 옮기지 않았다(`g1-final` 태그에 있다).

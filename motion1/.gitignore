@@ -6,3 +6,7 @@ models/
 artifacts/
 logs/
 artifacts/video/
+# the layout file the README's viewer command uses is shared, so a fresh checkout can run it
+!artifacts/
+artifacts/*
+!artifacts/layouts_10.json
