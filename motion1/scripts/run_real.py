@@ -12,7 +12,7 @@ same function on the robot computer). Only a clean run is written - delivered wi
 the robot replays it open loop; --keep writes any run, marked "playable": false, for looking at, and
 play_trajectory refuses it unless forced.
 Exit code: 0 clean delivery (written), 1 not delivered, 4 delivered only after a retry,
-3 the arm cannot serve it (2 is argparse).
+3 the arm cannot serve it, 2 a usage error (argparse, or JAX_SETUP is not real).
 """
 import _paths  # noqa: F401  (puts src/ on the path)
 import argparse
@@ -30,7 +30,7 @@ parser.add_argument("--keep", action="store_true", help="write the trajectory ev
 args = parser.parse_args()
 
 if os.environ.get("JAX_SETUP") != "real":
-    sys.exit("real coordinates belong to the real setup: run with JAX_SETUP=real")
+    parser.error("real coordinates belong to the real setup: run with JAX_SETUP=real")
 
 import humanoid_grasp_rl.env as E  # noqa: E402
 from humanoid_grasp_rl.real_task import plan_delivery  # noqa: E402
@@ -44,7 +44,8 @@ print(f"reach map: {'yes' if r['reach_map']['reachable'] else 'no'} ({r['reach_m
 if r["status"] == "unreachable":
     print(f"env: {r['reason']}")
     sys.exit(3)
-print(f"env: servable, hand turned {s['hand_yaw_deg']:+.1f} deg")
+print(f"env: servable, hand turned {s['hand_yaw_deg']:+.1f} deg"
+      f"{', half-turned' if s['hand_half_turned'] else ''}, {s['grasp_off_faces_deg']:+.1f} deg off the cube's faces")
 frames, dt, peak = r["positions"], r["dt"], r["peak_speed_deg_s"]
 print(f"sim: {'delivered' if r['delivered_in_sim'] else 'NOT delivered'}, {r['final_error_m'] * 1000:.1f} mm from "
       f"the target, {len(frames)} frames x {dt * 1000:.0f} ms = {len(frames) * dt:.1f} s; fastest joint "

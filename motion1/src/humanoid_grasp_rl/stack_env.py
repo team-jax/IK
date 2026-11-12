@@ -12,6 +12,9 @@ from __future__ import annotations
 import numpy as np
 
 from humanoid_grasp_rl.env import (
+    EPISODE_STEPS,
+    GRASP_MISALIGN,
+    HAND_FLIP,
     OBJECT_SIZE,
     OBJECT_Z,
     REACH_CELLS,
@@ -26,9 +29,9 @@ from humanoid_grasp_rl.env import (
 # The open hand's footprint around its grasp centre: the plates stand 90 mm apart along x (58 mm
 # to their outer faces) and are 73 mm wide along y. Another cube is in the way of a hand coming
 # down on a cube when it overlaps that rectangle, with half a cube and a centimetre to spare.
-# The hand never turns about the vertical, so the footprint is axis-aligned. It was measured on
-# the upright hand: the real setup's hand leans 40 degrees and its footprint was not re-derived
-# (that hand cannot carry a cube and is to be replaced; motion1/STATUS.md).
+# Measured on the upright hand, square to the axes. The real setup's hand leans 40 degrees and turns
+# with the cube, and reaches further on its lean side: there env._footprint_clear checks the measured
+# footprint for the grasp chosen (env.HAND_FOOTPRINT), on top of this spacing.
 CLEAR_DX = 0.058 + OBJECT_SIZE / 2 + 0.01
 CLEAR_DY = 0.0365 + OBJECT_SIZE / 2 + 0.01
 
@@ -58,11 +61,21 @@ class JaxStackEnv(JaxGraspEnv):
         self.moving = 1
         # One delivery's worth of steps per cube that has to move.
         if kwargs.get("max_steps") is None:
-            self.max_steps = 700 * (cubes - 1)
+            self.max_steps = EPISODE_STEPS * (cubes - 1)
 
     def _nominal_layout(self) -> tuple[np.ndarray, np.ndarray]:
-        spots = np.array([_snap_to_band(s) for s in NOMINAL_SPOTS[: self.n_objects]])
-        assert _far_enough(spots), "the fixed stacking spots snapped onto each other"
+        # Each spot goes to the nearest band cell far enough from the spots before it: the spots are
+        # written for the sim setup's band, and the real setup's (y up to -0.12 since 2026-11-12)
+        # snapped both onto one cell. Where the nearest cell is far enough already (the sim setup),
+        # this is _snap_to_band.
+        cells = np.column_stack((REACH_XS[REACH_CELLS[:, 0]], REACH_YS[REACH_CELLS[:, 1]]))
+        spots = []
+        for s in NOMINAL_SPOTS[: self.n_objects]:
+            apart = np.array([_far_enough(spots + [c]) for c in cells], dtype=bool)
+            assert apart.any(), "no band cell is far enough from the fixed stacking spots before it"
+            spots.append(cells[apart][int(np.argmin(np.linalg.norm(cells[apart] - s, axis=1)))])
+        spots = np.array(spots)
+        assert np.allclose(spots[0], _snap_to_band(NOMINAL_SPOTS[0]))
         return spots, np.repeat(spots[:1], self.n_objects, axis=0)
 
     def _target_heights_for(self, objects, targets) -> np.ndarray:
@@ -81,6 +94,8 @@ class JaxStackEnv(JaxGraspEnv):
         """
         nominal_objects, nominal_targets = self._nominal_layout()
         if self.stage != "randomize":
+            if HAND_FLIP or GRASP_MISALIGN:
+                self._servable(nominal_objects, nominal_targets)   # its grasp chosen, as for a fallback
             return nominal_objects, nominal_targets
         spots = np.column_stack((REACH_XS[REACH_CELLS[:, 0]], REACH_YS[REACH_CELLS[:, 1]]))
         spread = self.randomization_scale * np.linalg.norm(
@@ -119,6 +134,9 @@ class JaxStackEnv(JaxGraspEnv):
                     return layout, targets
         self.layout_fallbacks += 1
         self.layout_fell_back = True
+        if HAND_FLIP or GRASP_MISALIGN:
+            # The fixed layout gets its grasp chosen too (see JaxGraspEnv._sample_layout).
+            self._servable(nominal_objects, nominal_targets)
         return nominal_objects, nominal_targets
 
     def _clear_of_home(self, objects) -> bool:
@@ -141,6 +159,8 @@ class JaxStackEnv(JaxGraspEnv):
         # with the first cube to be carried. Left as it was, every episode after the first in
         # the same process skipped cube 1 and set cube 2 on the base a cube too low.
         self.moving = 1
+        # Only a drawn layout can fall back; one given in options, or the fixed one, did not.
+        self.layout_fell_back = False
         observation, info = super().reset(seed=seed, options=options)
         # The base cube was never carried anywhere; it is on its spot because it spawned
         # there, and the placed test wants to know it was lifted first.

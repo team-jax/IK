@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
+import humanoid_grasp_rl.env as E
 from humanoid_grasp_rl.single_env import JaxDeliveryEnv
 from humanoid_grasp_rl.stack_env import JaxStackEnv
 
@@ -23,12 +24,22 @@ ENVS = {"JaxDeliveryEnv": JaxDeliveryEnv, "JaxStackEnv": JaxStackEnv}
 def replay(path, **kwargs):
     """An env that serves the saved layouts, one per seed, whatever the map now says."""
     saved = json.loads(Path(path).read_text())
+    # Files from before the setups existed are the sim setup's. A sim file replayed in the real setup
+    # put its cubes past the real table's edge, without a word.
+    setup = saved.get("setup", "sim")
+    if setup != E.SETUP:
+        raise ValueError(f"{path} holds {setup}-setup layouts; this is the {E.SETUP} setup (JAX_SETUP)")
     layouts = {int(k): v for k, v in saved["layouts"].items()}
 
     class Replayed(ENVS[saved.get("env_class", "JaxDeliveryEnv")]):
         def _sample_layout(self):
             entry = layouts[int(self._replay_seed)]
-            return np.array(entry["objects"]), np.array(entry["targets"])
+            objects, targets = np.array(entry["objects"]), np.array(entry["targets"])
+            # The grasp is chosen here, as for a drawn layout: in the real setup (half-turned and
+            # off-face grasps) and for turned cubes it is _servable that picks it, and without it a
+            # replay ran another grasp than the seeded episode. Unchanged in the sim setup without yaw.
+            self._servable(objects, targets)
+            return objects, targets
 
         def reset(self, *, seed=None, options=None):
             self._replay_seed = 0 if seed is None else seed
@@ -48,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--stack", action="store_true", help="cubes to go on top of one another")
     parser.add_argument("--no-validate", action="store_true",
                         help="skip the per-layout IK check, to measure what it is worth")
-    parser.add_argument("--cubes", type=int, default=2, help="how tall the tower is, with --stack")
+    parser.add_argument("--cubes", type=int, default=2, choices=[2], help="how tall the tower is, with --stack")
     args = parser.parse_args()
 
     kwargs = dict(stage="randomize", randomization_scale=args.scale)
@@ -63,6 +74,7 @@ if __name__ == "__main__":
         }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps({
+        "setup": E.SETUP,
         "env_class": type(env).__name__,
         "env": {"stage": "randomize", "randomization_scale": args.scale,
                 **({"cubes": args.cubes} if args.stack else {})},

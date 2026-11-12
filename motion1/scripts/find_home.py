@@ -1,7 +1,7 @@
 """Find the arm's home pose (HOME_ARM_QPOS) for the setup JAX_SETUP picks, by the rule it was chosen by.
 
     venv/bin/python motion1/scripts/find_home.py --spot 0.20 -0.10 0.05                   # sim setup
-    JAX_SETUP=real venv/bin/python motion1/scripts/find_home.py --spot 0.20 -0.30 0.10 --free
+    JAX_SETUP=real venv/bin/python motion1/scripts/find_home.py --spot 0.13 0.15 0.10 --free --rollouts 12
 
 The home pose matters beyond where an episode starts: the controller's IK starts every solve from it
 and pulls the arm's spare freedom back to it, so it picks the elbow branch and, with it, the band of
@@ -19,6 +19,15 @@ the table the arm can serve (env.py, HOME_ARM_QPOS). The rule:
    all reachable by the controller's own IK (env.reachable), with the rim trimmed.
 4. The widest band wins; a tie goes to the one with more cells at least HAND_CLEAR + 0.03 from the
    home spot, where the layout rules let goals stand.
+
+A band is solved one pose at a time, so it cannot tell whether the controller gets there: in the
+real setup the widest band's home stalled in every delivery, the arm straightening its elbow into a
+joint stop on the way out (motion1/STATUS.md, 2026-11-10). --rollouts N therefore also runs N
+deliveries per candidate with the controller itself, over layouts its band allows (a cube and a goal
+TARGET_MIN_SEPARATION apart, clear of the home spot as env._sample_layout requires; "layouts" counts
+them, and with none every episode falls back to the fixed layout), and the ranking becomes: most
+deliveries, then most cubes picked up, then most layouts, then the band. "stalled" counts episodes
+whose first failure was the reach phase, "elbow" the smallest |elbow| angle seen (0 is straight).
 
 It prints every candidate and the winner and edits nothing: copy the winner into SETUPS in env.py,
 then rebuild the reach map (scripts/build_reachmap.py). A band takes about half a minute to solve.
@@ -40,6 +49,7 @@ parser.add_argument("--spot", type=float, nargs=3, metavar=("X", "Y", "DZ"), req
 parser.add_argument("--free", action="store_true", help="any hand orientation at home (default: palm-down)")
 parser.add_argument("--starts", type=int, default=8, help="random starting postures besides HOME_ARM_QPOS")
 parser.add_argument("--seed", type=int, default=0, help="seed of the random starting postures")
+parser.add_argument("--rollouts", type=int, default=0, help="deliveries per candidate run with the controller")
 args = parser.parse_args()
 
 env = JaxDeliveryEnv(stage="place")
@@ -115,16 +125,71 @@ for start in starts:
 print(f"setup {E.SETUP}: home spot {np.round(spot, 4)} ({'any orientation' if args.free else 'palm-down'}); "
       f"{len(candidates)} distinct poses from {len(starts)} starts")
 
+def layouts(cells) -> list:
+    """(cube, goal) cell pairs env._sample_layout would accept, given this home spot."""
+    points = [np.array([xs[i], ys[j]]) for i, j in cells]
+    cubes = [p for p in points if np.linalg.norm(p - spot[:2]) >= E.SPAWN_CLEARANCE]
+    goals = [p for p in points if np.linalg.norm(p - spot[:2]) >= E.HAND_CLEAR + 0.03]
+    return [(c, g) for c in cubes for g in goals if np.linalg.norm(c - g) >= E.TARGET_MIN_SEPARATION]
+
+
+def rollout(pairs, n) -> dict:
+    """Deliveries with the controller from the home now in E.HOME_ARM_QPOS, over n of the pairs."""
+    from humanoid_grasp_rl.demonstration import scripted_palm_place
+    from humanoid_grasp_rl.single_env import JaxDeliveryEnv
+    E.WORK_X_MIN = float(xs.min())   # the table must reach this candidate's farthest cells
+    trial = JaxDeliveryEnv(stage="randomize")
+    elbow = trial.model.jnt_qposadr[trial.arm_joint_ids[3]]
+    out = dict(picked=0, delivered=0, stalled=0, refused=0, elbow=np.inf)
+    rng = np.random.default_rng(args.seed)
+    for k in rng.choice(len(pairs), size=min(n, len(pairs)), replace=False):
+        cube, goal = pairs[k]
+        try:
+            trial.reset(seed=0, options={"objects": [[cube[0], cube[1], 0.0]], "targets": [list(goal)]})
+        except ValueError:
+            out["refused"] += 1
+            continue
+        lifted, info = False, {}
+        for step in range(trial.max_steps):
+            _, _, terminated, truncated, info = trial.step(scripted_palm_place(trial, step))
+            _, touching, supported = trial._contacts
+            body = trial.object_body_ids[trial.moving]
+            lifted |= bool(touching[trial.moving] and not supported[trial.moving]
+                           and trial.data.xpos[body][2] > E.OBJECT_Z + E.LIFT_REQUIRED)
+            out["elbow"] = min(out["elbow"], abs(float(trial.data.qpos[elbow])))
+            if terminated or truncated:
+                break
+        out["picked"] += lifted
+        out["delivered"] += bool(info.get("is_success"))
+        out["stalled"] += bool(trial._palm_failures and trial._palm_failures[0][2] == "reach")
+    trial.close()
+    out["elbow"] = float(np.degrees(out["elbow"]))
+    return out
+
+
 results = []
 for k, q in enumerate([current] + candidates):
     E.HOME_ARM_QPOS = q
     cells = np.argwhere(band())
-    far = sum(np.hypot(xs[i] - spot[0], ys[j] - spot[1]) >= E.HAND_CLEAR + 0.03 for i, j in cells)
+    far = int(sum(np.hypot(xs[i] - spot[0], ys[j] - spot[1]) >= E.HAND_CLEAR + 0.03 for i, j in cells))
     label = "current HOME_ARM_QPOS" if k == 0 else f"candidate {k}"
-    print(f"  {label:22s} usable {len(cells):3d}, of them {far:3d} >= {E.HAND_CLEAR + 0.03:.2f} m from home; "
-          f"q {joints(q)}", flush=True)
+    pairs = layouts(cells)
+    line = (f"  {label:22s} usable {len(cells):3d}, of them {far:3d} >= {E.HAND_CLEAR + 0.03:.2f} m from home, "
+            f"layouts {len(pairs):4d}; q {joints(q)}")
+    trial = None
+    if args.rollouts and pairs:
+        trial = rollout(pairs, args.rollouts)
+        line += (f"\n  {'':22s} rollouts {min(args.rollouts, len(pairs))}: picked {trial['picked']}, delivered "
+                 f"{trial['delivered']}, stalled {trial['stalled']}, refused {trial['refused']}, elbow >= {trial['elbow']:.0f} deg")
+    print(line, flush=True)
     if k:
-        results.append((len(cells), far, k, q))
+        score = ((trial["delivered"], trial["picked"]) if trial else (0, 0)) if args.rollouts else ()
+        results.append((score + ((len(pairs),) if args.rollouts else ()) + (len(cells), far), k, q))
 if results:
-    usable, far, k, q = max(results, key=lambda r: (r[0], r[1]))
-    print(f"winner: candidate {k}, usable {usable}, far {far}: home={joints(q)}")
+    score, k, q = max(results, key=lambda r: r[0])
+    if score[-2] == 0:
+        # No candidate serves a single cell: naming one the winner told the user to copy a home that
+        # serves nothing into SETUPS (the old --spot example of the docstring did exactly that).
+        print("no winner: no candidate serves any cell of the table; keep the current HOME_ARM_QPOS")
+    else:
+        print(f"winner: candidate {k}, score {score}: home={joints(q)}")

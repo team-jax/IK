@@ -17,7 +17,7 @@ from humanoid_grasp_rl import JaxDeliveryEnv, JaxStackEnv  # noqa: E402
 from humanoid_grasp_rl.demonstration import scripted_palm_place  # noqa: E402
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--seed", type=int, default=400)
+parser.add_argument("--seed", type=int, default=None, help="default 400; with --layouts, the file's first seed")
 parser.add_argument("--randomization-scale", type=float, default=0.0)
 parser.add_argument("--output", type=Path, default=_paths.ROOT / "artifacts/video/delivery.mp4")
 parser.add_argument("--width", type=int, default=1920)
@@ -35,10 +35,16 @@ args = parser.parse_args()
 if args.layouts:
     sys.path.insert(0, str(Path(__file__).parent))
     from layouts import replay
-    env, _ = replay(args.layouts)
+    env, seeds = replay(args.layouts)
+    if args.seed is None:
+        args.seed = seeds[0]
+    elif args.seed not in seeds:
+        parser.error(f"seed {args.seed} is not in {args.layouts} (seeds {seeds[0]}-{seeds[-1]})")
 else:
     kwargs = dict(stage="randomize", randomization_scale=args.randomization_scale)
     env = JaxStackEnv(cubes=2, **kwargs) if args.stack else JaxDeliveryEnv(**kwargs)
+    if args.seed is None:
+        args.seed = 400
 env.reset(seed=args.seed)
 env._palm_phase = None
 camera = mujoco.MjvCamera()

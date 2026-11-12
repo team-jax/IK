@@ -12,7 +12,13 @@ done at some point.
     venv/bin/python motion1/scripts/classify_failures.py --layouts motion1/artifacts/layouts_10.json   # replay a file from layouts.py
 
 The default is 12 seeds per scale; the 100 and 50 above are the runs behind the numbers in README.md.
-A tower is two cubes at most (see stack_env.py), so --cubes stays at its default of 2.
+With --layouts every seed in the file is run, unless --first-seed / --seeds narrow it; the env (delivery
+or tower) is the file's. A tower is two cubes at most (see stack_env.py), so --cubes can only be 2.
+
+Verdicts: delivered; never picked up; lost on release (it moved more than 2 cm after the hand came off
+it); unfinished on its spot (resting on its spot when the episode ended, but not delivered - the hand
+had not let go or got clear in time); placed short (anywhere else). A row ends with
+[fixed-layout fallback] where no drawn layout could be served and the fixed one was used.
 """
 import _paths  # noqa: F401  (puts src/ on the path)
 import argparse
@@ -23,15 +29,17 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--scales", type=float, nargs="+", default=[1.0])
-parser.add_argument("--seeds", type=int, default=12)
-parser.add_argument("--first-seed", type=int, default=0, help="so a long run can be sharded")
+parser.add_argument("--seeds", type=int, default=None, help="how many (default 12; with --layouts, all in the file)")
+parser.add_argument("--first-seed", type=int, default=None, help="so a long run can be sharded (default 0)")
 parser.add_argument("--stack", action="store_true", help="cubes to go on top of one another")
-parser.add_argument("--cubes", type=int, default=2, help="how tall the tower is, with --stack")
+parser.add_argument("--cubes", type=int, default=2, choices=[2], help="how tall the tower is, with --stack")
 parser.add_argument("--yaw", type=float, default=0.0,
                     help="cube yaw drawn in +-YAW degrees per episode (env.cube_yaw_max); 45 covers all")
 parser.add_argument("--layouts", default=None,
-                    help="a file from scripts/layouts.py; the scales are then ignored")
+                    help="a file from scripts/layouts.py; the scales are then ignored and the env is the file's")
 args = parser.parse_args()
+if args.yaw < 0:
+    parser.error("--yaw is the half-width of the drawn yaw: give it as a positive number of degrees")
 
 import humanoid_grasp_rl.env as E  # noqa: E402
 from humanoid_grasp_rl.single_env import JaxDeliveryEnv  # noqa: E402
@@ -43,13 +51,22 @@ from layouts import replay  # noqa: E402
 
 if args.layouts:
     env, seeds = replay(args.layouts)
+    if args.stack and not isinstance(env, JaxStackEnv):
+        parser.error(f"{args.layouts} holds delivery layouts; --stack does not apply")
     scales = [env.randomization_scale]
-    seeds = [s for s in seeds if args.first_seed <= s < args.first_seed + args.seeds]
+    # The defaults once windowed the file to seeds 0-11: a file of seeds 20-21 ran nothing, and said so
+    # with a blank tally.
+    low = args.first_seed if args.first_seed is not None else min(seeds, default=0)
+    high = low + args.seeds if args.seeds is not None else float("inf")
+    seeds = [s for s in seeds if low <= s < high]
+    if not seeds:
+        sys.exit(f"no seed of {args.layouts} is in the range asked for")
 else:
     kwargs = dict(stage="randomize", randomization_scale=args.scales[0])
     env = JaxStackEnv(cubes=args.cubes, **kwargs) if args.stack else JaxDeliveryEnv(**kwargs)
     scales = args.scales
-    seeds = list(range(args.first_seed, args.first_seed + args.seeds))
+    first = 0 if args.first_seed is None else args.first_seed
+    seeds = list(range(first, first + (12 if args.seeds is None else args.seeds)))
 env.cube_yaw_max = args.yaw
 
 
@@ -65,7 +82,9 @@ for scale in scales:
           f"{'off face':>8s} {'final':>8s} {'moved after':>11s}  verdict")
     tally = {}
     for seed in seeds:
+        fallbacks = env.layout_fallbacks
         env.reset(seed=seed)
+        fell_back = env.layout_fallbacks > fallbacks   # every env counts them; only a tower's info said so
         goal = env._target_positions[env.moving].copy()
         picked, best, angle = {}, {}, {}
         release_at, moved_max = {}, {}
@@ -106,6 +125,7 @@ for scale in scales:
         verdict = ("delivered" if ok else
                    "never picked up" if not picked.get(m) else
                    "lost on release" if released is not None and moved_max.get(m, 0.0) > 0.02 else
+                   "unfinished on its spot" if env._placed_latch[m] else
                    "placed short")
         tally[verdict] = tally.get(verdict, 0) + 1
         note = ""
@@ -119,7 +139,7 @@ for scale in scales:
             # it ends are different facts.
             ends = max((v for i, v in moved_end.items() if i != m), default=0.0)
             note += f"  earlier cube moved {others * 1000:.0f}mm at most, {ends * 1000:.0f}mm at the end"
-        if info.get("layout_fell_back"):
+        if fell_back:
             note += "  [fixed-layout fallback]"
         if env.n_objects > 2:
             lower = [float(np.linalg.norm(env.data.xpos[env.object_body_ids[i]][:2] - goal)) * 1000
@@ -129,8 +149,9 @@ for scale in scales:
               f"{(released if released is not None else float('nan')) * 1000:9.1f}mm "
               f"{angle.get(m, float('nan')):7.1f}deg {final * 1000:7.1f}mm "
               f"{moved_end.get(m, 0.0) * 1000:6.1f}/{moved_max.get(m, 0.0) * 1000:.1f}mm  {verdict}{note}")
-    print("  " + ",  ".join(f"{v} {k}" for k, v in sorted(tally.items(), key=lambda x: -x[1])),
-          flush=True)
     if args.yaw:
-        print(f"  cube yaw +-{args.yaw:g} deg; fixed-layout fallbacks so far: {env.layout_fallbacks}", flush=True)
+        print(f"  cube yaw +-{args.yaw:g} deg", flush=True)
+    # The tally stays the last line (run_tests.sh reads its "N delivered").
+    print("  " + ",  ".join(f"{v} {k}" for k, v in sorted(tally.items(), key=lambda x: -x[1]))
+          + f"   [fixed-layout fallbacks so far: {env.layout_fallbacks}]", flush=True)
 env.close()

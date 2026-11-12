@@ -24,10 +24,10 @@ for env_class in (JaxGraspEnv, JaxDeliveryEnv):
     env.close()
 
 # The scripted controller delivers a cube, and builds a two-cube tower, from the fixed layouts.
-for env, steps in ((JaxDeliveryEnv(), 700), (JaxStackEnv(cubes=2), 1400)):
+for env in (JaxDeliveryEnv(), JaxStackEnv(cubes=2)):
     env.reset(seed=0)
     landed_z, rise = None, 0.0
-    for step in range(steps):
+    for step in range(env.max_steps):
         _, _, terminated, truncated, info = env.step(scripted_palm_place(env, step))
         # The cube must stay down while the hand lets go. It once rose 4-9 mm: the hand was pulled back up
         # with the pads still closed and took the cube with it.

@@ -9,10 +9,10 @@
 ## Key Files
 | File | Description |
 |------|-------------|
-| `env.py` | `JaxGraspEnv`: 장면(책상·큐브·목표 원·JAX 팔) 조립, 팔 IK, 손 개폐, 레이아웃 샘플링(도달 맵 + `_servable` IK 검증), 큐브 회전(`cube_yaw_max`, 기본 0; 손은 `grasp_rotation()`으로 옮길 큐브만큼, 안 되면 90° 더 돌림: `hand_turns`), 배치 직접 지정(`reset(options={"objects": [[x, y, yaw]], "targets": [[x, y]]})`), 성공 판정. 파지 상수와 근거가 상단에 있다. 행동 4차원(파지 중심 xyz 증분 + 닫힘 속도), 보상은 성공 래치 스텝에 1.0 |
+| `env.py` | `JaxGraspEnv`: 장면(책상·큐브·목표 원·JAX 팔) 조립, 팔 IK(손 방향은 `HAND_HOLD_X`까지 파지 방향, 그 너머에서 HOME 방향으로 섞음: `_hand_rotation`), 손 개폐, 레이아웃 샘플링(도달 맵 + `_servable` IK 검증), 큐브 회전(`cube_yaw_max`, 기본 0; 손은 `grasp_rotation()`으로 옮길 큐브만큼, 안 되면 90° 더 돌림: `hand_turns`; 실물 배치는 반 바퀴 돌린 파지와 30°까지 어긋난 파지도: `_grasp_turns`, 2단에서 기울어진 손 발자국 검사: `_footprint_clear`, 막힌 접근의 관절 공간 이동: `start_joint_move`), 배치 직접 지정(`reset(options={"objects": [[x, y, yaw]], "targets": [[x, y]]})`), 성공 판정. 파지 상수와 근거가 상단에 있다. 행동 4차원(파지 중심 xyz 증분 + 닫힘 속도), 보상은 성공 래치 스텝에 1.0 |
 | `single_env.py` | `JaxDeliveryEnv`: 큐브 하나를 목표 지점에 놓기 |
 | `stack_env.py` | `JaxStackEnv`: 2단 탑. 큐브 간격은 열린 손 발자국(`CLEAR_DX/DY`)으로 잰다. 못 찾은 배치는 `layout_fallbacks`로 센다 |
-| `demonstration.py` | `scripted_palm_place(env, step)`: reach → down → grip → up → cross → lower → settle → let go → back 상태기계와 복구 분기. `settle`은 명령 자세를 위로 끌지 않는다(끌면 조임이 남은 손이 큐브를 들어 올린다) |
+| `demonstration.py` | `scripted_palm_place(env, step)`: reach → down → grip → up → cross → lower → settle → let go → back 상태기계와 복구 분기. `settle`은 명령 자세를 위로 끌지 않는다(끌면 조임이 남은 손이 큐브를 들어 올린다). 손에서 빠진 큐브가 탑 위 제자리에 평평하게 놓였으면 놓인 것으로 받고(`_recover`), 팔이 집 쪽 물러나기 경로를 버티지 못하면 손가락 판 사이로 먼저 빠진다(`_slide_out`, `SLIDE_OUT`) |
 | `ik.py` | 파지 중심 site에 대한 damped least-squares IK (`solve_site_pose`) |
 | `assets.py` | `motion2/arm/make_arm_urdf.py`를 불러와 로봇 MJCF 조각(`RobotParts`)을 만든다. `JAX_ARM_DIR`로 위치 변경 |
 | `reachmap.npz` | 실제로 풀어 본 도달 가능 격자 + 상수 시그니처. `scripts/build_reachmap.py`로만 만든다. 실물 높이 배치는 `reachmap_real.npz`, 회전각별은 `reachmap_real_yaw.npz`(`build_reachmap.py --yaws`) |

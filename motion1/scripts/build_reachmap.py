@@ -4,7 +4,7 @@ A cell of the table is feasible when the arm can hold the grasp centre, fingers 
 at every pose a delivery there asks for: the grasp on a cube standing in it and the clear-air
 pose above, and the release at table height and the carry pose above that. The arm loses
 forward reach as it comes down, so the band is not a circle around the shoulder and cannot be
-written down; it is solved, at 5 mm and 3 degrees, from the home pose, with the same IK the
+written down; it is solved, at 5 mm and about 1 degree (REACH_TILT), from the home pose, with the same IK the
 controller uses.
 
     venv/bin/python motion1/scripts/build_reachmap.py      # rewrites src/humanoid_grasp_rl/reachmap.npz
@@ -27,8 +27,12 @@ from humanoid_grasp_rl.demonstration import TRAVEL_CLEAR
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--yaws", type=float, nargs="+", default=None,
-                    help="cube yaws in degrees: build the per-yaw map instead of the yaw-0 one")
+                    help="cube yaws in degrees: build the per-yaw map instead of the yaw-0 one (real setup)")
 args = parser.parse_args()
+if args.yaws and E.SETUP != "real":
+    # Only realcoords reads a per-yaw map, the real setup's; in the sim setup this wrote an
+    # untracked reachmap_yaw.npz that nothing used.
+    parser.error("--yaws builds the real setup's per-yaw map (reachmap_real_yaw.npz): run it with JAX_SETUP=real")
 
 env = JaxDeliveryEnv(stage="place")
 env.reset(seed=0)
@@ -48,6 +52,10 @@ def reachable(position):
 def solve(hand_yaw_deg):
     """grasp, place and feasible over the grid, for the hand turned hand_yaw_deg."""
     env._hand_yaws[env.moving] = np.radians(hand_yaw_deg)
+    # Not half-turned: env.reset(seed=0) above chose a grasp for its own layout (HAND_FLIP), which is
+    # drawn from the map loaded, so a half-turned one left there made the map depend on the last map
+    # (2026-11-12: 60 cells, then 69 over the same band edge).
+    env._hand_flips[env.moving] = False
     grasp = np.zeros((len(xs), len(ys)), dtype=bool)
     place = np.zeros((len(xs), len(ys)), dtype=bool)
     clear_z = env.clear_height(E.OBJECT_Z)
@@ -102,6 +110,12 @@ idx = np.argwhere(feasible)
 if len(idx):
     print(f"둘다 가능 범위: x {xs[idx[:, 0]].min():.2f}~{xs[idx[:, 0]].max():.2f}  "
           f"y {ys[idx[:, 1]].min():+.2f}~{ys[idx[:, 1]].max():+.2f}")
+    # The hand's orientation (env._hand_rotation, so every pose solved above) depends on HAND_HOLD_X,
+    # which env.py takes from the band's near edge in the map it loaded: a new edge solves differently.
+    # 2026-11-12: built over the last setup's map 58 cells, built again 51, and stays 51.
+    if abs(float(xs[idx[:, 0]].max()) - E.WORK_X_MAX) > 1e-9:
+        print(f"!! the band's near edge moved ({E.WORK_X_MAX:.2f} -> {xs[idx[:, 0]].max():.2f}): "
+              "HAND_HOLD_X moves with it, so run this again until it stays")
 print("\n" + "  " + " ".join(f"{y:+.2f}"[:5] for y in ys[::2]))
 for i, x in enumerate(xs):
     row = " ".join(("#" if feasible[i, j] else ("g" if grasp[i, j] else

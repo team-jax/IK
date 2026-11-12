@@ -64,6 +64,10 @@ def plan_delivery(cube, target, d: float | None = None) -> dict:
         except ValueError as e:
             return {**out, "status": "unreachable", "reason": str(e)}
         out["sim"]["hand_yaw_deg"] = float(np.degrees(env._hand_yaws[0]))
+        # The grasp the env chose (env._grasp_turns): half-turned about the hand's axis, and how many
+        # degrees the finger gap is off the cube's faces.
+        out["sim"]["hand_half_turned"] = bool(env._hand_flips[0])
+        out["sim"]["grasp_off_faces_deg"] = float(env._misalign[0])
         names = list(env._robot.arm_joints) + list(env._robot.finger_joints)
         actuators = np.concatenate((env.arm_actuator_ids, env.finger_actuator_ids))
         dt = float(env.model.opt.timestep * env.frame_skip)

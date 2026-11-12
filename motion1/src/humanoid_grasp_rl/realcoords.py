@@ -6,15 +6,16 @@ loads the file on its own:
     sys.path.insert(0, "<repo>/motion1/src/humanoid_grasp_rl")
     from realcoords import real_to_sim
     real_to_sim(0.10, -0.38, 0.4775)   # cube 38 cm ahead, 10 cm to the left, table 477.5 mm down
-    plan((0.10, -0.30, 20.0), (0.05, -0.27), 0.4775)   # that cube turned 20 deg, and where it goes
+    plan((0.10, -0.30, -20.0), (0.05, -0.27), 0.4775)   # that cube turned -20 deg, and where it goes
 
 Real coordinates (user, 2026-11-05), in metres: origin on the axis of the shoulder roll motor (the
 first arm joint, `shoulder_roll`, at its joint origin: in CAD the motor's corner is 1 mm from it),
 x to the robot's left, y backwards (the front is -y), z up; right-handed.
 The sim world is that frame turned by SIM_FROM_REAL_YAW about z. The spec's -90 degrees puts the
 front on sim -x: x_real = -y_sim, y_real = x_sim. The front is the stand's FRONT side, where the
-table is (user 2026-11-10; on 2026-11-05 it was taken to be the side the shoulder sticks out to),
-and the real setup turns the robot so that side faces sim -x (env.py, robot_yaw).
+table is: the real setup turns the robot -90 degrees as JaxIsaacLab does (env.py, robot_yaw; user
+2026-11-12, as on 2026-11-10; on 2026-11-11 it was the side the shoulder bracket sticks out to).
+The arm then hangs beside the stand on sim +y, its left seen from the table.
 A cube's yaw is in degrees, counter-clockwise seen from above, of one of its faces' normals from the
 real +x axis. In the sim it is that plus SIM_FROM_REAL_YAW, folded to [-45, 45) since a cube looks
 the same every 90 degrees (env.fold_yaw).
@@ -92,8 +93,14 @@ def reachable_turned(spots, yaw_sim, reach_file=YAW_REACH_FILE):
     cells = [_cell(xs, ys, s) for s in spots]
     if any(c is None for c in cells):
         return False, None, "outside the reach map's grid"
+    # The cube's yaw on the chosen map yaw's side of the +-45 fold. Measured from fold_yaw(yaw_sim)
+    # instead, a cube at +37.5 to +45 (nearest map yaw -45) had each hand turn looked up 85-90 degrees
+    # from itself: +40 was answered with the map's hand at -45.
+    rep = yaws[k] + fold_yaw(yaw_sim - yaws[k])
     for turn in hand_turns(yaw_sim):
-        o = int(np.argmin(np.abs(offsets - (turn - fold_yaw(yaw_sim)))))
+        o = int(np.argmin(np.abs(offsets - (turn - rep))))
+        if abs(offsets[o] - (turn - rep)) > 1.0:
+            continue   # a half turn from the map's yaw: not in the map
         if all(feasible[k, o][c] for c in cells):
             return True, turn, f"in the reach band with the hand turned {turn:+.0f} deg"
     return False, None, f"no hand turn serves it at cube yaw {fold_yaw(yaw_sim):+.0f} deg"
