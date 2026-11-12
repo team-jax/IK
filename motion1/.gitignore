@@ -10,3 +10,4 @@ artifacts/video/
 !artifacts/
 artifacts/*
 !artifacts/layouts_10.json
+!artifacts/layouts_real_10.json

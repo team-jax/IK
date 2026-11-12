@@ -59,6 +59,11 @@ SETUP = os.environ.get("JAX_SETUP", "sim")
 if SETUP not in SETUPS:
     raise ValueError(f"JAX_SETUP={SETUP!r}: the setups are {', '.join(SETUPS)}")
 TABLE_SURFACE_Z = SETUPS[SETUP]["table_z"]
+# The free camera the viewing scripts start from (record_delivery.py, render_frame.py, watch_grasp.py):
+# lookat (x, y, height above the table top), distance, azimuth, elevation. None keeps each script's own
+# sim-setup view. In the real setup that view looks past the stand's column, which hid the hand
+# (user 2026-11-12: watch as JAX_SETUP=real shows it), so it looks from the table's side instead.
+VIEW = {"sim": None, "real": dict(lookat=(0.12, 0.0, 0.15), distance=1.3, azimuth=-35.0, elevation=-25.0)}[SETUP]
 D = SETUPS[SETUP]["d"]
 SHOULDER_Z = round(TABLE_SURFACE_Z + D, 6)   # rounded: exactly 0.85 and 1.2125
 ROBOT_YAW = SETUPS[SETUP]["robot_yaw"]

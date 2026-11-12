@@ -22,9 +22,9 @@ parser.add_argument("--randomization-scale", type=float, default=0.0)
 parser.add_argument("--output", type=Path, default=_paths.ROOT / "artifacts/video/delivery.mp4")
 parser.add_argument("--width", type=int, default=1920)
 parser.add_argument("--height", type=int, default=1080)
-parser.add_argument("--distance", type=float, default=0.95)
-parser.add_argument("--azimuth", type=float, default=140.0)
-parser.add_argument("--elevation", type=float, default=-22.0)
+parser.add_argument("--distance", type=float, default=None, help="default 0.95; the real setup uses env.VIEW")
+parser.add_argument("--azimuth", type=float, default=None, help="default 140.0; the real setup uses env.VIEW")
+parser.add_argument("--elevation", type=float, default=None, help="default -22.0; the real setup uses env.VIEW")
 parser.add_argument("--hold", type=int, default=60,
                     help="frames of the last image repeated at the end - a freeze, not more physics")
 parser.add_argument("--stack", action="store_true", help="cubes to go on top of one another")
@@ -49,8 +49,10 @@ env.reset(seed=args.seed)
 env._palm_phase = None
 camera = mujoco.MjvCamera()
 camera.type = mujoco.mjtCamera.mjCAMERA_FREE
-camera.lookat[:] = (0.10, -0.10, E.TABLE_SURFACE_Z + 0.20)   # 0.45 over the sim setup's table
-camera.distance, camera.azimuth, camera.elevation = args.distance, args.azimuth, args.elevation
+view = E.VIEW or dict(lookat=(0.10, -0.10, 0.20), distance=0.95, azimuth=140.0, elevation=-22.0)  # 0.45 over the sim table
+camera.lookat[:] = (view["lookat"][0], view["lookat"][1], E.TABLE_SURFACE_Z + view["lookat"][2])
+camera.distance, camera.azimuth, camera.elevation = (
+    view[k] if getattr(args, k) is None else getattr(args, k) for k in ("distance", "azimuth", "elevation"))
 renderer = mujoco.Renderer(env.model, args.height, args.width)
 args.output.parent.mkdir(parents=True, exist_ok=True)
 writer = imageio.get_writer(args.output, fps=50, quality=8, macro_block_size=None)

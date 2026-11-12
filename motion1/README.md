@@ -129,11 +129,15 @@ JAX_SETUP=real venv/bin/python motion1/scripts/stage_report.py --seeds 50       
 
 ## 보기와 녹화
 
+실물 배치(`JAX_SETUP=real`: 로봇 −90°, 받침대 FRONT 면이 735 mm 책상을 봄)로 본다. 카메라는 책상 쪽에서 시작한다(`env.VIEW`, 뷰어에서는 마우스로 돌릴 수 있음). 실물 배치는 궤적이 느려 한 번에 1600스텝, 약 32초다.
+
 ```bash
-venv/bin/mjpython motion1/scripts/watch_grasp.py --layouts motion1/artifacts/layouts_10.json --seed 3   # 뷰어: macOS는 반드시 mjpython
-venv/bin/python motion1/scripts/record_delivery.py --seed 3 --randomization-scale 1.0 --output motion1/artifacts/video/seed3.mp4
-venv/bin/python motion1/scripts/record_delivery.py --stack --randomization-scale 1.0 --seed 3 --output motion1/artifacts/video/stack3.mp4
-venv/bin/python motion1/scripts/render_frame.py        # artifacts/scene.png
+JAX_SETUP=real venv/bin/mjpython motion1/scripts/watch_grasp.py --layouts motion1/artifacts/layouts_real_10.json --seed 3   # 뷰어: macOS는 반드시 mjpython, 끝날 때까지 창을 두기
+JAX_SETUP=real venv/bin/python motion1/scripts/record_delivery.py --layouts motion1/artifacts/layouts_real_10.json --seed 3 --output motion1/artifacts/video/real_seed3.mp4
+JAX_SETUP=real venv/bin/python motion1/scripts/record_delivery.py --stack --randomization-scale 1.0 --seed 3 --output motion1/artifacts/video/real_stack3.mp4
+JAX_SETUP=real venv/bin/python motion1/scripts/render_frame.py --out motion1/artifacts/scene_real.png
 ```
 
-`motion1/artifacts/`는 Git에서 제외되지만, 첫 줄이 쓰는 `artifacts/layouts_10.json` 하나는 저장소에 들어 있다(2026-11-12부터, 시뮬 배치용 10개). 녹화와 장면 그림은 폴더를 스스로 만든다. 레이아웃 파일 없이 보려면 `watch_grasp.py --seed 3 --randomization-scale 1.0`. 위 성적표의 숫자는 레이아웃 파일이 아니라 시드(`classify_failures.py --seeds`)로 얻은 것이다. 그 밖의 고정 레이아웃 파일(`artifacts/layouts_*.json`)은 맵이나 컨트롤러를 바꾼 뒤에도 같은 장면으로 비교하려고 만드는 로컬 파일이다. 비교하는 동안 장면이 바뀌면 안 되니 덮어쓰지 말고 새 이름으로 만든다. G1 시절의 `teleop.py`, `audit_contacts.py`, `trace_carry.py`는 이 로봇에 맞게 옮기지 않았다(`g1-final` 태그에 있다).
+`JAX_SETUP=real`을 빼면 같은 명령이 시뮬 배치(로봇을 돌리지 않음, 어깨 아래 60 cm 책상; 위 성적표의 배치)로 돈다. 시뮬 배치의 고정 레이아웃은 `motion1/artifacts/layouts_10.json`이다.
+
+`motion1/artifacts/`는 Git에서 제외되지만, 레이아웃 파일 `motion1/artifacts/layouts_real_10.json`(실물 배치 10개, 2026-11-12 기준 10개 모두 배달)과 `motion1/artifacts/layouts_10.json`(시뮬 배치 10개)은 저장소에 들어 있다. 레이아웃 파일은 자기 배치에서만 열린다(다른 배치로 열면 오류). 녹화와 장면 그림은 폴더를 스스로 만든다. 레이아웃 파일 없이 보려면 `--layouts` 대신 `--seed 3 --randomization-scale 1.0`. 위 성적표의 숫자는 레이아웃 파일이 아니라 시드(`classify_failures.py --seeds`)로 얻은 것이다. 그 밖의 고정 레이아웃 파일(`artifacts/layouts_*.json`)은 맵이나 컨트롤러를 바꾼 뒤에도 같은 장면으로 비교하려고 만드는 로컬 파일이다. 비교하는 동안 장면이 바뀌면 안 되니 덮어쓰지 말고 새 이름으로 만든다(`JAX_SETUP=real venv/bin/python motion1/scripts/layouts.py --scale 1.0 --seeds 10 --out motion1/artifacts/<새 이름>.json`). G1 시절의 `teleop.py`, `audit_contacts.py`, `trace_carry.py`는 이 로봇에 맞게 옮기지 않았다(`g1-final` 태그에 있다).
