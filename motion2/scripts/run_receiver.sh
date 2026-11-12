@@ -4,7 +4,7 @@
 
 set -e
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"   # 저장소 루트 (venv/가 있는 곳)
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"   # 저장소 루트 (venv/가 있는 곳)
 
 if [ ! -d "$ROOT/venv" ]; then
     echo "[ERROR] venv 없음. 저장소 루트($ROOT)에서 먼저 Python 가상환경을 만들고 패키지를 설치하세요:"
@@ -14,8 +14,8 @@ if [ ! -d "$ROOT/venv" ]; then
 fi
 
 echo "[INFO] UDP 127.0.0.1:5005 에서 손목 좌표 + 손가락 curl을 수신해 MuJoCo 7DOF 팔 + 그리퍼를 구동합니다."
-echo "[INFO] 뷰어 키: C = 좌우 중심 재캘리브레이션, T = 그리퍼 추적 카메라 토글"
-echo "[INFO] vision_sender.py 를 먼저 실행하세요 (별도 터미널)."
+echo "[INFO] 뷰어 키: C = 좌우 중심·깊이·팔꿈치 기준각 재캘리브레이션, T = 그리퍼 추적 카메라 토글"
+echo "[INFO] 다른 터미널에서 motion2/scripts/run_sender.sh 를 실행하세요 (이 수신기를 먼저 띄우는 것을 권장)."
 echo "[INFO] 종료: MuJoCo 뷰어 창 닫기"
 echo ""
 

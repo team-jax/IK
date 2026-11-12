@@ -34,6 +34,7 @@ WEB_UDP_PORT = 5006   # web_dashboard.py
 
 RIGHT_SHOULDER = 12
 RIGHT_ELBOW = 14
+LEFT_WRIST = 15
 RIGHT_WRIST = 16  # PoseLandmark index, same 33-point topology as the legacy Solutions API
 MODELS_DIR = Path(__file__).resolve().parents[1] / "models"
 MODEL_PATH = MODELS_DIR / "pose_landmarker_full.task"
@@ -89,6 +90,21 @@ def compute_finger_curls(hand_landmarks):
     return curls
 
 
+def pick_right_hand(hands, pose):
+    """Of the detected hands, the one on the right arm whose wrist position is sent: its wrist
+    landmark nearer the pose's right wrist than its left wrist, the nearest such; None if none is.
+    By position, not by MediaPipe's handedness label (that assumes a mirrored image, and this frame
+    is not mirrored). With one hand allowed, the landmarker returned whichever hand it found, and a
+    left hand in view drove the gripper with the right wrist's position."""
+    right, left = pose[RIGHT_WRIST], pose[LEFT_WRIST]
+
+    def gap(hand, point):
+        return (hand[HAND_WRIST].x - point.x) ** 2 + (hand[HAND_WRIST].y - point.y) ** 2
+
+    mine = [h for h in hands if gap(h, right) < gap(h, left)]
+    return min(mine, key=lambda h: gap(h, right)) if mine else None
+
+
 def draw_hand(frame, hand_landmarks):
     """Draw the three tracked fingers (wrist→MCP→PIP→TIP) so the user can SEE whether the
     hand is being recognized and which landmarks it locked onto."""
@@ -121,7 +137,7 @@ def main():
     hand_options = mp_vision.HandLandmarkerOptions(
         base_options=mp_python.BaseOptions(model_asset_path=str(HAND_MODEL_PATH)),
         running_mode=mp_vision.RunningMode.VIDEO,
-        num_hands=1,
+        num_hands=2,   # both, so the right one can be told from the left (pick_right_hand)
         # 0.4 (down from 0.5): with the whole upper body in frame for pose tracking, the hand
         # is small in the image and 0.5 dropped it often enough to look like "no recognition".
         min_hand_detection_confidence=0.4,
@@ -150,14 +166,16 @@ def main():
             result = landmarker.detect_for_video(mp_image, timestamp_ms)
             hand_result = hand_landmarker.detect_for_video(mp_image, timestamp_ms)
 
-            hand_detected = bool(hand_result.hand_landmarks)
+            right_hand = (pick_right_hand(hand_result.hand_landmarks, result.pose_landmarks[0])
+                          if hand_result.hand_landmarks and result.pose_landmarks else None)
+            hand_detected = right_hand is not None
             if hand_detected:
-                raw_curls = compute_finger_curls(hand_result.hand_landmarks[0])
+                raw_curls = compute_finger_curls(right_hand)
                 curls_smoothed = [
                     GRIP_EMA_ALPHA * raw + (1 - GRIP_EMA_ALPHA) * old
                     for raw, old in zip(raw_curls, curls_smoothed)
                 ]
-                draw_hand(frame, hand_result.hand_landmarks[0])
+                draw_hand(frame, right_hand)
 
             # Always-on status line: the user must be able to tell "hand not recognized" apart
             # from "recognized but fingers not moving" at a glance.

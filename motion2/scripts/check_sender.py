@@ -25,9 +25,10 @@ def lm(x, y, z=0.0, v=1.0):
     return NS(x=x, y=y, z=z, visibility=v)
 
 
-def hand(poses):
-    """21 landmarks; each tracked finger is 'straight', 'right' (90 deg at the PIP) or 'fold'."""
-    h = [lm(0.5, 1.0) for _ in range(21)]
+def hand(poses, wrist=(0.5, 1.0)):
+    """21 landmarks; each tracked finger is 'straight', 'right' (90 deg at the PIP) or 'fold'.
+    `wrist` places landmark 0, which the sender uses to tell the right hand from the left."""
+    h = [lm(*wrist) for _ in range(21)]
     for (_, mcp, pip, tip), pose in zip(vs.FINGERS, poses):
         h[mcp], h[pip] = lm(0, 0), lm(0, -1)
         h[tip] = {"straight": lm(0, -2), "right": lm(1, -1), "fold": lm(0, 0)}[pose]
@@ -104,6 +105,7 @@ class FakePose:
         wrist_v = 0.2 if 20 <= f < 30 else 0.9    # frames 20-29: wrist not visible -> nothing sent
         elbow_v = 0.2 if 10 <= f < 20 else 0.9     # frames 10-19: elbow unreliable -> 6-field packet
         lms = [lm(0.5, 0.5, 0.0, 1.0) for _ in range(33)]
+        lms[vs.LEFT_WRIST] = lm(0.25, 0.45, -0.30, 0.9)
         lms[vs.RIGHT_WRIST] = lm(0.55, 0.40, -0.30, wrist_v)
         lms[vs.RIGHT_ELBOW] = lm(0.60, 0.60, -0.20, elbow_v)
         lms[vs.RIGHT_SHOULDER] = lm(0.55, 0.80, -0.10, 0.9)
@@ -119,8 +121,11 @@ class FakeHand:
 
     def detect_for_video(self, _image, _ts):
         f = state["frame"] - 1
-        # frames 30-39: hand lost -> the sender must hold the last curls, not snap to 0
-        return NS(hand_landmarks=[hand(["right", "straight", "straight"])] if f < 30 else [])
+        # frames 30-39: hand lost -> the sender must hold the last curls, not snap to 0.
+        # The left hand (a fist, at the left wrist) comes first: its curls must not be sent.
+        left = hand(["fold", "fold", "fold"], wrist=(0.26, 0.47))
+        right = hand(["right", "straight", "straight"], wrist=(0.56, 0.42))
+        return NS(hand_landmarks=[left, right] if f < 30 else [left])
 
 
 mp_vision.PoseLandmarker.create_from_options = staticmethod(lambda options: FakePose())

@@ -3,7 +3,7 @@
 A thread plays the sender (60 Hz into UDP 5005) while mujoco_receiver.main() runs unchanged with a
 stand-in viewer: hover, descend beside the cube, close the three fingers, lift 85 mm, hold. So the
 whole path packet -> IK -> position actuators -> contact physics is exercised. Broken packets
-(garbage, wrong field count, empty, NaN position) are mixed in; the receiver must shrug them off.
+(garbage, wrong field count, empty, NaN position, NaN elbow, inf curls) are mixed in; the receiver must shrug them off.
 
     venv/bin/python motion2/scripts/check_teleop.py              # the three scenarios, one process each
     venv/bin/python motion2/scripts/check_teleop.py swing-jump   # a single scenario
@@ -115,7 +115,10 @@ def run(scenario):
         for i, (y, c) in enumerate(schedule()):
             sock.sendto(packet(scenario, y, c).encode(), ("127.0.0.1", m.UDP_PORT))
             if i % 25 == 7:
-                junk = [b"garbage", b"1 2 3", b"", f"nan nan nan {c:.3f} {c:.3f} {c:.3f}".encode(), b"0.5 0.5"]
+                # A non-finite elbow once froze the arm for good (NaN swing) and inf curls closed the gripper.
+                junk = [b"garbage", b"1 2 3", b"", f"nan nan nan {c:.3f} {c:.3f} {c:.3f}".encode(), b"0.5 0.5",
+                        f"0.5 0.5 -0.3 {c:.3f} {c:.3f} {c:.3f} nan 0.6 -0.2 0.55 0.8 -0.1".encode(),
+                        b"0.5 0.5 -0.3 inf inf inf"]
                 sock.sendto(junk[(i // 25) % len(junk)], ("127.0.0.1", m.UDP_PORT))
             time.sleep(max(0.0, t0 + (i + 1) / 60 - time.monotonic()))
         state["done"] = True

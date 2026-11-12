@@ -110,7 +110,9 @@ FINGER_FRICTION = "1.0 0.02 0.001"
 # flat cube face at a single point; "box" is the axis-aligned box around that STL in the link's
 # own frame, which meets it along the whole pad, so a squeezed cube cannot roll about the pinch
 # axis. The plates are close enough to boxes that the proxy costs no reach.
-FINGER_COLLISION = os.environ.get("JAX_FINGER_COLLISION", "box")
+FINGER_COLLISION = os.environ.get("JAX_FINGER_COLLISION", "box").strip().lower()
+if FINGER_COLLISION not in ("box", "mesh"):
+    raise SystemExit(f"JAX_FINGER_COLLISION={FINGER_COLLISION!r}: use box (the default) or mesh")
 
 # Servo gains. Arm links weigh 0.2-1.1 kg, the fingers 0.01-0.07 kg, hence the very different kp.
 ARM_KP, ARM_KV = 1000, 60

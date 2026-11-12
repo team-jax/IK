@@ -11,6 +11,7 @@ Usage:
 """
 
 import json
+import math
 import socket
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -103,6 +104,8 @@ def udp_listener():
         raw, _ = sock.recvfrom(1024)
         try:
             vals = [float(v) for v in raw.decode().strip().split()]
+            if not all(math.isfinite(v) for v in vals):
+                continue   # json.dumps would write NaN / Infinity, which a browser cannot parse
             if len(vals) in (6, 12):  # x y z curl_index curl_middle curl_ring [+ elbow, shoulder xyz]
                 x, y, z = vals[:3]
                 curls = vals[3:6]

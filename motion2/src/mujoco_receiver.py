@@ -32,6 +32,7 @@ on the very first packet received; press 'C' in the viewer window at any time to
 the wrist's current position instead. Solved targets are clamped to the WORKSPACE_* box.
 """
 
+import math
 import os
 import socket
 import sys
@@ -224,11 +225,11 @@ ARM_POS_TOL = 0.02        # meters; above this the arm solve is rejected for the
 _BOUNDS = None
 
 
-def swivel_angle(shoulder, elbow, wrist):
-    """Angle (rad) of the elbow around the shoulder→wrist axis, measured from world-down."""
+def swivel_angle(shoulder, elbow, wrist, ref=(0.0, 0.0, -1.0)):
+    """Angle (rad) of the elbow around the shoulder→wrist axis, measured from `ref` (world-down)."""
     a = np.asarray(wrist, float) - np.asarray(shoulder, float)
     a = a / (np.linalg.norm(a) + 1e-9)
-    ref = np.array([0.0, 0.0, -1.0])
+    ref = np.asarray(ref, float)
     ref = ref - a * (a @ ref)
     if np.linalg.norm(ref) < 0.2:       # axis nearly vertical: use world +x instead
         ref = np.array([1.0, 0.0, 0.0])
@@ -251,10 +252,19 @@ def _wrap(a):
     return float(np.arctan2(np.sin(a), np.cos(a)))
 
 
+# The robot's swing is measured from world +y. Its shoulder-wrist axis points down, so world-down
+# (the human side's reference) is nearly along it: inside WORKSPACE_* that reference fell under
+# swivel_angle's 0.2 threshold (0.156 at (0.21, 0, 0.255)) and switched to +x, and the whole-arm
+# solver's swing term jumped with it - 0.242 rad in one joint for a 1 mm wrist step at x 0.204,
+# against at most 0.018 rad with +y. The robot's axis is never near +y in the workspace. Only
+# differences from robot_neutral_swivel are used, so the choice of reference shifts nothing else.
+ROBOT_SWIVEL_REF = (0.0, 1.0, 0.0)
+
+
 def robot_swivel(chain, q):
     frames = chain.forward_kinematics(np.concatenate(([0.0], q, [0.0])), full_kinematics=True)
     p = [local_to_world(frames[i][:3, 3]) for i in (SHOULDER_LINK, ELBOW_LINK, WRIST_LINK)]
-    return swivel_angle(*p)
+    return swivel_angle(*p, ref=ROBOT_SWIVEL_REF)
 
 
 def solve_ik_arm(chain, target_world, swivel_target, seed):
@@ -276,7 +286,7 @@ def solve_ik_arm(chain, target_world, swivel_target, seed):
         res = [W_POS * (end[:3, 3] - target_local)]
         if swivel_target is not None:
             p = [local_to_world(frames[i][:3, 3]) for i in (SHOULDER_LINK, ELBOW_LINK, WRIST_LINK)]
-            res.append([W_SWIVEL * _wrap(swivel_angle(*p) - swivel_target)])
+            res.append([W_SWIVEL * _wrap(swivel_angle(*p, ref=ROBOT_SWIVEL_REF) - swivel_target)])
         res.append(W_ORIENT * (end[:3, :3] - BASE_ROT.T).ravel())
         res.append(W_REG * (q - seed))
         return np.concatenate(res)
@@ -307,8 +317,13 @@ def parse_packet(raw):
     landmarks appended);
     6 fields = per-finger format; 4 fields = legacy single-grip format, fanned out to all three
     fingers. `arm` is ((elbow xyz), (shoulder xyz)) or None when the packet has no arm landmarks.
+    A packet with any nan or inf is refused like a malformed one (ValueError): float() parses
+    them, and one would otherwise become the calibration centre, freeze the swing (NaN delta
+    for good) or close the gripper (max(0, min(1, nan)) is 1).
     """
     vals = [float(v) for v in raw.decode().strip().split()]
+    if not all(math.isfinite(v) for v in vals):
+        raise ValueError("non-finite value in packet")
     if len(vals) == 12:
         return (vals[0], vals[1], vals[2], (vals[3], vals[4], vals[5]),
                 (tuple(vals[6:9]), tuple(vals[9:12])))
@@ -362,9 +377,9 @@ def main():
 
     def key_callback(keycode):
         if keycode == ord("C"):
-            calib["x_center"] = None
-            calib["z_center"] = None
-            calib["swivel"] = None
+            # One flag, consumed by the main loop: clearing the three keys here, on the viewer's
+            # thread, could interleave with the loop calibrating and leave x set and z None.
+            calib["recal"] = True
             print("[Calibration] next wrist position will become the new center/depth")
         elif keycode == ord("T"):
             cam_track["want"] = not cam_track["want"]
@@ -405,6 +420,9 @@ def main():
                 except BlockingIOError:
                     break
 
+            if calib.pop("recal", False):
+                calib["x_center"] = calib["z_center"] = calib["swivel"] = None
+
             if raw is not None:
                 try:
                     x_norm, y_norm, z_m, last_curls, arm = parse_packet(raw)
@@ -425,9 +443,14 @@ def main():
                         if arm is not None:
                             elbow, shoulder = arm
                             h_sw = human_swivel(shoulder, elbow, (x_norm, y_norm, z_m))
-                            now = time.monotonic()
+                            # Simulated time: the servos and the cube live on it. Wall-clock let the
+                            # swing outrun SWIVEL_MAX_RATE whenever the loop ran slower than real time.
+                            now = data.time
                             if calib["swivel"] is None:
-                                calib["swivel"], calib["delta"], calib["t"] = h_sw, 0.0, now
+                                # The user's elbow now is the new neutral. The commanded swing is
+                                # left where it is and ramps there (held while gripping): zeroing
+                                # it stepped the arm up to 40 deg in one frame and threw a held cube.
+                                calib["swivel"], calib["t"] = h_sw, now
                             want = np.clip(_wrap(h_sw - calib["swivel"]) * SWIVEL_GAIN,
                                            -SWIVEL_LIMIT, SWIVEL_LIMIT)
                             # Ramp to the wanted swing (after a pause cap the step at 0.1 s worth),
@@ -443,6 +466,13 @@ def main():
                                 joint_angles = angles
                         if joint_angles is None:
                             joint_angles = solve_ik_palm_down(chain, target_world, seed=last_good_qpos)
+                            if not np.any(np.isnan(joint_angles)):
+                                # The swing this solve left the arm with: the next whole-arm solve
+                                # ramps on from there instead of snapping back to the old one.
+                                calib["delta"] = float(np.clip(
+                                    _wrap(robot_swivel(chain, joint_angles) - robot_neutral_swivel),
+                                    -SWIVEL_LIMIT, SWIVEL_LIMIT))
+                                calib["t"] = data.time
                         if not np.any(np.isnan(joint_angles)):
                             last_good_qpos = joint_angles
                         else:

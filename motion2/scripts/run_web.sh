@@ -4,7 +4,7 @@
 
 set -e
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"   # 저장소 루트 (venv/가 있는 곳)
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"   # 저장소 루트 (venv/가 있는 곳)
 
 if [ ! -d "$ROOT/venv" ]; then
     echo "[ERROR] venv 없음. 저장소 루트($ROOT)에서 먼저 Python 가상환경을 만드세요:"
